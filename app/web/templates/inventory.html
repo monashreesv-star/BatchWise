@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Ledger & Shortage Engine{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-archive text-info me-2"></i> Inventory & Shortage Engine</h3>
+        <p class="text-muted small mb-0">Double-Entry Stock Transactions, Lot Tracking & Pre-Order Shortage Intelligence</p>
+    </div>
+</div>
+
+<div id="statusAlert" class="alert d-none py-2"></div>
+
+<div class="card border-info mb-4 shadow-sm">
+    <div class="card-header bg-info bg-opacity-10 py-3 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold text-dark mb-0">
+            <span class="badge bg-info text-dark me-2">Demo Step 5 (4:20–5:00)</span>
+            Distributor B Shortage Detection & Replenishment Calculator
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-end g-3 mb-3">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold">Target Finished Good</label>
+                <select id="shortageItemSelect" class="form-select">
+                    {% for fg in finished_goods %}
+                    <option value="{{ fg.id }}">{{ fg.name }} ({{ fg.sku }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Requested Bulk Quantity</label>
+                <input type="number" id="shortageQtyInput" class="form-control" value="1500" min="1">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-info text-dark fw-bold w-100" onclick="runShortageCheck()">
+                    <i class="bi bi-search me-1"></i> Check Shortage
+                </button>
+            </div>
+        </div>
+
+        <div id="shortageResultBox" class="d-none border rounded p-3 bg-light">
+            <div id="shortageHeader"></div>
+            <div id="replenishmentTable" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-layers text-primary me-2"></i> Active Stock Lots & Batches</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Batch Lot</th>
+                            <th>Item Name</th>
+                            <th>Initial / Current</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in batches %}
+                        <tr>
+                            <td class="font-monospace fw-semibold">{{ b.batch_number }}</td>
+                            <td>{{ b.item_name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ b.initial_qty }} / {{ b.current_qty }}</span></td>
+                            <td>₹{{ "%.2f"|format(b.unit_cost) }}</td>
+                            <td>
+                                {% if b.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Consumed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">No batches recorded.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-journal-check text-success me-2"></i> Immutable Double-Entry Stock Ledger</h6>
+            </div>
+            <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>Tx ID</th>
+                            <th>Batch</th>
+                            <th>Type</th>
+                            <th>Qty Change</th>
+                            <th>Total Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for st in ledger_tx %}
+                        <tr>
+                            <td class="font-monospace text-muted">{{ st.transaction_number }}</td>
+                            <td class="font-monospace">{{ st.batch_number }}</td>
+                            <td>
+                                <span class="badge {% if st.transaction_type == 'INWARD' or st.transaction_type == 'PRODUCTION_IN' %}bg-success{% else %}bg-danger{% endif %} text-uppercase" style="font-size: 0.7rem;">
+                                    {{ st.transaction_type }}
+                                </span>
+                            </td>
+                            <td class="fw-bold {% if st.qty > 0 %}text-success{% else %}text-danger{% endif %}">
+                                {% if st.qty > 0 %}+{% endif %}{{ st.qty }}
+                            </td>
+                            <td>₹{{ "%.2f"|format(st.total_value) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">No ledger records yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function runShortageCheck() {
+        const itemId = parseInt(document.getElementById('shortageItemSelect').value);
+        const qty = parseFloat(document.getElementById('shortageQtyInput').value);
+
+        const res = await fetch('/api/inventory/check-shortage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: [{ item_id: itemId, quantity: qty }] })
+        });
+        const d = await res.json();
+        if (!res.ok) return;
+
+        const box = document.getElementById('shortageResultBox');
+        const header = document.getElementById('shortageHeader');
+        const repTable = document.getElementById('replenishmentTable');
+        box.classList.remove('d-none');
+
+        const it = d.data.items[0];
+        if (it.is_shortage) {
+            header.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <h6 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> INSUFFICIENT STOCK WARNING</h6>
+                    <div>Requested: <strong>${it.requested_qty} ${it.uom}</strong> | Available in Batches: <strong>${it.available_stock} ${it.uom}</strong></div>
+                    <div class="mt-1">Net Stock Deficit: <span class="badge bg-danger fs-6">${it.shortage_qty} ${it.uom} SHORTAGE</span> (Can fulfill only ${it.fulfillment_percentage}%)</div>
+                </div>
+            `;
+
+            let rows = '';
+            d.data.raw_material_replenishment.forEach(rm => {
+                rows += `
+                    <tr>
+                        <td class="font-monospace fw-semibold">${rm.component_sku}</td>
+                        <td>${rm.component_name}</td>
+                        <td class="fw-bold text-primary">${rm.required_for_production} ${rm.component_uom}</td>
+                        <td>${rm.raw_material_in_stock} ${rm.component_uom}</td>
+                        <td><span class="badge ${rm.raw_material_shortage > 0 ? 'bg-danger' : 'bg-success'}">${rm.raw_material_shortage} ${rm.component_uom}</span></td>
+                        <td>₹${rm.estimated_purchase_cost}</td>
+                    </tr>
+                `;
+            });
+
+            repTable.innerHTML = `
+                <h6 class="fw-bold text-dark mt-3"><i class="bi bi-calculator me-1"></i> Required BOM Raw Material Replenishment Plan:</h6>
+                <table class="table table-sm table-bordered bg-white small mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Raw Material SKU</th>
+                            <th>Component Name</th>
+                            <th>Required For Deficit Batch</th>
+                            <th>Current RM Stock</th>
+                            <th>RM Purchase Deficit</th>
+                            <th>Estimated RM Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        } else {
+            header.innerHTML = `
+                <div class="alert alert-success mb-0">
+                    <h6 class="fw-bold"><i class="bi bi-check-circle-fill me-2"></i> ALL STOCK AVAILABLE</h6>
+                    <div>Requested: <strong>${it.requested_qty} ${it.uom}</strong> | Available: <strong>${it.available_stock} ${it.uom}</strong></div>
+                    <div>Order can be fulfilled and invoiced immediately without delay.</div>
+                </div>
+            `;
+            repTable.innerHTML = '';
+        }
+    }
+</script>
+{% endblock %}

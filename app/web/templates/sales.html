@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Sales Orders & Approval{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-cart-check text-primary me-2"></i> B2B Sales Management</h3>
+        <p class="text-muted small mb-0">Salesman Order Placement, Admin Order Approvals & Automated GST Invoicing</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+        <i class="bi bi-plus-circle me-1"></i> New Sales Order
+    </button>
+</div>
+
+<div id="statusAlert" class="alert d-none py-2"></div>
+
+<div class="card bg-primary bg-opacity-10 border-primary mb-4 p-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <span class="badge bg-primary me-2">Demo Step 1 (0:40–1:30)</span>
+            <strong>Quick Action: Book Retailer A Order</strong>
+            <span class="text-muted small d-block">100 Units Classic Bread 400g @ ₹40.00 (Taxable: ₹4,000 + CGST: ₹100 + SGST: ₹100 = ₹4,200)</span>
+        </div>
+        <button class="btn btn-primary btn-sm px-3" onclick="quickBookRetailerA()">
+            <i class="bi bi-lightning-fill me-1"></i> Instant Book Retailer A Order
+        </button>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+        <h6 class="fw-bold mb-0">Sales Orders Registry</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>SO Number</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Salesman</th>
+                    <th>Taxable</th>
+                    <th>GST (5%)</th>
+                    <th>Grand Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for so in orders %}
+                <tr>
+                    <td class="font-monospace fw-bold text-primary">{{ so.so_number }}</td>
+                    <td>{{ so.order_date }}</td>
+                    <td class="fw-semibold">{{ so.customer_name }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ so.salesman_name }}</span></td>
+                    <td>₹{{ "%.2f"|format(so.total_taxable) }}</td>
+                    <td>₹{{ "%.2f"|format(so.total_tax) }}</td>
+                    <td class="fw-bold text-dark">₹{{ "%.2f"|format(so.grand_total) }}</td>
+                    <td>
+                        {% if so.status == 'approved' %}
+                        <span class="badge bg-success">Approved</span>
+                        {% elif so.status == 'invoiced' %}
+                        <span class="badge bg-primary">Invoiced</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending Approval</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if so.status == 'pending_approval' %}
+                        <button class="btn btn-sm btn-success py-0 px-2" onclick="approveOrder({{ so.id }})">
+                            <i class="bi bi-check-lg"></i> Approve (Admin)
+                        </button>
+                        {% elif so.status == 'approved' %}
+                        <button class="btn btn-sm btn-primary py-0 px-2" onclick="generateInvoice({{ so.id }})">
+                            <i class="bi bi-receipt"></i> Generate GST Invoice
+                        </button>
+                        {% else %}
+                        <span class="text-muted small"><i class="bi bi-check-all text-primary"></i> Complete</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="9" class="text-center text-muted py-4">No sales orders created yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="newOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Create Sales Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Customer</label>
+                        <select id="customerId" class="form-select" required>
+                            {% for c in customers %}
+                            <option value="{{ c.id }}">{{ c.name }} (GSTIN: {{ c.gstin or 'URP' }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Finished Product</label>
+                        <select id="itemId" class="form-select" required>
+                            {% for it in items %}
+                            <option value="{{ it.id }}">{{ it.name }} (₹{{ it.selling_price }}/{{ it.uom }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-semibold">Quantity</label>
+                            <input type="number" id="orderQty" class="form-control" value="100" min="1" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-semibold">Unit Price (₹)</label>
+                            <input type="number" id="unitPrice" class="form-control" value="40" step="0.5" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Notes</label>
+                        <input type="text" id="orderNotes" class="form-control" placeholder="Dispatch instructions">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Sales Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showAlert(msg, isSuccess) {
+        const a = document.getElementById('statusAlert');
+        a.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} py-2`;
+        a.textContent = msg;
+        a.classList.remove('d-none');
+        setTimeout(() => a.classList.add('d-none'), 5000);
+    }
+
+    async function quickBookRetailerA() {
+        const res = await fetch('/api/sales/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                customer_id: 1,
+                items: [{ item_id: 6, quantity: 100, unit_price: 40.0 }],
+                notes: 'Benchmark order for Retailer A'
+            })
+        });
+        const d = await res.json();
+        if (res.ok) {
+            showAlert(`Successfully booked order ${d.data.so_number} for Retailer A!`, true);
+            setTimeout(() => window.location.reload(), 800);
+        } else {
+            showAlert(d.error || 'Failed to book order', false);
+        }
+    }
+
+    async function approveOrder(soId) {
+        const res = await fetch(`/api/sales/orders/${soId}/approve`, { method: 'POST' });
+        const d = await res.json();
+        if (res.ok) {
+            showAlert(`Order #${soId} Approved!`, true);
+            setTimeout(() => window.location.reload(), 800);
+        } else {
+            showAlert(d.error || 'Approval failed (Admin role required)', false);
+        }
+    }
+
+    async function generateInvoice(soId) {
+        const res = await fetch(`/api/sales/orders/${soId}/invoice`, { method: 'POST' });
+        const d = await res.json();
+        if (res.ok) {
+            showAlert(`GST Invoice ${d.data.invoice_number} generated and stock deducted!`, true);
+            setTimeout(() => window.location.href = '/invoices', 800);
+        } else {
+            showAlert(d.error || 'Invoicing failed', false);
+        }
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch('/api/sales/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                customer_id: parseInt(document.getElementById('customerId').value),
+                items: [{
+                    item_id: parseInt(document.getElementById('itemId').value),
+                    quantity: parseFloat(document.getElementById('orderQty').value),
+                    unit_price: parseFloat(document.getElementById('unitPrice').value)
+                }],
+                notes: document.getElementById('orderNotes').value
+            })
+        });
+        const d = await res.json();
+        if (res.ok) {
+            showAlert(`Order created successfully: ${d.data.so_number}`, true);
+            setTimeout(() => window.location.reload(), 800);
+        } else {
+            showAlert(d.error || 'Failed to create order', false);
+        }
+    });
+</script>
+{% endblock %}

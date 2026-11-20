@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}GST Invoices & Payments{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-receipt text-primary me-2"></i> GST Invoices & Customer Receivables</h3>
+        <p class="text-muted small mb-0">Official Tax Invoices, Real-time Outstanding Ledger & Payment Reconciliation</p>
+    </div>
+</div>
+
+<div id="statusAlert" class="alert d-none py-2"></div>
+
+<div class="card bg-info bg-opacity-10 border-info mb-4 p-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <span class="badge bg-info text-dark me-2">Demo Step 6 (5:00–5:40)</span>
+            <strong>Quick Action: Record ₹2,500 Partial Payment from Retailer A</strong>
+            <span class="text-muted small d-block">Applies against Invoice INV-0001 (Total: ₹4,200). Updates outstanding due to ₹1,700.</span>
+        </div>
+        <button class="btn btn-info text-dark fw-bold btn-sm px-3" onclick="quickPayRetailerA()">
+            <i class="bi bi-cash-coin me-1"></i> Record ₹2,500 Payment (Auditor/Accounts)
+        </button>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+        <h6 class="fw-bold mb-0">Tax Invoices Registry</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Taxable</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                    <th>Balance Due</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inv in invoices %}
+                <tr>
+                    <td class="font-monospace fw-bold text-primary">{{ inv.invoice_number }}</td>
+                    <td>{{ inv.invoice_date }}</td>
+                    <td class="fw-semibold">{{ inv.customer_name }}</td>
+                    <td>₹{{ "%.2f"|format(inv.total_taxable) }}</td>
+                    <td>₹{{ "%.2f"|format(inv.total_cgst) }}</td>
+                    <td>₹{{ "%.2f"|format(inv.total_sgst) }}</td>
+                    <td class="fw-bold">₹{{ "%.2f"|format(inv.grand_total) }}</td>
+                    <td class="text-success fw-semibold">₹{{ "%.2f"|format(inv.amount_paid) }}</td>
+                    <td class="text-danger fw-bold">₹{{ "%.2f"|format(inv.balance_due) }}</td>
+                    <td>
+                        {% if inv.status == 'paid' %}
+                        <span class="badge bg-success">Paid</span>
+                        {% elif inv.status == 'partially_paid' %}
+                        <span class="badge bg-warning text-dark">Partial</span>
+                        {% else %}
+                        <span class="badge bg-danger">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/api/invoices/{{ inv.id }}/pdf" target="_blank" class="btn btn-sm btn-outline-danger py-0 px-2">
+                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                        </a>
+                        {% if inv.balance_due > 0 %}
+                        <button class="btn btn-sm btn-outline-success py-0 px-2 ms-1" onclick="openPaymentModal({{ inv.id }}, '{{ inv.invoice_number }}', {{ inv.balance_due }})">
+                            <i class="bi bi-credit-card"></i> Pay
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="11" class="text-center text-muted py-4">No invoices generated yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Record Customer Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="payForm">
+                    <input type="hidden" id="payInvId">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Invoice Number</label>
+                        <input type="text" id="payInvNumber" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Payment Amount (₹)</label>
+                        <input type="number" id="payAmount" class="form-control" step="0.5" required>
+                        <small class="text-muted">Maximum payable: ₹<span id="maxDueSpan"></span></small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Payment Mode</label>
+                        <select id="payMode" class="form-select">
+                            <option value="bank_transfer">Bank Transfer (NEFT/RTGS)</option>
+                            <option value="upi">UPI</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Transaction / UTR Reference</label>
+                        <input type="text" id="payRef" class="form-control" placeholder="e.g. UTR-HDFC-991823" value="UTR-HDFC-991823">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Confirm & Record Payment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showAlert(msg, isSuccess) {
+        const a = document.getElementById('statusAlert');
+        a.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} py-2`;
+        a.textContent = msg;
+        a.classList.remove('d-none');
+        setTimeout(() => a.classList.add('d-none'), 5000);
+    }
+
+    async function quickPayRetailerA() {
+        const res = await fetch('/api/payments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                invoice_id: 1,
+                amount: 2500.0,
+                payment_mode: 'bank_transfer',
+                reference_no: 'UTR-HDFC-991823'
+            })
+        });
+        const d = await res.json();
+        if (res.ok) {
+            showAlert(`Payment of ₹2,500 recorded! Invoice balance is now ₹${d.data.remaining_balance_due}.`, true);
+            setTimeout(() => window.location.reload(), 800);
+        } else {
+            showAlert(d.error || 'Payment failed (Auditor role required)', false);
+        }
+    }
+
+    let payModalInstance = null;
+    function openPaymentModal(invId, invNum, due) {
+        document.getElementById('payInvId').value = invId;
+        document.getElementById('payInvNumber').value = invNum;
+        document.getElementById('payAmount').value = due;
+        document.getElementById('maxDueSpan').textContent = due.toFixed(2);
+        payModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
+        payModalInstance.show();
+    }
+
+    document.getElementById('payForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch('/api/payments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                invoice_id: parseInt(document.getElementById('payInvId').value),
+                amount: parseFloat(document.getElementById('payAmount').value),
+                payment_mode: document.getElementById('payMode').value,
+                reference_no: document.getElementById('payRef').value
+            })
+        });
+        const d = await res.json();
+        if (res.ok) {
+            showAlert(`Payment recorded! Remaining balance: ₹${d.data.remaining_balance_due}`, true);
+            payModalInstance.hide();
+            setTimeout(() => window.location.reload(), 800);
+        } else {
+            showAlert(d.error || 'Payment failed', false);
+        }
+    });
+</script>
+{% endblock %}
