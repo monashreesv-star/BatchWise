@@ -44,6 +44,7 @@ def get_monthly_stock_ledger_summary(conn, month_str: str = None):
     return {
         "month": month_str,
         "items": summary,
+        "item_list": summary,
         "total_inventory_value": round(total_inventory_value, 2)
     }
 

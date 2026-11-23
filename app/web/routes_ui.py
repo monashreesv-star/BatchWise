@@ -10,6 +10,11 @@ from app.services.payment_service import get_customer_outstanding_ledger
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+def render_template(request: Request, name: str, context: dict = None, status_code: int = 200):
+    ctx = context.copy() if context else {}
+    ctx["request"] = request
+    return templates.TemplateResponse(request=request, name=name, context=ctx, status_code=status_code)
+
 async def ui_dashboard(request: Request):
     user = get_current_user(request)
     if not user:
@@ -42,8 +47,7 @@ async def ui_dashboard(request: Request):
         raw_materials = execute_query("SELECT * FROM items WHERE category = 'raw_material'")
         boms = execute_query("SELECT b.*, i.name as finished_good_name FROM boms b JOIN items i ON b.finished_item_id = i.id")
 
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
+    return render_template(request, "dashboard.html", {
         "user": user,
         "sales_count": sales_count["c"],
         "revenue": invoice_stats["total"],
@@ -60,7 +64,7 @@ async def ui_dashboard(request: Request):
     })
 
 async def ui_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return render_template(request, "login.html")
 
 async def ui_quick_login(request: Request):
     role = request.path_params["role"]
@@ -97,8 +101,8 @@ async def ui_sales(request: Request):
     customers = execute_query("SELECT * FROM parties WHERE party_type = 'customer'")
     items = execute_query("SELECT * FROM items WHERE category = 'finished_good'")
 
-    return templates.TemplateResponse("sales.html", {
-        "request": request, "user": user, "orders": orders,
+    return render_template(request, "sales.html", {
+        "user": user, "orders": orders,
         "customers": customers, "items": items
     })
 
@@ -124,8 +128,8 @@ async def ui_purchase(request: Request):
     suppliers = execute_query("SELECT * FROM parties WHERE party_type = 'supplier'")
     raw_materials = execute_query("SELECT * FROM items WHERE category = 'raw_material'")
 
-    return templates.TemplateResponse("purchase.html", {
-        "request": request, "user": user, "purchase_orders": pos,
+    return render_template(request, "purchase.html", {
+        "user": user, "purchase_orders": pos,
         "grns": grns, "suppliers": suppliers, "raw_materials": raw_materials
     })
 
@@ -150,8 +154,8 @@ async def ui_production(request: Request):
         ORDER BY i.category, sb.mfg_date ASC
     """)
 
-    return templates.TemplateResponse("production.html", {
-        "request": request, "user": user, "work_orders": work_orders,
+    return render_template(request, "production.html", {
+        "user": user, "work_orders": work_orders,
         "boms": boms, "raw_batches": raw_batches
     })
 
@@ -174,8 +178,8 @@ async def ui_inventory(request: Request):
     """)
     finished_goods = execute_query("SELECT * FROM items WHERE category = 'finished_good'")
 
-    return templates.TemplateResponse("inventory.html", {
-        "request": request, "user": user, "batches": batches,
+    return render_template(request, "inventory.html", {
+        "user": user, "batches": batches,
         "ledger_tx": ledger_tx, "finished_goods": finished_goods
     })
 
@@ -190,8 +194,8 @@ async def ui_invoices(request: Request):
         JOIN parties p ON inv.customer_id = p.id
         ORDER BY inv.id DESC
     """)
-    return templates.TemplateResponse("invoices.html", {
-        "request": request, "user": user, "invoices": invoices
+    return render_template(request, "invoices.html", {
+        "user": user, "invoices": invoices
     })
 
 async def ui_traceability(request: Request):
@@ -205,8 +209,8 @@ async def ui_traceability(request: Request):
         JOIN items i ON sb.item_id = i.id
         ORDER BY sb.id DESC
     """)
-    return templates.TemplateResponse("traceability.html", {
-        "request": request, "user": user, "batches": all_batches
+    return render_template(request, "traceability.html", {
+        "user": user, "batches": all_batches
     })
 
 async def ui_reports(request: Request):
@@ -220,7 +224,7 @@ async def ui_reports(request: Request):
         variance = get_production_variance_report(conn)
         outstanding = get_customer_outstanding_ledger(conn)
 
-    return templates.TemplateResponse("reports.html", {
-        "request": request, "user": user, "stock_summary": stock_summary,
+    return render_template(request, "reports.html", {
+        "user": user, "stock_summary": stock_summary,
         "gstr1": gstr1, "variance": variance, "outstanding": outstanding
     })
