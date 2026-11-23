@@ -7,10 +7,18 @@ def dict_factory(cursor, row):
 
 def get_connection(db_path=None):
     path = db_path or DB_PATH
+    try:
+        from pathlib import Path
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
     conn = sqlite3.connect(path, timeout=10.0, check_same_thread=False)
     conn.row_factory = dict_factory
     conn.execute("PRAGMA foreign_keys = ON;")
-    conn.execute("PRAGMA journal_mode = WAL;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+    except Exception:
+        pass
     conn.execute("PRAGMA busy_timeout = 5000;")
     return conn
 

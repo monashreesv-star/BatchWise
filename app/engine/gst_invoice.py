@@ -4,7 +4,10 @@ from pathlib import Path
 from app.config import COMPANY, DATA_DIR
 
 INVOICE_PDF_DIR = DATA_DIR / "invoices"
-INVOICE_PDF_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    INVOICE_PDF_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 class GSTInvoiceError(Exception):
     pass

@@ -18,7 +18,10 @@ from app.web.routes_api import (
 )
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
-STATIC_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 routes = [
     # UI Routes
