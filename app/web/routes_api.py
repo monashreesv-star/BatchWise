@@ -226,3 +226,20 @@ async def api_export_stock_excel(request: Request):
             ["sku", "name", "category", "uom", "opening_qty", "inward_qty", "outward_qty", "closing_qty", "standard_cost", "total_valuation"]
         )
         return Response(xml_str, media_type="application/vnd.ms-excel", headers={"Content-Disposition": "attachment; filename=Stock_Ledger.xls"})
+
+async def api_simulate_benchmark(request: Request):
+    from app.services.benchmark_service import execute_benchmark_journey
+    try:
+        res = execute_benchmark_journey()
+        return JSONResponse({"success": True, "data": res})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+async def api_reset_seed(request: Request):
+    from seed import seed_database
+    from app.config import DB_PATH
+    try:
+        seed_database(DB_PATH, clean=True)
+        return JSONResponse({"success": True, "message": "Database reset to clean state with benchmark scenario preloaded"})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)

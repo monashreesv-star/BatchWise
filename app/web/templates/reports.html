@@ -3,53 +3,65 @@
 {% block title %}Monthly Audit Reports & Exports{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div>
-        <h3 class="fw-bold mb-1"><i class="bi bi-file-earmark-spreadsheet text-success me-2"></i> Monthly Audit Reports & Exports</h3>
-        <p class="text-muted small mb-0">Stock Ledger Valuation, GSTR-1 Sales Compliance & Production Variance Exports</p>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h3 class="fw-bold text-dark mb-0 fw-heading">Monthly Audit Reports & Compliance</h3>
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
+                <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> GSTR-1 & VALUATION READY
+            </span>
+        </div>
+        <p class="text-muted small mb-0">Double-Entry Stock Ledger Valuation &bull; Statutory GSTR-1 Sales Compliance &bull; Material Variance Logs</p>
     </div>
     <div class="d-flex gap-2">
-        <a href="/api/reports/export/csv" class="btn btn-outline-success btn-sm">
-            <i class="bi bi-filetype-csv me-1"></i> Export Stock CSV
+        <a href="/api/reports/export/csv" class="btn btn-outline-success btn-sm bg-white shadow-sm font-mono">
+            <i class="bi bi-filetype-csv me-1 text-success"></i> Export Stock CSV
         </a>
-        <a href="/api/reports/export/excel" class="btn btn-success btn-sm">
-            <i class="bi bi-file-earmark-excel me-1"></i> Export Formatted Excel (.xls)
+        <a href="/api/reports/export/excel" class="btn btn-brand btn-sm d-flex align-items-center px-3 shadow-sm font-mono">
+            <i class="bi bi-file-earmark-excel me-1 text-white"></i> Export Formatted Excel (.xls)
         </a>
     </div>
 </div>
 
+<!-- Tab Navigation Pills -->
 <ul class="nav nav-pills mb-4 gap-2" id="reportTabs" role="tablist">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-stock">
+        <button class="nav-link active font-mono" style="font-size: 0.85rem;" data-bs-toggle="pill" data-bs-target="#tab-stock">
             <i class="bi bi-box-seam me-1"></i> Monthly Stock Ledger
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-gstr1">
+        <button class="nav-link font-mono" style="font-size: 0.85rem;" data-bs-toggle="pill" data-bs-target="#tab-gstr1">
             <i class="bi bi-receipt-cutoff me-1"></i> GSTR-1 Sales Report
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-variance">
+        <button class="nav-link font-mono" style="font-size: 0.85rem;" data-bs-toggle="pill" data-bs-target="#tab-variance">
             <i class="bi bi-graph-up me-1"></i> Production Variance Log
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-outstanding">
+        <button class="nav-link font-mono" style="font-size: 0.85rem;" data-bs-toggle="pill" data-bs-target="#tab-outstanding">
             <i class="bi bi-hourglass-bottom me-1"></i> Customer Aging Ledger
         </button>
     </li>
 </ul>
 
 <div class="tab-content" id="reportTabContent">
+    <!-- Tab 1: Monthly Stock Ledger -->
     <div class="tab-pane fade show active" id="tab-stock">
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold mb-0">Monthly Inventory Valuation Ledger (Month: {{ stock_summary.month }})</h6>
-                <span class="badge bg-primary fs-6">Total Valuation: ₹{{ "%.2f"|format(stock_summary.total_inventory_value) }}</span>
+        <div class="card-pro overflow-hidden mb-4">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading">Monthly Inventory Valuation Ledger (Month: {{ stock_summary.month }})</h6>
+                    <small class="text-muted">Opening, Inward movements, Consumptions, Dispatches, and Closing Valuations</small>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-mono fs-6">
+                    Total Valuation: ₹{{ "%.2f"|format(stock_summary.total_inventory_value) }}
+                </span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table-pro">
                     <thead>
                         <tr>
                             <th>SKU</th>
@@ -59,22 +71,24 @@
                             <th>Inward (+)</th>
                             <th>Outward (-)</th>
                             <th>Closing Stock</th>
-                            <th>Std Cost</th>
-                            <th>Valuation</th>
+                            <th>Standard Cost</th>
+                            <th>Asset Valuation</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for it in stock_summary['items'] %}
                         <tr>
-                            <td class="font-monospace fw-semibold">{{ it.sku }}</td>
-                            <td>{{ it.name }}</td>
-                            <td><span class="badge bg-light text-dark border text-uppercase" style="font-size: 0.7rem;">{{ it.category }}</span></td>
-                            <td>{{ it.opening_qty }} {{ it.uom }}</td>
-                            <td class="text-success fw-semibold">+{{ it.inward_qty }}</td>
-                            <td class="text-danger fw-semibold">-{{ it.outward_qty }}</td>
-                            <td class="fw-bold">{{ it.closing_qty }} {{ it.uom }}</td>
-                            <td>₹{{ "%.2f"|format(it.standard_cost) }}</td>
-                            <td class="fw-bold text-primary">₹{{ "%.2f"|format(it.total_valuation) }}</td>
+                            <td class="font-mono fw-bold text-primary">{{ it.sku }}</td>
+                            <td><span class="fw-semibold text-dark">{{ it.name }}</span></td>
+                            <td>
+                                <span class="badge bg-light text-dark border text-uppercase font-mono" style="font-size: 0.68rem;">{{ it.category }}</span>
+                            </td>
+                            <td class="font-mono text-muted">{{ it.opening_qty }} {{ it.uom }}</td>
+                            <td class="font-mono text-success fw-semibold">+{{ it.inward_qty }}</td>
+                            <td class="font-mono text-danger fw-semibold">-{{ it.outward_qty }}</td>
+                            <td class="font-mono fw-bold text-dark fs-6">{{ it.closing_qty }} {{ it.uom }}</td>
+                            <td class="font-mono text-muted">₹{{ "%.2f"|format(it.standard_cost) }}</td>
+                            <td class="font-mono fw-bold text-primary fs-6">₹{{ "%.2f"|format(it.total_valuation) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -83,40 +97,48 @@
         </div>
     </div>
 
+    <!-- Tab 2: GSTR-1 Sales Report -->
     <div class="tab-pane fade" id="tab-gstr1">
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold mb-0">GSTR-1 Outward Supplies (Month: {{ gstr1.month }})</h6>
-                <span class="badge bg-success fs-6">Grand Total: ₹{{ "%.2f"|format(gstr1.totals.grand_total) }}</span>
+        <div class="card-pro overflow-hidden mb-4">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading">GSTR-1 Outward B2B Supplies (Month: {{ gstr1.month }})</h6>
+                    <small class="text-muted">Statutory GST return format for B2B electronic filings</small>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 font-mono fs-6">
+                    Taxable: ₹{{ "%.2f"|format(gstr1.totals.total_taxable) }} | Grand Total: ₹{{ "%.2f"|format(gstr1.totals.grand_total) }}
+                </span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table-pro">
                     <thead>
                         <tr>
                             <th>Invoice No</th>
                             <th>Date</th>
                             <th>Customer Name</th>
                             <th>Customer GSTIN</th>
+                            <th>HSN Code</th>
                             <th>Taxable</th>
                             <th>CGST (2.5%)</th>
                             <th>SGST (2.5%)</th>
-                            <th>Total Invoice</th>
+                            <th>Grand Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for inv in gstr1.invoices %}
+                        {% for row in gstr1.invoices %}
                         <tr>
-                            <td class="font-monospace fw-bold text-primary">{{ inv.invoice_number }}</td>
-                            <td>{{ inv.invoice_date }}</td>
-                            <td class="fw-semibold">{{ inv.customer_name }}</td>
-                            <td class="font-monospace small">{{ inv.customer_gstin }}</td>
-                            <td>₹{{ "%.2f"|format(inv.total_taxable) }}</td>
-                            <td>₹{{ "%.2f"|format(inv.total_cgst) }}</td>
-                            <td>₹{{ "%.2f"|format(inv.total_sgst) }}</td>
-                            <td class="fw-bold">₹{{ "%.2f"|format(inv.grand_total) }}</td>
+                            <td class="font-mono fw-bold text-primary">{{ row.invoice_number }}</td>
+                            <td class="font-mono text-muted small">{{ row.invoice_date }}</td>
+                            <td><span class="fw-semibold text-dark">{{ row.customer_name }}</span></td>
+                            <td class="font-mono small">{{ row.customer_gstin or 'URP' }}</td>
+                            <td class="font-mono text-muted">1905</td>
+                            <td class="font-mono">₹{{ "%.2f"|format(row.total_taxable) }}</td>
+                            <td class="font-mono text-muted">₹{{ "%.2f"|format(row.total_cgst) }}</td>
+                            <td class="font-mono text-muted">₹{{ "%.2f"|format(row.total_sgst) }}</td>
+                            <td class="font-mono fw-bold text-dark fs-6">₹{{ "%.2f"|format(row.grand_total) }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="8" class="text-center text-muted py-3">No invoices in this period.</td></tr>
+                        <tr><td colspan="9" class="text-center py-4 text-muted">No sales invoices registered for this tax period.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -124,39 +146,51 @@
         </div>
     </div>
 
+    <!-- Tab 3: Production Variance Log -->
     <div class="tab-pane fade" id="tab-variance">
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0">Production Scrap & Material Quantity Variance Log</h6>
+        <div class="card-pro overflow-hidden mb-4">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading">Production Material Quantity Variance (MQV) & Yield Variance</h6>
+                    <small class="text-muted">Standard vs Actual material consumption across active work orders</small>
+                </div>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table-pro">
                     <thead>
                         <tr>
                             <th>WO Number</th>
+                            <th>Finished Product</th>
                             <th>Batch Lot</th>
-                            <th>Product</th>
-                            <th>Target / Actual</th>
-                            <th>Total MQV</th>
-                            <th>Yield Var %</th>
-                            <th>Actual Unit Cost</th>
+                            <th>Target / Output</th>
+                            <th>Yield Efficiency</th>
+                            <th>Total MQV Variance</th>
+                            <th>Unit Cost</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for wo in variance.work_orders %}
+                        {% for v in variance.work_orders %}
                         <tr>
-                            <td class="font-monospace fw-bold">{{ wo.wo_number }}</td>
-                            <td class="font-monospace text-success">{{ wo.batch_number }}</td>
-                            <td>{{ wo.finished_good_name }}</td>
-                            <td>{{ wo.target_qty }} / {{ wo.actual_qty }}</td>
-                            <td class="{% if wo.material_quantity_variance < 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
-                                ₹{{ "%.2f"|format(wo.material_quantity_variance) }}
+                            <td class="font-mono fw-bold text-primary">{{ v.wo_number }}</td>
+                            <td><span class="fw-semibold text-dark">{{ v.finished_good_name }}</span></td>
+                            <td class="font-mono fw-bold text-success">{{ v.batch_number }}</td>
+                            <td class="font-mono">{{ v.target_qty|int }} / <strong>{{ v.actual_qty|int }}</strong></td>
+                            <td>
+                                <span class="badge {% if v.yield_variance_percentage < 0 %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} font-mono">
+                                    {{ "%.1f"|format(v.yield_variance_percentage) }}%
+                                </span>
                             </td>
-                            <td>{{ "%.1f"|format(wo.yield_variance_percentage) }}%</td>
-                            <td class="fw-bold">₹{{ "%.2f"|format(wo.actual_unit_cost) }}</td>
+                            <td>
+                                {% if v.material_quantity_variance < 0 %}
+                                <span class="text-danger fw-bold font-mono">₹{{ "%.2f"|format(v.material_quantity_variance) }} (Unfav)</span>
+                                {% else %}
+                                <span class="text-success fw-bold font-mono">₹{{ "%.2f"|format(v.material_quantity_variance) }} (Fav)</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-mono fw-bold text-dark fs-6">₹{{ "%.2f"|format(v.actual_unit_cost) }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="7" class="text-center text-muted py-3">No production variance logs.</td></tr>
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No completed production variance records found.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -164,69 +198,56 @@
         </div>
     </div>
 
+    <!-- Tab 4: Customer Outstanding Aging Ledger -->
     <div class="tab-pane fade" id="tab-outstanding">
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0">Accounts Receivable Aging Buckets</h6>
+        <div class="card-pro overflow-hidden mb-4">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading">Customer Receivables & Aging Schedule (0-30-60-90 Days)</h6>
+                    <small class="text-muted">Aged receivables analysis for credit control and working capital</small>
+                </div>
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 font-mono fs-6">
+                    Total Due: ₹{{ "%.2f"|format(outstanding.aging_summary.total_outstanding) }}
+                </span>
             </div>
-            <div class="card-body">
-                <div class="row g-3 mb-4">
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 text-center bg-light">
-                            <span class="small text-muted d-block">0–30 Days</span>
-                            <h5 class="fw-bold text-primary mb-0">₹{{ "%.2f"|format(outstanding.aging_summary['0_to_30_days']) }}</h5>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 text-center bg-light">
-                            <span class="small text-muted d-block">31–60 Days</span>
-                            <h5 class="fw-bold text-dark mb-0">₹{{ "%.2f"|format(outstanding.aging_summary['31_to_60_days']) }}</h5>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 text-center bg-light">
-                            <span class="small text-muted d-block">61–90 Days</span>
-                            <h5 class="fw-bold text-warning mb-0">₹{{ "%.2f"|format(outstanding.aging_summary['61_to_90_days']) }}</h5>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="border rounded p-3 text-center bg-light">
-                            <span class="small text-muted d-block">>90 Days</span>
-                            <h5 class="fw-bold text-danger mb-0">₹{{ "%.2f"|format(outstanding.aging_summary['over_90_days']) }}</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Invoice</th>
-                                <th>Customer</th>
-                                <th>Invoice Date</th>
-                                <th>Age (Days)</th>
-                                <th>Total</th>
-                                <th>Paid</th>
-                                <th>Balance Due</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for inv in outstanding.invoices %}
-                            <tr>
-                                <td class="font-monospace fw-semibold">{{ inv.invoice_number }}</td>
-                                <td>{{ inv.customer_name }}</td>
-                                <td>{{ inv.invoice_date }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ inv.age_days }} days</span></td>
-                                <td>₹{{ "%.2f"|format(inv.grand_total) }}</td>
-                                <td>₹{{ "%.2f"|format(inv.amount_paid) }}</td>
-                                <td class="fw-bold text-danger">₹{{ "%.2f"|format(inv.balance_due) }}</td>
-                            </tr>
-                            {% else %}
-                            <tr><td colspan="7" class="text-center text-muted py-3">No outstanding balances.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table class="table-pro">
+                    <thead>
+                        <tr>
+                            <th>Invoice No</th>
+                            <th>Customer Account</th>
+                            <th>Invoice Date</th>
+                            <th>Grand Total</th>
+                            <th>Amount Paid</th>
+                            <th>Balance Due</th>
+                            <th>Aging Bucket</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in outstanding.invoices %}
+                        <tr>
+                            <td class="font-mono fw-bold text-primary">{{ o.invoice_number }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="avatar-initials me-2">{{ o.customer_name[0] }}</span>
+                                    <span class="fw-semibold text-dark">{{ o.customer_name }}</span>
+                                </div>
+                            </td>
+                            <td class="font-mono text-muted small">{{ o.invoice_date }}</td>
+                            <td class="font-mono">₹{{ "%.2f"|format(o.grand_total) }}</td>
+                            <td class="font-mono text-success fw-semibold">₹{{ "%.2f"|format(o.amount_paid) }}</td>
+                            <td class="font-mono fw-bold text-danger fs-6">₹{{ "%.2f"|format(o.balance_due) }}</td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-mono">
+                                    {{ o.age_days }} Days (0-30d)
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No outstanding customer balances found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

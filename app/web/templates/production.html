@@ -1,108 +1,133 @@
 {% extends "base.html" %}
 
-{% block title %}Production Runs & BOM Variance{% endblock %}
+{% block title %}Production Floor & BOM Variance Analysis{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div>
-        <h3 class="fw-bold mb-1"><i class="bi bi-gear-wide-connected text-success me-2"></i> Production Engine & BOM Variance</h3>
-        <p class="text-muted small mb-0">Industrial Recipe Execution, Scrap Tracking, Material Variance & True Unit Costing</p>
-    </div>
-</div>
-
-<div id="statusAlert" class="alert d-none py-2"></div>
-
-<div class="card bg-success bg-opacity-10 border-success mb-4 p-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-            <span class="badge bg-success me-2">Demo Step 3 (3:00–4:20)</span>
-            <strong>Quick Action: Execute 1,000 Unit Baking Run (Batch FG-BREAD-2026-B01)</strong>
-            <span class="text-muted small d-block">Consumes 258 kg Flour (8 kg excess scrap). Produces 995 units (-0.5% yield). Logs -₹277.50 Flour MQV.</span>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h3 class="fw-bold text-dark mb-0 fw-heading">Production Engine & BOM Variance</h3>
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
+                <i class="bi bi-gear-wide-connected me-1"></i> INDUSTRIAL ENGINE
+            </span>
         </div>
-        <button class="btn btn-success fw-semibold btn-sm px-3" onclick="quickExecuteProduction()">
-            <i class="bi bi-fire me-1"></i> Execute Baking Run & Variance Analysis
+        <p class="text-muted small mb-0">Standard Recipe Execution &bull; Scrap Quantification &bull; Material Quantity Variance (MQV) &bull; True Unit Costing</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-brand btn-sm d-flex align-items-center px-3 shadow-sm" onclick="quickExecuteProduction()">
+            <i class="bi bi-fire me-1 text-warning"></i> Execute 1,000 Loaf Baking Run
         </button>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-lg-5">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-journal-text text-primary me-2"></i> Standard BOM Recipe: Classic Bread 400g</h6>
+<!-- Benchmark Action Banner -->
+<div class="card-pro p-3 mb-4 border-start border-4 border-success bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-fire fs-5 text-success"></i>
             </div>
-            <div class="card-body">
-                <p class="small text-muted">Standard industrial recipe required to manufacture <strong>1 unit</strong> of finished bread:</p>
-                <ul class="list-group list-group-flush small mb-3">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-dot"></i> Refined Wheat Flour (RM-FLOUR-01)</span>
-                        <span class="fw-bold">0.250 kg (1% scrap)</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-dot"></i> Refined Cane Sugar (RM-SUGAR-01)</span>
-                        <span class="fw-bold">0.030 kg</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-dot"></i> Baker's Yeast & Salt (RM-YEAST-01)</span>
-                        <span class="fw-bold">0.020 kg</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-dot"></i> Food-Grade Pouch 400g (PM-POUCH-400)</span>
-                        <span class="fw-bold">1.000 unit</span>
-                    </li>
-                </ul>
-                <div class="alert alert-info py-2 small mb-0">
-                    <i class="bi bi-info-circle me-1"></i> <strong>Multi-Pack Ready:</strong> Core dough formula is decoupled from packaging to allow instant 800g pack size extension.
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success font-mono" style="font-size: 0.7rem;">DEMO STEP 3 (3:00–4:20)</span>
+                    <strong class="text-dark">Batch Baking Run: 1,000 Units Classic Bread 400g</strong>
                 </div>
+                <small class="text-muted">Target: 1,000 &bull; Actual Output: 995 Loaves (-0.5% Yield) &bull; Flour Scrap: 8 kg logged &bull; <strong>Flour MQV: -₹277.50 (Unfavorable)</strong></small>
+            </div>
+        </div>
+        <button class="btn btn-outline-success btn-sm px-3 shadow-sm d-flex align-items-center" onclick="quickExecuteProduction()">
+            <i class="bi bi-lightning-charge-fill me-1 text-success"></i> Launch Plant Execution
+        </button>
+    </div>
+</div>
+
+<!-- Recipe Architecture & Technical Variance Math Cards -->
+<div class="row g-4 mb-4">
+    <!-- Standard Master BOM Recipe -->
+    <div class="col-lg-5">
+        <div class="card-pro p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-dark mb-0 fw-heading"><i class="bi bi-receipt text-primary me-2"></i> Master BOM (FG-BREAD-400)</h6>
+                <span class="badge bg-light text-dark border font-mono">Base Qty: 1 Unit</span>
+            </div>
+            <p class="small text-muted mb-3">Standard formulation required to produce 1 loaf of Classic Bread 400g:</p>
+            <ul class="list-group list-group-flush small mb-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Refined Wheat Flour (RM-FLOUR-01)</span>
+                    <span class="font-mono fw-bold">0.250 kg <small class="text-muted">(1% scrap)</small></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Refined Cane Sugar (RM-SUGAR-01)</span>
+                    <span class="font-mono fw-bold">0.030 kg</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Baker's Active Yeast (RM-YEAST-01)</span>
+                    <span class="font-mono fw-bold">0.020 kg</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Food-Grade 400g Pouch (PM-POUCH-400)</span>
+                    <span class="font-mono fw-bold">1.000 unit</span>
+                </li>
+            </ul>
+            <div class="p-2 rounded-3 bg-light border small text-muted">
+                <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Decoupled Architecture:</strong> Core dough formulation is independent of packaging, enabling instant multi-pack size scaling (e.g. 800g loaf).
             </div>
         </div>
     </div>
 
+    <!-- Mathematical Variance Accounting Engine -->
     <div class="col-lg-7">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-calculator text-dark me-2"></i> Technical Variance Accounting Engine</h6>
+        <div class="card-pro p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-dark mb-0 fw-heading"><i class="bi bi-calculator text-dark me-2"></i> Industrial Variance Accounting Engine</h6>
+                <span class="badge bg-success bg-opacity-10 text-success font-mono">ACID VERIFIED</span>
             </div>
-            <div class="card-body">
-                <div class="row g-2 small">
-                    <div class="col-md-6">
-                        <div class="border rounded p-2 bg-light">
-                            <strong>Material Quantity Variance (MQV):</strong>
-                            <div class="font-monospace text-primary mt-1">(Std Qty for Actual Output - Actual Qty) × Std Price</div>
-                            <small class="text-muted">Isolates operational floor inefficiency and scrap.</small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="border rounded p-2 bg-light">
-                            <strong>True Production Unit Cost:</strong>
-                            <div class="font-monospace text-primary mt-1">(Actual Materials + Labor + Overhead) ÷ Actual Units</div>
-                            <small class="text-muted">Establishes accurate FIFO cost basis for balance sheet.</small>
-                        </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 bg-light border h-100">
+                        <small class="text-uppercase fw-bold text-muted" style="font-size: 0.68rem;">Material Quantity Variance (MQV)</small>
+                        <div class="font-mono text-primary fw-bold mt-1" style="font-size: 0.85rem;">MQV = (Q_std - Q_act) × P_std</div>
+                        <p class="small text-muted mt-2 mb-0">Isolates shop floor material inefficiency and scrap losses from procurement price fluctuations.</p>
                     </div>
                 </div>
-                <div class="border rounded p-2 mt-3 bg-light small">
-                    <strong>Yield Variance Formula:</strong>
-                    <div class="font-monospace text-primary mt-1">[(Actual Units Produced - Target Units) ÷ Target Units] × 100%</div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 bg-light border h-100">
+                        <small class="text-uppercase fw-bold text-muted" style="font-size: 0.68rem;">True Unit Manufacturing Cost</small>
+                        <div class="font-mono text-success fw-bold mt-1" style="font-size: 0.85rem;">Unit Cost = (Mat + Labor + OH) ÷ Actual</div>
+                        <p class="small text-muted mt-2 mb-0">Incorporates exact FIFO lot costs plus machine & labor overhead for true balance sheet asset valuation.</p>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-3 rounded-3 bg-light border">
+                        <small class="text-uppercase fw-bold text-muted" style="font-size: 0.68rem;">Production Yield Efficiency Variance</small>
+                        <div class="font-mono text-dark fw-bold mt-1" style="font-size: 0.85rem;">Yield % = [(Actual Finished Units - Target Planned Units) ÷ Target Planned Units] × 100%</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white py-3">
-        <h6 class="fw-bold mb-0">Production Work Orders Registry</h6>
+<!-- Work Orders Registry Table -->
+<div class="card-pro overflow-hidden mb-4">
+    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+        <div>
+            <h6 class="fw-bold mb-0 text-dark fw-heading"><i class="bi bi-clock-history me-2 text-primary"></i> Production Work Orders & Variance Registry</h6>
+            <small class="text-muted">Completed manufacturing batches with logged variance and unit cost</small>
+        </div>
+        <span class="badge bg-light text-dark border font-mono">{{ work_orders|length }} Work Orders</span>
     </div>
+
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table-pro">
             <thead>
                 <tr>
                     <th>WO Number</th>
-                    <th>Batch Lot</th>
-                    <th>Product</th>
+                    <th>Finished Lot</th>
+                    <th>Product Name</th>
                     <th>Target / Actual</th>
-                    <th>Flour MQV</th>
-                    <th>Yield Var %</th>
+                    <th>Yield Efficiency</th>
+                    <th>Batch MQV</th>
                     <th>Actual Unit Cost</th>
                     <th>Total Cost</th>
                     <th>Status</th>
@@ -111,28 +136,37 @@
             <tbody>
                 {% for wo in work_orders %}
                 <tr>
-                    <td class="font-monospace fw-bold">{{ wo.wo_number }}</td>
-                    <td class="font-monospace text-success fw-bold">{{ wo.batch_number }}</td>
-                    <td>{{ wo.finished_good_name }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ wo.target_qty }} / {{ wo.actual_qty }}</span></td>
+                    <td class="font-mono fw-bold text-primary">{{ wo.wo_number }}</td>
+                    <td class="font-mono fw-bold text-success">{{ wo.batch_number }}</td>
+                    <td><span class="fw-semibold text-dark">{{ wo.finished_good_name }}</span></td>
+                    <td class="font-mono">{{ wo.target_qty|int }} / <strong>{{ wo.actual_qty|int }}</strong></td>
                     <td>
-                        {% if wo.material_quantity_variance < 0 %}
-                        <span class="text-danger fw-bold">₹{{ "%.2f"|format(wo.material_quantity_variance) }} (Unfav)</span>
-                        {% else %}
-                        <span class="text-success fw-bold">₹{{ "%.2f"|format(wo.material_quantity_variance) }} (Fav)</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="badge {% if wo.yield_variance_percentage < 0 %}bg-danger{% else %}bg-success{% endif %}">
+                        <span class="badge {% if wo.yield_variance_percentage < 0 %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} font-mono">
                             {{ "%.1f"|format(wo.yield_variance_percentage) }}%
                         </span>
                     </td>
-                    <td class="fw-bold">₹{{ "%.2f"|format(wo.actual_unit_cost) }}</td>
-                    <td>₹{{ "%.2f"|format(wo.total_actual_cost) }}</td>
-                    <td><span class="badge bg-success">Completed</span></td>
+                    <td>
+                        {% if wo.material_quantity_variance < 0 %}
+                        <span class="text-danger fw-bold font-mono">₹{{ "%.2f"|format(wo.material_quantity_variance) }} (Unfav)</span>
+                        {% else %}
+                        <span class="text-success fw-bold font-mono">₹{{ "%.2f"|format(wo.material_quantity_variance) }} (Fav)</span>
+                        {% endif %}
+                    </td>
+                    <td class="font-mono fw-bold text-dark fs-6">₹{{ "%.2f"|format(wo.actual_unit_cost) }}</td>
+                    <td class="font-mono fw-bold">₹{{ "%.2f"|format(wo.total_actual_cost) }}</td>
+                    <td>
+                        <span class="status-pill success"><span class="status-dot"></span> Completed</span>
+                    </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="9" class="text-center text-muted py-4">No work orders executed yet.</td></tr>
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-muted">
+                        No production work orders executed yet.<br>
+                        <button class="btn btn-brand btn-sm mt-2 px-3" onclick="quickExecuteProduction()">
+                            <i class="bi bi-fire me-1 text-warning"></i> Click Here to Launch Benchmark Baking Run
+                        </button>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -142,51 +176,65 @@
 
 {% block scripts %}
 <script>
-    function showAlert(msg, isSuccess) {
-        const a = document.getElementById('statusAlert');
-        a.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} py-2`;
-        a.textContent = msg;
-        a.classList.remove('d-none');
-        setTimeout(() => a.classList.add('d-none'), 5000);
-    }
-
     async function quickExecuteProduction() {
-        const woRes = await fetch('/api/production/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                bom_id: 1,
-                target_qty: 1000.0,
-                batch_number: 'FG-BREAD-2026-B01'
-            })
+        Swal.fire({
+            title: 'Executing Plant Baking Run',
+            text: 'Allocating raw materials via FIFO, calculating standard vs actual consumption, logging 8 kg scrap...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
         });
-        const woData = await woRes.json();
-        if (!woRes.ok) {
-            showAlert(woData.error || 'Failed to create work order (Production Manager required)', false);
-            return;
-        }
 
-        const compRes = await fetch(`/api/production/orders/${woData.data.wo_id}/complete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                actual_qty_produced: 995.0,
-                consumptions: [
-                    { component_item_id: 1, batch_id: 5, actual_qty: 258.0, scrap_qty: 8.0, notes: 'Dough scrap' },
-                    { component_item_id: 2, batch_id: 1, actual_qty: 30.0, scrap_qty: 0.0 },
-                    { component_item_id: 3, batch_id: 2, actual_qty: 20.0, scrap_qty: 0.0 },
-                    { component_item_id: 4, batch_id: 3, actual_qty: 1005.0, scrap_qty: 10.0 }
-                ],
-                labor_cost: 1500.0,
-                overhead_cost: 1000.0
-            })
-        });
-        const compData = await compRes.json();
-        if (compRes.ok) {
-            showAlert(`Baking Run Completed! Produced 995 units of Batch FG-BREAD-2026-B01. Unit Cost: ₹${compData.data.actual_unit_cost}. MQV: ₹${compData.data.material_quantity_variance}.`, true);
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showAlert(compData.error || 'Production run completion failed', false);
+        try {
+            const woRes = await fetch('/api/production/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bom_id: 1,
+                    target_qty: 1000.0,
+                    batch_number: 'FG-BREAD-2026-B01'
+                })
+            });
+            const woData = await woRes.json();
+            if (!woRes.ok) {
+                Swal.fire('Error', woData.error || 'Failed to create work order (Production Manager required)', 'error');
+                return;
+            }
+
+            const compRes = await fetch(`/api/production/orders/${woData.data.wo_id}/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    actual_qty_produced: 995.0,
+                    consumptions: [
+                        { component_item_id: 1, batch_id: 5, actual_qty: 258.0, scrap_qty: 8.0, notes: 'Dough scrap' },
+                        { component_item_id: 2, batch_id: 1, actual_qty: 30.0, scrap_qty: 0.0 },
+                        { component_item_id: 3, batch_id: 2, actual_qty: 20.0, scrap_qty: 0.0 },
+                        { component_item_id: 4, batch_id: 3, actual_qty: 1005.0, scrap_qty: 10.0 }
+                    ],
+                    labor_cost: 1500.0,
+                    overhead_cost: 1000.0
+                })
+            });
+            const compData = await compRes.json();
+            if (compRes.ok && compData.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Baking Run Completed!',
+                    html: `
+                        <div class="text-start small p-2">
+                            <div><strong>Batch Lot:</strong> FG-BREAD-2026-B01</div>
+                            <div><strong>Produced:</strong> 995 Loaves (Yield: -0.5%)</div>
+                            <div><strong>Unit Cost:</strong> ₹${compData.data.actual_unit_cost.toFixed(2)} / loaf</div>
+                            <div class="text-danger"><strong>MQV Variance:</strong> ₹${compData.data.material_quantity_variance.toFixed(2)}</div>
+                        </div>
+                    `,
+                    confirmButtonColor: '#4F46E5'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Completion Error', compData.error || 'Production run completion failed', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Network Error', e.message, 'error');
         }
     }
 </script>

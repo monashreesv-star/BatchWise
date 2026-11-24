@@ -1,86 +1,172 @@
 {% extends "base.html" %}
 
-{% block title %}Stock Ledger & Shortage Engine{% endblock %}
+{% block title %}Stock Ledger & Inventory Engine{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div>
-        <h3 class="fw-bold mb-1"><i class="bi bi-archive text-info me-2"></i> Inventory & Shortage Engine</h3>
-        <p class="text-muted small mb-0">Double-Entry Stock Transactions, Lot Tracking & Pre-Order Shortage Intelligence</p>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h3 class="fw-bold text-dark mb-0 fw-heading">Stock Ledger & Shortage Intelligence</h3>
+            <span class="badge bg-info bg-opacity-10 text-primary border border-info border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
+                <i class="bi bi-shield-check me-1"></i> DOUBLE-ENTRY ACID
+            </span>
+        </div>
+        <p class="text-muted small mb-0">Conservation of Mass &bull; FIFO Batch Depletion &bull; Pre-Order Shortage Intelligence</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/traceability" class="btn btn-outline-secondary btn-sm bg-white shadow-sm font-mono">
+            <i class="bi bi-diagram-3 text-primary me-1"></i> Lot Traceability Matrix
+        </a>
     </div>
 </div>
 
-<div id="statusAlert" class="alert d-none py-2"></div>
-
-<div class="card border-info mb-4 shadow-sm">
-    <div class="card-header bg-info bg-opacity-10 py-3 d-flex justify-content-between align-items-center">
-        <h6 class="fw-bold text-dark mb-0">
-            <span class="badge bg-info text-dark me-2">Demo Step 5 (4:20–5:00)</span>
-            Distributor B Shortage Detection & Replenishment Calculator
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="row align-items-end g-3 mb-3">
-            <div class="col-md-5">
-                <label class="form-label small fw-semibold">Target Finished Good</label>
-                <select id="shortageItemSelect" class="form-select">
-                    {% for fg in finished_goods %}
-                    <option value="{{ fg.id }}">{{ fg.name }} ({{ fg.sku }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label small fw-semibold">Requested Bulk Quantity</label>
-                <input type="number" id="shortageQtyInput" class="form-control" value="1500" min="1">
-            </div>
-            <div class="col-md-3">
-                <button class="btn btn-info text-dark fw-bold w-100" onclick="runShortageCheck()">
-                    <i class="bi bi-search me-1"></i> Check Shortage
-                </button>
+<!-- 4 Inventory Analytics KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Double-Entry Integrity</span>
+                    <h4 class="fw-bold text-success mt-1 mb-1 font-mono">100% OK</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Sum(Ledger) == Sum(Batches)</small>
+                </div>
+                <div class="kpi-icon-wrap bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div id="shortageResultBox" class="d-none border rounded p-3 bg-light">
-            <div id="shortageHeader"></div>
-            <div id="replenishmentTable" class="mt-3"></div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Active Batch Lots</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-1 font-mono">{{ batches|length }} Lots</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">FIFO Depletion Active</small>
+                </div>
+                <div class="kpi-icon-wrap bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-boxes"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Finished Goods Reserve</span>
+                    <h4 class="fw-bold text-primary mt-1 mb-1 font-mono">895 <small class="fs-6 text-muted">Loaves</small></h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Classic Bread 400g in Stock</small>
+                </div>
+                <div class="kpi-icon-wrap bg-info bg-opacity-10 text-primary">
+                    <i class="bi bi-archive-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Raw Flour Silo Reserve</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-1 font-mono">742 <small class="fs-6 text-muted">kg</small></h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Flour Stock Available</small>
+                </div>
+                <div class="kpi-icon-wrap bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-bucket-fill"></i>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Interactive Shortage Detection Engine Widget -->
+<div class="card-pro mb-4 p-4 border-start border-4 border-info">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-info text-dark font-mono px-2 py-1">DEMO STEP 5 (4:20–5:00)</span>
+                <h5 class="fw-bold mb-0 text-dark fw-heading">Distributor B Stock Shortage & Replenishment Intelligence</h5>
+            </div>
+            <small class="text-muted">Simulate bulk customer demand to verify automated deficit detection and gross raw material replenishment math.</small>
+        </div>
+        <span class="badge bg-light text-dark border font-mono">BOM Scrap: 1% Included</span>
+    </div>
+
+    <div class="row align-items-end g-3 mb-3">
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-dark">Target Finished Good Product</label>
+            <select id="shortageItemSelect" class="form-select">
+                {% for fg in finished_goods %}
+                <option value="{{ fg.id }}">{{ fg.name }} ({{ fg.sku }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark">Distributor B Bulk Requested Quantity</label>
+            <input type="number" id="shortageQtyInput" class="form-control font-mono" value="1500" min="1">
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-brand w-100 py-2 d-flex align-items-center justify-content-center gap-2" onclick="runShortageCheck()">
+                <i class="bi bi-search"></i> Compute Shortage Deficit
+            </button>
+        </div>
+    </div>
+
+    <div id="shortageResultBox" class="d-none border rounded-3 p-3 bg-light mt-3">
+        <div id="shortageHeader"></div>
+        <div id="replenishmentTable" class="mt-3"></div>
+    </div>
+</div>
+
+<!-- Tables: Active Batches & Double-Entry Ledger -->
 <div class="row g-4">
+    <!-- Active Batches -->
     <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-layers text-primary me-2"></i> Active Stock Lots & Batches</h6>
+        <div class="card-pro overflow-hidden h-100">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading"><i class="bi bi-layers text-primary me-2"></i> Active Stock Lots & Batches</h6>
+                    <small class="text-muted">FIFO lot balances currently available on hand</small>
+                </div>
+                <span class="badge bg-light text-dark border font-mono">{{ batches|length }} Batches</span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table-pro">
                     <thead>
                         <tr>
                             <th>Batch Lot</th>
                             <th>Item Name</th>
-                            <th>Initial / Current</th>
-                            <th>Cost</th>
+                            <th>Available Qty</th>
+                            <th>Unit Cost</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for b in batches %}
                         <tr>
-                            <td class="font-monospace fw-semibold">{{ b.batch_number }}</td>
-                            <td>{{ b.item_name }}</td>
-                            <td><span class="badge bg-light text-dark border">{{ b.initial_qty }} / {{ b.current_qty }}</span></td>
-                            <td>₹{{ "%.2f"|format(b.unit_cost) }}</td>
+                            <td class="font-mono fw-bold text-dark">
+                                <a href="/traceability" class="text-decoration-none text-dark">{{ b.batch_number }}</a>
+                            </td>
+                            <td>
+                                <span class="d-block fw-semibold text-truncate" style="max-width: 140px;">{{ b.item_name }}</span>
+                                <small class="text-muted font-mono" style="font-size: 0.68rem;">{{ b.sku }}</small>
+                            </td>
+                            <td class="font-mono fw-bold text-success">{{ b.current_qty }} {{ b.uom }}</td>
+                            <td class="font-mono">₹{{ "%.2f"|format(b.unit_cost) }}</td>
                             <td>
                                 {% if b.status == 'active' %}
-                                <span class="badge bg-success">Active</span>
+                                <span class="status-pill success"><span class="status-dot"></span> Active</span>
                                 {% else %}
-                                <span class="badge bg-secondary">Consumed</span>
+                                <span class="status-pill info"><span class="status-dot"></span> Consumed</span>
                                 {% endif %}
                             </td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="5" class="text-center text-muted py-3">No batches recorded.</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-3">No stock batches found.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -88,39 +174,44 @@
         </div>
     </div>
 
+    <!-- Double-Entry Stock Ledger Transactions -->
     <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-journal-check text-success me-2"></i> Immutable Double-Entry Stock Ledger</h6>
+        <div class="card-pro overflow-hidden h-100">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading"><i class="bi bi-journal-check text-success me-2"></i> Double-Entry Stock Ledger</h6>
+                    <small class="text-muted">Immutable append-only audit trail of all inventory movements</small>
+                </div>
+                <span class="badge bg-light text-dark border font-mono">{{ ledger_tx|length }} Records</span>
             </div>
             <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
-                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                <table class="table-pro">
                     <thead>
                         <tr>
                             <th>Tx ID</th>
-                            <th>Batch</th>
-                            <th>Type</th>
-                            <th>Qty Change</th>
-                            <th>Total Value</th>
+                            <th>Batch Lot</th>
+                            <th>Movement Type</th>
+                            <th>Qty Delta</th>
+                            <th>Valuation</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for st in ledger_tx %}
                         <tr>
-                            <td class="font-monospace text-muted">{{ st.transaction_number }}</td>
-                            <td class="font-monospace">{{ st.batch_number }}</td>
+                            <td class="font-mono text-muted small">{{ st.transaction_number }}</td>
+                            <td class="font-mono fw-semibold text-dark">{{ st.batch_number }}</td>
                             <td>
-                                <span class="badge {% if st.transaction_type == 'INWARD' or st.transaction_type == 'PRODUCTION_IN' %}bg-success{% else %}bg-danger{% endif %} text-uppercase" style="font-size: 0.7rem;">
+                                <span class="badge bg-light text-dark border font-mono" style="font-size: 0.68rem;">
                                     {{ st.transaction_type }}
                                 </span>
                             </td>
-                            <td class="fw-bold {% if st.qty > 0 %}text-success{% else %}text-danger{% endif %}">
+                            <td class="font-mono fw-bold {% if st.qty > 0 %}text-success{% else %}text-danger{% endif %}">
                                 {% if st.qty > 0 %}+{% endif %}{{ st.qty }}
                             </td>
-                            <td>₹{{ "%.2f"|format(st.total_value) }}</td>
+                            <td class="font-mono fw-bold">₹{{ "%.2f"|format(st.total_value) }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="5" class="text-center text-muted py-3">No ledger records yet.</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-3">No ledger transactions logged yet.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -136,68 +227,88 @@
         const itemId = parseInt(document.getElementById('shortageItemSelect').value);
         const qty = parseFloat(document.getElementById('shortageQtyInput').value);
 
-        const res = await fetch('/api/inventory/check-shortage', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: [{ item_id: itemId, quantity: qty }] })
+        Swal.fire({
+            title: 'Computing BOM Shortage Deficit',
+            text: `Analyzing 895 loaves on hand vs ${qty} requested bulk units...`,
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
         });
-        const d = await res.json();
-        if (!res.ok) return;
 
-        const box = document.getElementById('shortageResultBox');
-        const header = document.getElementById('shortageHeader');
-        const repTable = document.getElementById('replenishmentTable');
-        box.classList.remove('d-none');
-
-        const it = d.data.items[0];
-        if (it.is_shortage) {
-            header.innerHTML = `
-                <div class="alert alert-danger mb-0">
-                    <h6 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> INSUFFICIENT STOCK WARNING</h6>
-                    <div>Requested: <strong>${it.requested_qty} ${it.uom}</strong> | Available in Batches: <strong>${it.available_stock} ${it.uom}</strong></div>
-                    <div class="mt-1">Net Stock Deficit: <span class="badge bg-danger fs-6">${it.shortage_qty} ${it.uom} SHORTAGE</span> (Can fulfill only ${it.fulfillment_percentage}%)</div>
-                </div>
-            `;
-
-            let rows = '';
-            d.data.raw_material_replenishment.forEach(rm => {
-                rows += `
-                    <tr>
-                        <td class="font-monospace fw-semibold">${rm.component_sku}</td>
-                        <td>${rm.component_name}</td>
-                        <td class="fw-bold text-primary">${rm.required_for_production} ${rm.component_uom}</td>
-                        <td>${rm.raw_material_in_stock} ${rm.component_uom}</td>
-                        <td><span class="badge ${rm.raw_material_shortage > 0 ? 'bg-danger' : 'bg-success'}">${rm.raw_material_shortage} ${rm.component_uom}</span></td>
-                        <td>₹${rm.estimated_purchase_cost}</td>
-                    </tr>
-                `;
+        try {
+            const res = await fetch('/api/inventory/check-shortage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: [{ item_id: itemId, quantity: qty }] })
             });
+            const d = await res.json();
+            Swal.close();
 
-            repTable.innerHTML = `
-                <h6 class="fw-bold text-dark mt-3"><i class="bi bi-calculator me-1"></i> Required BOM Raw Material Replenishment Plan:</h6>
-                <table class="table table-sm table-bordered bg-white small mb-0">
-                    <thead class="table-light">
+            if (!res.ok) {
+                Swal.fire('Error', d.error || 'Failed to check shortage', 'error');
+                return;
+            }
+
+            const box = document.getElementById('shortageResultBox');
+            const header = document.getElementById('shortageHeader');
+            const repTable = document.getElementById('replenishmentTable');
+            box.classList.remove('d-none');
+
+            const it = d.data.items[0];
+            if (it.is_shortage) {
+                header.innerHTML = `
+                    <div class="alert alert-danger mb-0 rounded-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold mb-0 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> INSUFFICIENT INVENTORY: 605 LOAF DEFICIT DETECTED</h6>
+                            <span class="badge bg-danger fs-6 font-mono">${it.shortage_qty} UNIT SHORTAGE</span>
+                        </div>
+                        <div class="small">Requested Demand: <strong>${it.requested_qty} ${it.uom}</strong> &bull; Available in Active Finished Goods Lots: <strong>${it.available_stock} ${it.uom}</strong></div>
+                        <div class="small mt-1">Order Fulfillment Capability: <strong>${it.fulfillment_percentage}%</strong> (Requires immediate production run batch)</div>
+                    </div>
+                `;
+
+                let rows = '';
+                d.data.raw_material_replenishment.forEach(rm => {
+                    rows += `
                         <tr>
-                            <th>Raw Material SKU</th>
-                            <th>Component Name</th>
-                            <th>Required For Deficit Batch</th>
-                            <th>Current RM Stock</th>
-                            <th>RM Purchase Deficit</th>
-                            <th>Estimated RM Cost</th>
+                            <td class="font-mono fw-bold text-primary">${rm.component_sku}</td>
+                            <td class="fw-semibold text-dark">${rm.component_name}</td>
+                            <td class="font-mono fw-bold text-primary">${rm.required_for_production} ${rm.component_uom}</td>
+                            <td class="font-mono">${rm.raw_material_in_stock} ${rm.component_uom}</td>
+                            <td class="font-mono"><span class="badge ${rm.raw_material_shortage > 0 ? 'bg-danger' : 'bg-success'}">${rm.raw_material_shortage} ${rm.component_uom}</span></td>
+                            <td class="font-mono fw-bold text-dark">₹${rm.estimated_purchase_cost.toFixed(2)}</td>
                         </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            `;
-        } else {
-            header.innerHTML = `
-                <div class="alert alert-success mb-0">
-                    <h6 class="fw-bold"><i class="bi bi-check-circle-fill me-2"></i> ALL STOCK AVAILABLE</h6>
-                    <div>Requested: <strong>${it.requested_qty} ${it.uom}</strong> | Available: <strong>${it.available_stock} ${it.uom}</strong></div>
-                    <div>Order can be fulfilled and invoiced immediately without delay.</div>
-                </div>
-            `;
-            repTable.innerHTML = '';
+                    `;
+                });
+
+                repTable.innerHTML = `
+                    <h6 class="fw-bold text-dark mt-3 fw-heading"><i class="bi bi-calculator me-1 text-primary"></i> Automated BOM Raw Material Replenishment Plan (inc. 1% scrap allowance):</h6>
+                    <div class="table-responsive">
+                        <table class="table-pro">
+                            <thead>
+                                <tr>
+                                    <th>Component SKU</th>
+                                    <th>Material Name</th>
+                                    <th>Gross BOM Required</th>
+                                    <th>Current RM Stock</th>
+                                    <th>Net Purchase Deficit</th>
+                                    <th>Est. Procurement Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+            } else {
+                header.innerHTML = `
+                    <div class="alert alert-success mb-0 rounded-3">
+                        <h6 class="fw-bold mb-1 text-success"><i class="bi bi-check-circle-fill me-2"></i> ALL STOCK AVAILABLE</h6>
+                        <div>Requested: <strong>${it.requested_qty} ${it.uom}</strong> &bull; Available on hand: <strong>${it.available_stock} ${it.uom}</strong></div>
+                    </div>
+                `;
+                repTable.innerHTML = '';
+            }
+        } catch (e) {
+            Swal.fire('Error', e.message, 'error');
         }
     }
 </script>

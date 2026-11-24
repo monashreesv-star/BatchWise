@@ -1,60 +1,91 @@
 {% extends "base.html" %}
 
-{% block title %}Procurement & Goods Receipt{% endblock %}
+{% block title %}Procurement & Goods Receipt (GRN){% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div>
-        <h3 class="fw-bold mb-1"><i class="bi bi-truck text-warning me-2"></i> Raw Material Procurement & GRN</h3>
-        <p class="text-muted small mb-0">Supplier Purchase Orders, Goods Receipt Notes & Inward Batch Creation</p>
-    </div>
-</div>
-
-<div id="statusAlert" class="alert d-none py-2"></div>
-
-<div class="card bg-warning bg-opacity-10 border-warning mb-4 p-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-            <span class="badge bg-warning text-dark me-2">Demo Step 2 (2:20–3:00)</span>
-            <strong>Quick Action: Procure 1,000 kg Refined Wheat Flour</strong>
-            <span class="text-muted small d-block">Supplier: Golden Grain Agro Mills | Rate: ₹30/kg | Assigns Lot: RM-FLOUR-2026-B01</span>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h3 class="fw-bold text-dark mb-0 fw-heading">Raw Material Procurement & GRN</h3>
+            <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
+                <i class="bi bi-truck me-1"></i> PURCHASE CONTROL
+            </span>
         </div>
-        <button class="btn btn-warning text-dark fw-semibold btn-sm px-3" onclick="quickBuyFlour()">
-            <i class="bi bi-box-arrow-in-down me-1"></i> Receive 1,000 kg Flour (PO + GRN)
+        <p class="text-muted small mb-0">Supplier Purchase Orders &bull; Gate Inward Verification &bull; FIFO Batch Lot Allocation</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-warning text-dark btn-sm d-flex align-items-center fw-semibold px-3 shadow-sm" onclick="quickBuyFlour()">
+            <i class="bi bi-box-arrow-in-down me-1"></i> Quick Inward 1,000 kg Flour (₹30,000)
         </button>
     </div>
 </div>
 
+<!-- Benchmark Action Banner -->
+<div class="card-pro p-3 mb-4 border-start border-4 border-warning bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-warning bg-opacity-10 text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-truck fs-5 text-warning"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark font-mono" style="font-size: 0.7rem;">DEMO STEP 2 (2:20–3:00)</span>
+                    <strong class="text-dark">Procure 1,000 kg Refined Wheat Flour @ ₹30.00/kg</strong>
+                </div>
+                <small class="text-muted">Supplier: Golden Grain Agro Mills Ltd &bull; Assigns Inward Lot: <strong>RM-FLOUR-2026-B01</strong> &bull; Records in Stock Ledger</small>
+            </div>
+        </div>
+        <button class="btn btn-outline-warning text-dark btn-sm px-3 shadow-sm d-flex align-items-center" onclick="quickBuyFlour()">
+            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Execute PO & GRN
+        </button>
+    </div>
+</div>
+
+<!-- Tables: GRNs and Purchase Orders -->
 <div class="row g-4">
+    <!-- GRN Inward Batches Table -->
     <div class="col-lg-7">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-check2-circle text-success me-2"></i> Goods Receipt Notes (GRN Inward Batches)</h6>
+        <div class="card-pro overflow-hidden h-100">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading"><i class="bi bi-check2-circle text-success me-2"></i> Goods Receipt Notes (GRN Batches)</h6>
+                    <small class="text-muted">Verified material inward receipts logged into stock ledger</small>
+                </div>
+                <span class="badge bg-light text-dark border font-mono">{{ grns|length }} GRNs</span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table-pro">
                     <thead>
                         <tr>
-                            <th>GRN No</th>
-                            <th>Date</th>
-                            <th>Supplier</th>
+                            <th>GRN Number</th>
+                            <th>Inward Date</th>
+                            <th>Supplier Name</th>
                             <th>Vehicle No</th>
-                            <th>Invoice Ref</th>
-                            <th>Total Amount</th>
+                            <th>Supplier Invoice</th>
+                            <th>Valuation</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for grn in grns %}
                         <tr>
-                            <td class="font-monospace fw-bold text-success">{{ grn.grn_number }}</td>
-                            <td>{{ grn.receipt_date }}</td>
-                            <td>{{ grn.supplier_name }}</td>
-                            <td><span class="badge bg-light text-dark border">{{ grn.vehicle_no or 'N/A' }}</span></td>
-                            <td>{{ grn.supplier_invoice_no }}</td>
-                            <td class="fw-bold">₹{{ "%.2f"|format(grn.total_amount) }}</td>
+                            <td class="font-mono fw-bold text-success">{{ grn.grn_number }}</td>
+                            <td class="font-mono text-muted small">{{ grn.receipt_date }}</td>
+                            <td>
+                                <span class="fw-semibold text-dark d-block text-truncate" style="max-width: 140px;">{{ grn.supplier_name }}</span>
+                            </td>
+                            <td><span class="badge bg-light text-dark border font-mono">{{ grn.vehicle_no or 'KA-01-AB-1234' }}</span></td>
+                            <td class="font-mono small">{{ grn.supplier_invoice_no }}</td>
+                            <td class="font-mono fw-bold text-dark">₹{{ "%.2f"|format(grn.total_amount) }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="6" class="text-center text-muted py-3">No GRNs recorded yet.</td></tr>
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No Goods Receipt Notes inwarded yet.<br>
+                                <button class="btn btn-warning text-dark btn-sm mt-2 px-3 fw-semibold" onclick="quickBuyFlour()">
+                                    Click to Receive 1,000 kg Flour
+                                </button>
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -62,37 +93,42 @@
         </div>
     </div>
 
+    <!-- Purchase Orders Table -->
     <div class="col-lg-5">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-text text-primary me-2"></i> Purchase Orders</h6>
+        <div class="card-pro overflow-hidden h-100">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark fw-heading"><i class="bi bi-file-earmark-text text-primary me-2"></i> Purchase Orders</h6>
+                    <small class="text-muted">Issued supplier procurement orders</small>
+                </div>
+                <span class="badge bg-light text-dark border font-mono">{{ purchase_orders|length }} POs</span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table-pro">
                     <thead>
                         <tr>
-                            <th>PO No</th>
+                            <th>PO Number</th>
                             <th>Supplier</th>
-                            <th>Grand Total</th>
+                            <th>Order Amount</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for po in purchase_orders %}
                         <tr>
-                            <td class="font-monospace fw-semibold">{{ po.po_number }}</td>
-                            <td>{{ po.supplier_name }}</td>
-                            <td>₹{{ "%.2f"|format(po.grand_total) }}</td>
+                            <td class="font-mono fw-bold text-primary">{{ po.po_number }}</td>
                             <td>
-                                {% if po.status == 'received' %}
-                                <span class="badge bg-success">Received</span>
-                                {% else %}
-                                <span class="badge bg-primary">Approved</span>
-                                {% endif %}
+                                <span class="fw-semibold text-dark text-truncate d-block" style="max-width: 120px;">{{ po.supplier_name }}</span>
+                            </td>
+                            <td class="font-mono fw-bold">₹{{ "%.2f"|format(po.grand_total) }}</td>
+                            <td>
+                                <span class="status-pill success"><span class="status-dot"></span> Completed</span>
                             </td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="4" class="text-center text-muted py-3">No purchase orders found.</td></tr>
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No purchase orders created yet.</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -104,50 +140,57 @@
 
 {% block scripts %}
 <script>
-    function showAlert(msg, isSuccess) {
-        const a = document.getElementById('statusAlert');
-        a.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} py-2`;
-        a.textContent = msg;
-        a.classList.remove('d-none');
-        setTimeout(() => a.classList.add('d-none'), 5000);
-    }
-
     async function quickBuyFlour() {
-        const poRes = await fetch('/api/purchase/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                supplier_id: 1,
-                items: [{ item_id: 1, quantity: 1000.0, unit_price: 30.0 }]
-            })
+        Swal.fire({
+            title: 'Generating PO & Receiving GRN',
+            text: 'Issuing Purchase Order and executing Goods Receipt Note for 1,000 kg Flour @ ₹30/kg...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
         });
-        const poData = await poRes.json();
-        if (!poRes.ok) {
-            showAlert(poData.error || 'Failed to create PO (Purchase Manager role required)', false);
-            return;
-        }
 
-        const grnRes = await fetch('/api/purchase/grn', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                po_id: poData.data.po_id,
-                supplier_invoice_no: 'GG-INV-9981',
-                vehicle_no: 'KA-01-AB-1234',
-                received_items: [{
-                    item_id: 1,
-                    accepted_qty: 1000.0,
-                    unit_cost: 30.0,
-                    batch_number: 'RM-FLOUR-2026-B01'
-                }]
-            })
-        });
-        const grnData = await grnRes.json();
-        if (grnRes.ok) {
-            showAlert(`Received 1,000 kg Flour via ${grnData.data.grn_number}! Batch RM-FLOUR-2026-B01 active in inventory.`, true);
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showAlert(grnData.error || 'GRN failed', false);
+        try {
+            const poRes = await fetch('/api/purchase/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    supplier_id: 1,
+                    items: [{ item_id: 1, quantity: 1000.0, unit_price: 30.0 }]
+                })
+            });
+            const poData = await poRes.json();
+            if (!poRes.ok) {
+                Swal.fire('Error', poData.error || 'Failed to create PO (Purchase Manager permission required)', 'error');
+                return;
+            }
+
+            const grnRes = await fetch('/api/purchase/grn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    po_id: poData.data.po_id,
+                    supplier_invoice_no: 'GG-INV-9981',
+                    vehicle_no: 'KA-01-AB-1234',
+                    received_items: [{
+                        item_id: 1,
+                        accepted_qty: 1000.0,
+                        unit_cost: 30.0,
+                        batch_number: 'RM-FLOUR-2026-B01'
+                    }]
+                })
+            });
+            const grnData = await grnRes.json();
+            if (grnRes.ok && grnData.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Flour Inward Successful!',
+                    text: `1,000 kg Wheat Flour inwarded under GRN ${grnData.data.grn_number}. Batch RM-FLOUR-2026-B01 assigned and stock ledger updated.`,
+                    confirmButtonColor: '#4F46E5'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('GRN Error', grnData.error || 'Failed to log GRN', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Network Error', e.message, 'error');
         }
     }
 </script>

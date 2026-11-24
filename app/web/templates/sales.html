@@ -1,133 +1,273 @@
 {% extends "base.html" %}
 
-{% block title %}Sales Orders & Approval{% endblock %}
+{% block title %}B2B Sales Order Management{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div>
-        <h3 class="fw-bold mb-1"><i class="bi bi-cart-check text-primary me-2"></i> B2B Sales Management</h3>
-        <p class="text-muted small mb-0">Salesman Order Placement, Admin Order Approvals & Automated GST Invoicing</p>
-    </div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newOrderModal">
-        <i class="bi bi-plus-circle me-1"></i> New Sales Order
-    </button>
-</div>
-
-<div id="statusAlert" class="alert d-none py-2"></div>
-
-<div class="card bg-primary bg-opacity-10 border-primary mb-4 p-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-            <span class="badge bg-primary me-2">Demo Step 1 (0:40–1:30)</span>
-            <strong>Quick Action: Book Retailer A Order</strong>
-            <span class="text-muted small d-block">100 Units Classic Bread 400g @ ₹40.00 (Taxable: ₹4,000 + CGST: ₹100 + SGST: ₹100 = ₹4,200)</span>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h3 class="fw-bold text-dark mb-0 fw-heading">B2B Sales & Order Management</h3>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
+                <i class="bi bi-shield-lock-fill me-1"></i> RBAC ENFORCED
+            </span>
         </div>
-        <button class="btn btn-primary btn-sm px-3" onclick="quickBookRetailerA()">
-            <i class="bi bi-lightning-fill me-1"></i> Instant Book Retailer A Order
+        <p class="text-muted small mb-0">Salesman Order Placement &bull; Managerial Credit Governance &bull; Automated GST Invoicing</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm bg-white shadow-sm d-flex align-items-center" onclick="quickBookRetailerA()">
+            <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Book Retailer A (₹4,200)
+        </button>
+        <button class="btn btn-brand btn-sm d-flex align-items-center px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+            <i class="bi bi-plus-lg me-1"></i> New Sales Order
         </button>
     </div>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white py-3">
-        <h6 class="fw-bold mb-0">Sales Orders Registry</h6>
+<!-- 4 Sales Analytics KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Total Booked Demand</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-1 font-mono">₹{{ "%.2f"|format(total_booked_val) }}</h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">{{ total_booked_count }} Orders in System</small>
+                </div>
+                <div class="kpi-icon-wrap bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Pending Admin Approvals</span>
+                    <h3 class="fw-bold text-warning mt-1 mb-1 font-mono">{{ pending_count }} <small class="fs-6 text-muted">Orders</small></h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">₹{{ "%.2f"|format(pending_val) }} Pending Invoicing</small>
+                </div>
+                <div class="kpi-icon-wrap bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-hourglass-top"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Invoiced Revenue</span>
+                    <h3 class="fw-bold text-success mt-1 mb-1 font-mono">₹{{ "%.2f"|format(invoiced_val) }}</h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">{{ invoiced_count }} GST Invoices Issued</small>
+                </div>
+                <div class="kpi-icon-wrap bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-receipt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Tax Structure & Rate</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-1 font-mono">5.0% <small class="fs-6 text-muted">GST</small></h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">CGST 2.5% + SGST 2.5% (Karnataka 29)</small>
+                </div>
+                <div class="kpi-icon-wrap bg-info bg-opacity-10 text-primary">
+                    <i class="bi bi-percent"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Benchmark Action Banner -->
+<div class="card-pro p-3 mb-4 border-start border-4 border-primary bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-play-circle-fill fs-5"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary font-mono" style="font-size: 0.7rem;">DEMO STEP 1 (0:40–1:30)</span>
+                    <strong class="text-dark">Retailer A Order Placement by Salesman (Ravi Shankar)</strong>
+                </div>
+                <small class="text-muted">100 Loaves of Classic Bread 400g @ ₹40.00/unit &bull; Taxable: ₹4,000 + CGST: ₹100 + SGST: ₹100 = <strong>₹4,200 Grand Total</strong></small>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm px-3 shadow-sm d-flex align-items-center" onclick="quickBookRetailerA()">
+            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Instant Book Order
+        </button>
+    </div>
+</div>
+
+<!-- Sales Orders Registry Table -->
+<div class="card-pro overflow-hidden mb-4">
+    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+        <div>
+            <h6 class="fw-bold mb-0 text-dark fw-heading"><i class="bi bi-table me-2 text-primary"></i> Master Sales Orders Registry</h6>
+            <small class="text-muted">Real-time order statuses and managerial approval actions</small>
+        </div>
+        <span class="badge bg-light text-dark border font-mono">{{ orders|length }} Total Records</span>
+    </div>
+
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table-pro">
             <thead>
                 <tr>
-                    <th>SO Number</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Salesman</th>
-                    <th>Taxable</th>
+                    <th>Order No</th>
+                    <th>Booking Date</th>
+                    <th>Customer Name</th>
+                    <th>Salesperson</th>
+                    <th>Taxable (INR)</th>
                     <th>GST (5%)</th>
                     <th>Grand Total</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for so in orders %}
                 <tr>
-                    <td class="font-monospace fw-bold text-primary">{{ so.so_number }}</td>
-                    <td>{{ so.order_date }}</td>
-                    <td class="fw-semibold">{{ so.customer_name }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ so.salesman_name }}</span></td>
-                    <td>₹{{ "%.2f"|format(so.total_taxable) }}</td>
-                    <td>₹{{ "%.2f"|format(so.total_tax) }}</td>
-                    <td class="fw-bold text-dark">₹{{ "%.2f"|format(so.grand_total) }}</td>
+                    <td class="font-mono fw-bold text-primary">{{ so.so_number }}</td>
+                    <td class="font-mono text-muted small">{{ so.order_date }}</td>
                     <td>
-                        {% if so.status == 'approved' %}
-                        <span class="badge bg-success">Approved</span>
-                        {% elif so.status == 'invoiced' %}
-                        <span class="badge bg-primary">Invoiced</span>
-                        {% else %}
-                        <span class="badge bg-warning text-dark">Pending Approval</span>
-                        {% endif %}
+                        <div class="d-flex align-items-center">
+                            <span class="avatar-initials me-2" style="font-size: 0.72rem; width: 28px; height: 28px;">{{ so.customer_name[0] }}</span>
+                            <div>
+                                <span class="fw-semibold text-dark d-block">{{ so.customer_name }}</span>
+                                <small class="text-muted font-mono" style="font-size: 0.68rem;">GSTIN: {{ so.customer_gstin or '29AABCR9999P1Z1' }}</small>
+                            </div>
+                        </div>
                     </td>
                     <td>
+                        <span class="badge bg-light text-dark border font-mono" style="font-size: 0.75rem;">
+                            <i class="bi bi-person me-1 text-primary"></i> {{ so.salesman_name }}
+                        </span>
+                    </td>
+                    <td class="font-mono">₹{{ "%.2f"|format(so.total_taxable) }}</td>
+                    <td class="font-mono text-muted">₹{{ "%.2f"|format(so.total_tax) }}</td>
+                    <td class="font-mono fw-bold text-dark fs-6">₹{{ "%.2f"|format(so.grand_total) }}</td>
+                    <td>
+                        {% if so.status == 'invoiced' %}
+                        <span class="status-pill success"><span class="status-dot"></span> Invoiced</span>
+                        {% elif so.status == 'approved' %}
+                        <span class="status-pill info"><span class="status-dot"></span> Approved</span>
+                        {% else %}
+                        <span class="status-pill warning"><span class="status-dot"></span> Pending Approval</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
                         {% if so.status == 'pending_approval' %}
-                        <button class="btn btn-sm btn-success py-0 px-2" onclick="approveOrder({{ so.id }})">
-                            <i class="bi bi-check-lg"></i> Approve (Admin)
+                        <button class="btn btn-sm btn-success py-1 px-3 shadow-sm font-mono" style="font-size: 0.75rem;" onclick="approveOrder({{ so.id }})">
+                            <i class="bi bi-check2-circle me-1"></i> Approve (Admin)
                         </button>
                         {% elif so.status == 'approved' %}
-                        <button class="btn btn-sm btn-primary py-0 px-2" onclick="generateInvoice({{ so.id }})">
-                            <i class="bi bi-receipt"></i> Generate GST Invoice
+                        <button class="btn btn-sm btn-primary py-1 px-3 shadow-sm font-mono" style="font-size: 0.75rem;" onclick="generateInvoice({{ so.id }})">
+                            <i class="bi bi-receipt-cutoff me-1"></i> Generate Invoice
                         </button>
                         {% else %}
-                        <span class="text-muted small"><i class="bi bi-check-all text-primary"></i> Complete</span>
+                        <a href="/invoices" class="btn btn-sm btn-light border py-1 px-2 font-mono text-primary" style="font-size: 0.75rem;">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> View GST PDF
+                        </a>
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="9" class="text-center text-muted py-4">No sales orders created yet.</td></tr>
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                        No sales orders registered yet.<br>
+                        <button class="btn btn-brand btn-sm mt-2 px-3" onclick="quickBookRetailerA()">
+                            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Click Here to Instant-Book Benchmark Order
+                        </button>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Modal: Create New Custom B2B Sales Order -->
 <div class="modal fade" id="newOrderModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Create Sales Order</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white py-3 px-4">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-cart-plus-fill text-warning fs-5"></i>
+                    <h5 class="modal-title fw-bold fw-heading mb-0">Create B2B Sales Order</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="orderForm">
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Customer</label>
+                        <label class="form-label small fw-semibold text-dark">Customer Entity</label>
                         <select id="customerId" class="form-select" required>
                             {% for c in customers %}
-                            <option value="{{ c.id }}">{{ c.name }} (GSTIN: {{ c.gstin or 'URP' }})</option>
+                            <option value="{{ c.id }}">{{ c.name }} &bull; GSTIN: {{ c.gstin or 'URP' }}</option>
                             {% endfor %}
                         </select>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Finished Product</label>
-                        <select id="itemId" class="form-select" required>
+                        <label class="form-label small fw-semibold text-dark">Finished Product SKU</label>
+                        <select id="itemId" class="form-select" required onchange="updatePricePreview()">
                             {% for it in items %}
-                            <option value="{{ it.id }}">{{ it.name }} (₹{{ it.selling_price }}/{{ it.uom }})</option>
+                            <option value="{{ it.id }}" data-price="{{ it.selling_price }}" data-uom="{{ it.uom }}">
+                                {{ it.name }} ({{ it.sku }}) &bull; ₹{{ it.selling_price }}/{{ it.uom }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label small fw-semibold">Quantity</label>
-                            <input type="number" id="orderQty" class="form-control" value="100" min="1" required>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-dark">Quantity</label>
+                            <input type="number" id="orderQty" class="form-control font-mono" value="100" min="1" required oninput="calculateTaxPreview()">
                         </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label small fw-semibold">Unit Price (₹)</label>
-                            <input type="number" id="unitPrice" class="form-control" value="40" step="0.5" required>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-dark">Unit Price (₹)</label>
+                            <input type="number" id="unitPrice" class="form-control font-mono" value="40.00" step="0.5" required oninput="calculateTaxPreview()">
                         </div>
                     </div>
+
+                    <!-- Live Dynamic GST Tax Preview Card -->
+                    <div class="bg-light border rounded-3 p-3 mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Taxable Value:</span>
+                            <span class="font-mono text-dark fw-semibold" id="prevTaxable">₹4,000.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>CGST (2.5%):</span>
+                            <span class="font-mono text-dark" id="prevCgst">₹100.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mb-2">
+                            <span>SGST (2.5%):</span>
+                            <span class="font-mono text-dark" id="prevSgst">₹100.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold border-top pt-2 text-dark">
+                            <span>Estimated Grand Total:</span>
+                            <span class="font-mono text-primary fs-6" id="prevTotal">₹4,200.00</span>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Notes</label>
-                        <input type="text" id="orderNotes" class="form-control" placeholder="Dispatch instructions">
+                        <label class="form-label small fw-semibold text-dark">Order Notes & Shipping Instructions</label>
+                        <input type="text" id="orderNotes" class="form-control" placeholder="e.g. Prompt delivery via refrigerated van">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Submit Sales Order</button>
+
+                    <button type="submit" class="btn btn-brand w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-check-circle-fill"></i> Submit Sales Order to System
+                    </button>
                 </form>
             </div>
         </div>
@@ -137,57 +277,124 @@
 
 {% block scripts %}
 <script>
-    function showAlert(msg, isSuccess) {
-        const a = document.getElementById('statusAlert');
-        a.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} py-2`;
-        a.textContent = msg;
-        a.classList.remove('d-none');
-        setTimeout(() => a.classList.add('d-none'), 5000);
+    function updatePricePreview() {
+        const sel = document.getElementById('itemId');
+        const opt = sel.options[sel.selectedIndex];
+        const p = opt.getAttribute('data-price');
+        if (p) {
+            document.getElementById('unitPrice').value = parseFloat(p).toFixed(2);
+        }
+        calculateTaxPreview();
+    }
+
+    function calculateTaxPreview() {
+        const qty = parseFloat(document.getElementById('orderQty').value) || 0;
+        const price = parseFloat(document.getElementById('unitPrice').value) || 0;
+        const taxable = qty * price;
+        const cgst = taxable * 0.025;
+        const sgst = taxable * 0.025;
+        const total = taxable + cgst + sgst;
+
+        document.getElementById('prevTaxable').textContent = `₹${taxable.toFixed(2)}`;
+        document.getElementById('prevCgst').textContent = `₹${cgst.toFixed(2)}`;
+        document.getElementById('prevSgst').textContent = `₹${sgst.toFixed(2)}`;
+        document.getElementById('prevTotal').textContent = `₹${total.toFixed(2)}`;
     }
 
     async function quickBookRetailerA() {
-        const res = await fetch('/api/sales/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                customer_id: 1,
-                items: [{ item_id: 6, quantity: 100, unit_price: 40.0 }],
-                notes: 'Benchmark order for Retailer A'
-            })
+        Swal.fire({
+            title: 'Booking Retailer A Order',
+            text: 'Placing order for 100 loaves Classic Bread @ ₹40/unit (₹4,200 total inc. GST)...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
         });
-        const d = await res.json();
-        if (res.ok) {
-            showAlert(`Successfully booked order ${d.data.so_number} for Retailer A!`, true);
-            setTimeout(() => window.location.reload(), 800);
-        } else {
-            showAlert(d.error || 'Failed to book order', false);
+
+        // Fetch dynamic customer ID for Retailer A and item ID for FG-BREAD-400
+        const custSel = document.getElementById('customerId');
+        const itemSel = document.getElementById('itemId');
+        const custId = custSel ? parseInt(custSel.options[0].value) : 1;
+        const itemId = itemSel ? parseInt(itemSel.options[0].value) : 6;
+
+        try {
+            const res = await fetch('/api/sales/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_id: custId,
+                    items: [{ item_id: itemId, quantity: 100.0, unit_price: 40.0 }],
+                    notes: 'Benchmark order for Retailer A Supermarkets'
+                })
+            });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Booked Successfully!',
+                    text: `Sales Order ${d.data.so_number} booked for ₹4,200.00. Status: Pending Admin Approval.`,
+                    confirmButtonColor: '#4F46E5'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Error', d.error || 'Failed to book order', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Network Error', e.message, 'error');
         }
     }
 
     async function approveOrder(soId) {
-        const res = await fetch(`/api/sales/orders/${soId}/approve`, { method: 'POST' });
-        const d = await res.json();
-        if (res.ok) {
-            showAlert(`Order #${soId} Approved!`, true);
-            setTimeout(() => window.location.reload(), 800);
-        } else {
-            showAlert(d.error || 'Approval failed (Admin role required)', false);
+        const conf = await Swal.fire({
+            title: 'Approve Sales Order?',
+            text: `Authorize Order #${soId} for dispatch and invoice generation. (Admin Authority)`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10B981',
+            confirmButtonText: 'Yes, Approve'
+        });
+
+        if (conf.isConfirmed) {
+            Swal.showLoading();
+            const res = await fetch(`/api/sales/orders/${soId}/approve`, { method: 'POST' });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Approved!',
+                    text: 'Sales Order approved. Ready for official GST tax invoice generation.',
+                    confirmButtonColor: '#4F46E5'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Approval Denied', d.error || 'Admin privileges required', 'error');
+            }
         }
     }
 
     async function generateInvoice(soId) {
+        Swal.fire({
+            title: 'Generating GST Invoice',
+            text: 'Deducting finished goods inventory via FIFO and creating print-ready PDF invoice...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
         const res = await fetch(`/api/sales/orders/${soId}/invoice`, { method: 'POST' });
         const d = await res.json();
-        if (res.ok) {
-            showAlert(`GST Invoice ${d.data.invoice_number} generated and stock deducted!`, true);
-            setTimeout(() => window.location.href = '/invoices', 800);
+        if (res.ok && d.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Invoice Issued & Stock Deducted!',
+                text: `GST Invoice ${d.data.invoice_number} created. Total: ₹${d.data.grand_total.toFixed(2)}.`,
+                confirmButtonColor: '#4F46E5'
+            }).then(() => {
+                window.location.href = '/invoices';
+            });
         } else {
-            showAlert(d.error || 'Invoicing failed', false);
+            Swal.fire('Invoicing Error', d.error || 'Failed to issue invoice', 'error');
         }
     }
 
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        Swal.showLoading();
         const res = await fetch('/api/sales/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -202,11 +409,15 @@
             })
         });
         const d = await res.json();
-        if (res.ok) {
-            showAlert(`Order created successfully: ${d.data.so_number}`, true);
-            setTimeout(() => window.location.reload(), 800);
+        if (res.ok && d.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Created!',
+                text: `Sales Order ${d.data.so_number} registered successfully.`,
+                confirmButtonColor: '#4F46E5'
+            }).then(() => window.location.reload());
         } else {
-            showAlert(d.error || 'Failed to create order', false);
+            Swal.fire('Error', d.error || 'Failed to create sales order', 'error');
         }
     });
 </script>

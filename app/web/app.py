@@ -14,7 +14,8 @@ from app.web.routes_api import (
     api_sales_invoice, api_purchase_create, api_purchase_grn,
     api_production_create, api_production_complete, api_shortage_check,
     api_payment_record, api_trace_upstream, api_trace_downstream,
-    api_invoice_pdf, api_export_stock_csv, api_export_stock_excel
+    api_invoice_pdf, api_export_stock_csv, api_export_stock_excel,
+    api_simulate_benchmark, api_reset_seed
 )
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
@@ -58,6 +59,10 @@ routes = [
     Route("/api/invoices/{id:int}/pdf", endpoint=api_invoice_pdf, methods=["GET"]),
     Route("/api/reports/export/csv", endpoint=api_export_stock_csv, methods=["GET"]),
     Route("/api/reports/export/excel", endpoint=api_export_stock_excel, methods=["GET"]),
+
+    # Evaluator Benchmark Simulation Routes
+    Route("/api/benchmark/simulate-journey", endpoint=api_simulate_benchmark, methods=["POST"]),
+    Route("/api/benchmark/reset-seed", endpoint=api_reset_seed, methods=["POST"]),
 
     # Static Assets
     Mount("/static", app=StaticFiles(directory=str(STATIC_DIR)), name="static"),

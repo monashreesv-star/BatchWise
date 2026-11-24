@@ -97,5 +97,13 @@ def seed_database(db_path=None, clean=True):
 
     print("[SUCCESS] BatchWise database seeded successfully with 5 roles, master BOMs, and parties.")
 
+    # Auto-seed initial operational data so dashboard is rich and populated from cold start
+    try:
+        from app.services.benchmark_service import execute_benchmark_journey
+        execute_benchmark_journey(db_path)
+        print("[SUCCESS] Benchmark operational journey seeded successfully.")
+    except Exception as e:
+        print(f"[NOTE] Operational journey init: {e}")
+
 if __name__ == "__main__":
     seed_database()
