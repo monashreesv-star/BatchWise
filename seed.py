@@ -13,13 +13,14 @@ def seed_database(db_path=None, clean=True):
     with get_db(db_path) as conn:
         cur = conn.cursor()
 
-        # 1. Seed 5 Business Roles
+        # 1. Seed Roles & Users (Section 3: Salesman A & B, Admin, Production, Auditor)
         users_data = [
-            ("admin", "admin123", "admin", "System Administrator", "admin@batchwise.com"),
-            ("sales_ravi", "sales123", "salesman", "Ravi Shankar (Field Sales)", "ravi@batchwise.com"),
-            ("purchase_priya", "purchase123", "purchase_manager", "Priya Sharma (Procurement)", "priya@batchwise.com"),
-            ("prod_kumar", "prod123", "production_manager", "Kumar V (Plant Supervisor)", "kumar@batchwise.com"),
-            ("audit_anita", "audit123", "auditor", "Anita Menon (Internal Auditor & Accounts)", "anita@batchwise.com"),
+            ("admin", "admin123", "admin", "Senthil Nathan (Factory Admin)", "admin@batchwisefoods.com"),
+            ("sales_ravi", "sales123", "salesman", "Ravi Shankar (Salesman A - TN)", "ravi@batchwisefoods.com"),
+            ("sales_kumar", "sales123", "salesman", "Kumar V (Salesman B - KA)", "kumar@batchwisefoods.com"),
+            ("purchase_priya", "purchase123", "purchase_manager", "Priya Sharma (Procurement Desk)", "priya@batchwisefoods.com"),
+            ("prod_suresh", "prod123", "production_manager", "Suresh K (Production Supervisor)", "suresh@batchwisefoods.com"),
+            ("audit_anita", "audit123", "auditor", "Anita Menon (Chartered Accountant & Auditor)", "anita@batchwisefoods.com"),
         ]
 
         for u in users_data:
@@ -28,14 +29,15 @@ def seed_database(db_path=None, clean=True):
                 VALUES (?, ?, ?, ?, ?)
             """, (u[0], hash_password(u[1]), u[2], u[3], u[4]))
 
-        # 2. Seed Master Items
+        # 2. Seed Master Items (Section 5: Murukku 200g, Flour, Oil, Spice Mix, Pouches, Cartons)
         items_data = [
-            ("RM-FLOUR-01", "Refined Wheat Flour Grade A", "raw_material", "kg", "1101", 100.0, 30.0, 0.0, 5.0),
-            ("RM-SUGAR-01", "Refined Cane Sugar", "raw_material", "kg", "1701", 20.0, 42.0, 0.0, 5.0),
-            ("RM-YEAST-01", "Active Baker's Yeast & Salt Premix", "raw_material", "kg", "2102", 10.0, 120.0, 0.0, 5.0),
-            ("PM-POUCH-400", "Food-Grade Bread Pouch 400g", "packing_material", "unit", "3923", 200.0, 2.50, 0.0, 18.0),
-            ("PM-POUCH-800", "Food-Grade Family Bread Pouch 800g", "packing_material", "unit", "3923", 100.0, 3.80, 0.0, 18.0),
-            ("FG-BREAD-400", "Classic Sliced Bread 400g", "finished_good", "unit", "1905", 50.0, 15.0, 40.0, 5.0),
+            ("RM-FLOUR-01", "Refined Flour (Maida/Rice)", "raw_material", "kg", "1101", 20.0, 42.0, 0.0, 5.0),
+            ("RM-OIL-01", "Refined Cooking Oil", "raw_material", "litre", "1507", 10.0, 140.0, 0.0, 5.0),
+            ("RM-SPICE-01", "Salt and Spice Mix", "raw_material", "kg", "2103", 2.0, 200.0, 0.0, 5.0),
+            ("PM-POUCH-200", "200g Food-Grade Printed Pouch", "packing_material", "piece", "3923", 100.0, 2.50, 0.0, 18.0),
+            ("PM-POUCH-400", "400g Family Pack Printed Pouch", "packing_material", "piece", "3923", 50.0, 4.00, 0.0, 18.0),
+            ("PM-CARTON-20", "Corrugated Carton (Holds 20 Pkts)", "packing_material", "piece", "4819", 10.0, 15.00, 0.0, 18.0),
+            ("FG-MURUKKU-200", "Traditional Murukku 200g", "finished_good", "packet", "1905", 20.0, 28.00, 50.00, 5.0),
         ]
 
         item_ids = {}
@@ -47,19 +49,21 @@ def seed_database(db_path=None, clean=True):
             cur.execute("SELECT id FROM items WHERE sku = ?", (it[0],))
             item_ids[it[0]] = cur.fetchone()["id"]
 
-        # 3. Seed BOM for FG-BREAD-400
+        # 3. Seed BOM for FG-MURUKKU-200 (Expected output: 200 packets per batch)
         cur.execute("""
             INSERT OR IGNORE INTO boms (bom_code, name, finished_item_id, base_qty, uom, version, description)
-            VALUES ('BOM-BREAD-400', 'Standard Recipe: Classic Bread 400g', ?, 1.0, 'unit', 1, 'Standard industrial batch recipe for 400g bread')
-        """, (item_ids["FG-BREAD-400"],))
-        cur.execute("SELECT id FROM boms WHERE bom_code = 'BOM-BREAD-400'")
+            VALUES ('BOM-MURUKKU-200', 'Standard Recipe: Traditional Murukku 200g', ?, 200.0, 'packet', 1, 
+                    'Standard batch recipe for 200 packets: 40kg flour, 10L oil, 1.2kg spice, 200 pouches, 10 cartons')
+        """, (item_ids["FG-MURUKKU-200"],))
+        cur.execute("SELECT id FROM boms WHERE bom_code = 'BOM-MURUKKU-200'")
         bom_id = cur.fetchone()["id"]
 
         bom_items_data = [
-            (bom_id, item_ids["RM-FLOUR-01"], 0.25, 1.0, "Core wheat flour ingredient"),
-            (bom_id, item_ids["RM-SUGAR-01"], 0.03, 0.5, "Sugar sweetness & crust color"),
-            (bom_id, item_ids["RM-YEAST-01"], 0.02, 0.5, "Fermentation & leavening agent"),
-            (bom_id, item_ids["PM-POUCH-400"], 1.0, 0.5, "Primary packaging pouch"),
+            (bom_id, item_ids["RM-FLOUR-01"], 40.0, 0.0, "Core flour mix (40 kg per 200 packets)"),
+            (bom_id, item_ids["RM-OIL-01"], 10.0, 0.0, "Cooking oil (10 litres per 200 packets)"),
+            (bom_id, item_ids["RM-SPICE-01"], 1.2, 0.0, "Salt & spice seasoning (1.2 kg per 200 packets)"),
+            (bom_id, item_ids["PM-POUCH-200"], 200.0, 0.0, "Primary 200g pouches (200 pieces per batch)"),
+            (bom_id, item_ids["PM-CARTON-20"], 10.0, 0.0, "Outer cartons (10 pieces per batch, 20 pkts/carton)"),
         ]
         for bi in bom_items_data:
             cur.execute("""
@@ -67,41 +71,43 @@ def seed_database(db_path=None, clean=True):
                 VALUES (?, ?, ?, ?, ?)
             """, bi)
 
-        # 4. Seed Parties
+        # 4. Seed Parties (Section 5: Retailer A in TN, Distributor B in KA)
         parties_data = [
-            ("supplier", "Golden Grain Agro Mills Ltd", "29AAGCG1234F1Z8", "080-28391111", "orders@goldengrain.com", "Plot 10, Peenya Industrial Area, Bengaluru", "Karnataka", "29", 0.0, 0.0),
-            ("supplier", "Apex Polymer Packagings", "29AAGCA5678B1Z2", "080-28392222", "sales@apexpolymer.com", "Plot 55, Bommasandra Industrial Area, Bengaluru", "Karnataka", "29", 0.0, 0.0),
-            ("customer", "Retailer A Supermarkets", "29AABCR9999P1Z1", "080-41235555", "purchase@retailera.com", "Shop 12-14, Commercial Street, Bengaluru", "Karnataka", "29", 50000.0, 0.0),
-            ("customer", "Distributor B Wholesale Hub", "29AABCD8888Q1Z4", "0821-2567888", "mgr@distributorb.com", "Sayyaji Rao Road, Mysuru", "Karnataka", "29", 200000.0, 0.0),
+            ("supplier", "Annam Agro Flour & Oil Mills", "33AAGCA1234F1Z8", "0431-2501111", "orders@annamagro.com", "Plot 18, SIDCO Estate, Tiruchirappalli", "Tamil Nadu", "33", 0.0, 0.0),
+            ("supplier", "Supreme Packagings Pvt Ltd", "33AAGCS5678B1Z2", "0431-2502222", "sales@supremepack.com", "Plot 42, Industrial Complex, Madurai", "Tamil Nadu", "33", 0.0, 0.0),
+            ("customer", "Retailer A Supermarkets", "33AABCR9999P1Z1", "044-28394444", "purchase@retailera.com", "14, Gandhi Road, T. Nagar, Chennai", "Tamil Nadu", "33", 50000.0, 0.0),
+            ("customer", "Distributor B Wholesale Hub", "29AABCD8888Q1Z4", "080-28398888", "mgr@distributorb.com", "Sayyaji Rao Road, Bengaluru", "Karnataka", "29", 200000.0, 0.0),
         ]
-        party_ids = {}
         for p in parties_data:
             cur.execute("""
                 INSERT OR IGNORE INTO parties (party_type, name, gstin, phone, email, address, state, state_code, credit_limit, current_balance)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, p)
-            cur.execute("SELECT id FROM parties WHERE name = ?", (p[1],))
-            party_ids[p[1]] = cur.fetchone()["id"]
 
+        # 5. Seed Mandatory Opening Stock (Section 5 Master Data)
         today_str = datetime.date.today().isoformat()
         exp_yr = (datetime.date.today() + datetime.timedelta(days=180)).isoformat()
 
-        # Seed Sugar: 100 kg @ ₹42
-        record_inward(conn, item_ids["RM-SUGAR-01"], "RM-SUGAR-SEED01", 100.0, 42.0, "opening_stock", 1, today_str, exp_yr, notes="Opening stock", reference_type="SEED")
-        # Seed Yeast: 50 kg @ ₹120
-        record_inward(conn, item_ids["RM-YEAST-01"], "RM-YEAST-SEED01", 50.0, 120.0, "opening_stock", 1, today_str, exp_yr, notes="Opening stock", reference_type="SEED")
-        # Seed Pouches: 2,500 units @ ₹2.50
-        record_inward(conn, item_ids["PM-POUCH-400"], "PM-POUCH-SEED01", 2500.0, 2.50, "opening_stock", 1, today_str, exp_yr, notes="Opening stock", reference_type="SEED")
-        # Seed 800g Pouches: 1,000 units @ ₹3.80
-        record_inward(conn, item_ids["PM-POUCH-800"], "PM-POUCH8-SEED01", 1000.0, 3.80, "opening_stock", 1, today_str, exp_yr, notes="Opening stock", reference_type="SEED")
+        # Flour: 100 kg @ ₹42 opening rate
+        record_inward(conn, item_ids["RM-FLOUR-01"], "RM-FLOUR-OPEN01", 100.0, 42.0, "opening_stock", 1, today_str, exp_yr, notes="Opening stock 100kg @ ₹42", reference_type="SEED")
+        # Cooking oil: 30 L @ ₹140 opening rate
+        record_inward(conn, item_ids["RM-OIL-01"], "RM-OIL-OPEN01", 30.0, 140.0, "opening_stock", 1, today_str, exp_yr, notes="Opening stock 30L @ ₹140", reference_type="SEED")
+        # Salt and spice mix: 5 kg @ ₹200 opening rate
+        record_inward(conn, item_ids["RM-SPICE-01"], "RM-SPICE-OPEN01", 5.0, 200.0, "opening_stock", 1, today_str, exp_yr, notes="Opening stock 5kg @ ₹200", reference_type="SEED")
+        # 200g pouches: 500 pieces @ ₹2.50
+        record_inward(conn, item_ids["PM-POUCH-200"], "PM-POUCH-OPEN01", 500.0, 2.50, "opening_stock", 1, today_str, exp_yr, notes="Opening stock 500 pcs @ ₹2.50", reference_type="SEED")
+        # Cartons: 30 pieces @ ₹15.00
+        record_inward(conn, item_ids["PM-CARTON-20"], "PM-CARTON-OPEN01", 30.0, 15.00, "opening_stock", 1, today_str, exp_yr, notes="Opening stock 30 pcs @ ₹15.00", reference_type="SEED")
+        # Finished Murukku 200 g: 50 packets @ ₹30.00
+        record_inward(conn, item_ids["FG-MURUKKU-200"], "FG-MURUKKU-OPEN01", 50.0, 30.00, "opening_stock", 1, today_str, exp_yr, notes="Opening stock 50 packets Murukku 200g", reference_type="SEED")
 
-    print("[SUCCESS] BatchWise database seeded successfully with 5 roles, master BOMs, and parties.")
+    print("[SUCCESS] BatchWise database seeded with NIT Trichy Murukku 200g benchmark master data.")
 
-    # Auto-seed initial operational data so dashboard is rich and populated from cold start
+    # Auto-seed the complete 9-step benchmark scenario
     try:
         from app.services.benchmark_service import execute_benchmark_journey
         execute_benchmark_journey(db_path)
-        print("[SUCCESS] Benchmark operational journey seeded successfully.")
+        print("[SUCCESS] NIT Trichy Murukku 200g benchmark scenario preloaded successfully.")
     except Exception as e:
         print(f"[NOTE] Operational journey init: {e}")
 

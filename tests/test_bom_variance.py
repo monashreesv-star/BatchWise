@@ -17,26 +17,26 @@ class TestBOMVariance(unittest.TestCase):
             self.assertEqual(calc["target_qty"], 100.0)
             comp_map = {c["component_sku"]: c for c in calc["components"]}
 
-            self.assertAlmostEqual(comp_map["RM-FLOUR-01"]["standard_qty"], 25.25, places=2)
-            self.assertAlmostEqual(comp_map["PM-POUCH-400"]["standard_qty"], 100.5, places=1)
+            self.assertAlmostEqual(comp_map["RM-FLOUR-01"]["standard_qty"], 20.0, places=2)
+            self.assertAlmostEqual(comp_map["PM-POUCH-200"]["standard_qty"], 100.0, places=1)
 
     def test_dynamic_multi_pack_extension(self):
         with get_db() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id FROM items WHERE sku = 'PM-POUCH-800'")
-            pouch_800_id = cur.fetchone()["id"]
+            cur.execute("SELECT id FROM items WHERE sku = 'PM-POUCH-400'")
+            pouch_400_id = cur.fetchone()["id"]
 
             new_item_id, new_bom_id = add_pack_size_bom(
-                conn, base_bom_code="BOM-BREAD-400", new_sku="FG-BREAD-800",
-                new_name="Family Bread 800g", multiplier=2.0,
-                new_packing_item_id=pouch_800_id, selling_price=75.0
+                conn, base_bom_code="BOM-MURUKKU-200", new_sku="FG-MURUKKU-400",
+                new_name="Murukku Family Pack 400g", multiplier=2.0,
+                new_packing_item_id=pouch_400_id, selling_price=95.0
             )
 
-            calc_800 = calculate_bom_requirements(conn, bom_id=new_bom_id, target_qty=10.0)
-            comp_map = {c["component_sku"]: c for c in calc_800["components"]}
+            calc_400 = calculate_bom_requirements(conn, bom_id=new_bom_id, target_qty=10.0)
+            comp_map = {c["component_sku"]: c for c in calc_400["components"]}
 
-            self.assertAlmostEqual(comp_map["RM-FLOUR-01"]["standard_qty"], 5.05, places=2)
-            self.assertIn("PM-POUCH-800", comp_map)
+            self.assertAlmostEqual(comp_map["RM-FLOUR-01"]["standard_qty"], 4.0, places=2)
+            self.assertIn("PM-POUCH-400", comp_map)
 
 if __name__ == "__main__":
     unittest.main()

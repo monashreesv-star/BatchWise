@@ -29,14 +29,14 @@
             </div>
             <div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-success font-mono" style="font-size: 0.7rem;">DEMO STEP 3 (3:00–4:20)</span>
-                    <strong class="text-dark">Batch Baking Run: 1,000 Units Classic Bread 400g</strong>
+                    <span class="badge bg-success font-mono" style="font-size: 0.7rem;">DEMO STEP 2 & 3 (Section 5)</span>
+                    <strong class="text-dark">Batch Run: 200 Packets Traditional Murukku 200g</strong>
                 </div>
-                <small class="text-muted">Target: 1,000 &bull; Actual Output: 995 Loaves (-0.5% Yield) &bull; Flour Scrap: 8 kg logged &bull; <strong>Flour MQV: -₹277.50 (Unfavorable)</strong></small>
+                <small class="text-muted">Target: 200 &bull; Actual Output: 188 Packets (<strong>Yield: -6% flagged</strong>) &bull; Oil: 10.5L (<strong>+5% variance flagged</strong>) &bull; 6 damaged pouches &bull; <strong>Unit Cost: ~₹30.90</strong></small>
             </div>
         </div>
         <button class="btn btn-outline-success btn-sm px-3 shadow-sm d-flex align-items-center" onclick="quickExecuteProduction()">
-            <i class="bi bi-lightning-charge-fill me-1 text-success"></i> Launch Plant Execution
+            <i class="bi bi-lightning-charge-fill me-1 text-success"></i> Launch Murukku Run
         </button>
     </div>
 </div>
@@ -47,30 +47,34 @@
     <div class="col-lg-5">
         <div class="card-pro p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold text-dark mb-0 fw-heading"><i class="bi bi-receipt text-primary me-2"></i> Master BOM (FG-BREAD-400)</h6>
-                <span class="badge bg-light text-dark border font-mono">Base Qty: 1 Unit</span>
+                <h6 class="fw-bold text-dark mb-0 fw-heading"><i class="bi bi-receipt text-primary me-2"></i> Master BOM (FG-MURUKKU-200)</h6>
+                <span class="badge bg-light text-dark border font-mono">Base Qty: 200 Pkts</span>
             </div>
-            <p class="small text-muted mb-3">Standard formulation required to produce 1 loaf of Classic Bread 400g:</p>
+            <p class="small text-muted mb-3">Standard recipe formulation per 200 packets of Murukku 200g:</p>
             <ul class="list-group list-group-flush small mb-3">
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                    <span><i class="bi bi-dot text-primary fs-5"></i> Refined Wheat Flour (RM-FLOUR-01)</span>
-                    <span class="font-mono fw-bold">0.250 kg <small class="text-muted">(1% scrap)</small></span>
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Refined Flour (RM-FLOUR-01)</span>
+                    <span class="font-mono fw-bold">40.00 kg <small class="text-muted">(@ ₹42/₹45)</small></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                    <span><i class="bi bi-dot text-primary fs-5"></i> Refined Cane Sugar (RM-SUGAR-01)</span>
-                    <span class="font-mono fw-bold">0.030 kg</span>
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Cooking Oil (RM-OIL-01)</span>
+                    <span class="font-mono fw-bold">10.00 litre <small class="text-muted">(@ ₹140)</small></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                    <span><i class="bi bi-dot text-primary fs-5"></i> Baker's Active Yeast (RM-YEAST-01)</span>
-                    <span class="font-mono fw-bold">0.020 kg</span>
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Salt & Spice Mix (RM-SPICE-01)</span>
+                    <span class="font-mono fw-bold">1.20 kg <small class="text-muted">(@ ₹200)</small></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                    <span><i class="bi bi-dot text-primary fs-5"></i> Food-Grade 400g Pouch (PM-POUCH-400)</span>
-                    <span class="font-mono fw-bold">1.000 unit</span>
+                    <span><i class="bi bi-dot text-primary fs-5"></i> 200g Pouch (PM-POUCH-200)</span>
+                    <span class="font-mono fw-bold">200 pieces <small class="text-muted">(@ ₹2.50)</small></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span><i class="bi bi-dot text-primary fs-5"></i> Outer Carton (PM-CARTON-20)</span>
+                    <span class="font-mono fw-bold">10 pieces <small class="text-muted">(@ ₹15.00)</small></span>
                 </li>
             </ul>
             <div class="p-2 rounded-3 bg-light border small text-muted">
-                <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Decoupled Architecture:</strong> Core dough formulation is independent of packaging, enabling instant multi-pack size scaling (e.g. 800g loaf).
+                <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Multi-Pack Extensibility:</strong> Same core snack formulation scales to 500g or 1kg pouches with zero recipe re-entry.
             </div>
         </div>
     </div>
@@ -190,8 +194,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     bom_id: 1,
-                    target_qty: 1000.0,
-                    batch_number: 'FG-BREAD-2026-B01'
+                    target_qty: 200.0,
+                    batch_number: 'FG-MURUKKU-2026-B01'
                 })
             });
             const woData = await woRes.json();
@@ -204,27 +208,28 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    actual_qty_produced: 995.0,
+                    actual_qty_produced: 188.0,
                     consumptions: [
-                        { component_item_id: 1, batch_id: 5, actual_qty: 258.0, scrap_qty: 8.0, notes: 'Dough scrap' },
-                        { component_item_id: 2, batch_id: 1, actual_qty: 30.0, scrap_qty: 0.0 },
-                        { component_item_id: 3, batch_id: 2, actual_qty: 20.0, scrap_qty: 0.0 },
-                        { component_item_id: 4, batch_id: 3, actual_qty: 1005.0, scrap_qty: 10.0 }
+                        { component_item_id: 1, batch_id: 1, actual_qty: 40.0, scrap_qty: 0.0, notes: 'Flour batch issue' },
+                        { component_item_id: 2, batch_id: 2, actual_qty: 10.5, scrap_qty: 0.5, notes: 'Oil (+5% variance)' },
+                        { component_item_id: 3, batch_id: 3, actual_qty: 1.2, scrap_qty: 0.0, notes: 'Spice mix' },
+                        { component_item_id: 4, batch_id: 4, actual_qty: 194.0, scrap_qty: 6.0, notes: '188 good + 6 damaged pouches' },
+                        { component_item_id: 5, batch_id: 5, actual_qty: 9.0, scrap_qty: 0.0, notes: '9 cartons' }
                     ],
-                    labor_cost: 1500.0,
-                    overhead_cost: 1000.0
+                    labor_cost: 1200.0,
+                    overhead_cost: 600.0
                 })
             });
             const compData = await compRes.json();
             if (compRes.ok && compData.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Baking Run Completed!',
+                    title: 'Murukku Run Completed!',
                     html: `
                         <div class="text-start small p-2">
-                            <div><strong>Batch Lot:</strong> FG-BREAD-2026-B01</div>
-                            <div><strong>Produced:</strong> 995 Loaves (Yield: -0.5%)</div>
-                            <div><strong>Unit Cost:</strong> ₹${compData.data.actual_unit_cost.toFixed(2)} / loaf</div>
+                            <div><strong>Batch Lot:</strong> FG-MURUKKU-2026-B01</div>
+                            <div><strong>Produced:</strong> 188 Packets (Yield: -6.0% flagged)</div>
+                            <div><strong>Unit Cost:</strong> ₹${compData.data.actual_unit_cost.toFixed(2)} / packet</div>
                             <div class="text-danger"><strong>MQV Variance:</strong> ₹${compData.data.material_quantity_variance.toFixed(2)}</div>
                         </div>
                     `,

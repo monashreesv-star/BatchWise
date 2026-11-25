@@ -11,7 +11,7 @@ In competitive technical internship interviews, evaluators focus on **code owner
 ## 2. On-The-Spot Modification Challenge: Adding a New Pack Size
 
 ### The Challenge
-> *"Suppose marketing wants to introduce a new **Family Pack 800g** SKU. It must use the exact same bread dough formula as the existing 400g bread, but double the dough ingredients and use an 800g pouch (`PM-POUCH-800`). How do you implement this without duplicating the dough recipe?"*
+> *"Suppose marketing wants to introduce a new **Murukku Family Pack 400g** SKU. It must use the exact same snack recipe formula as the existing 200g Murukku, but double the batch ingredients and use a 400g pouch (`PM-POUCH-400`). How do you implement this without duplicating the dough recipe?"*
 
 ### The Solution Architecture
 In `app/engine/bom_production.py`, BatchWise provides `add_pack_size_bom()`:
@@ -20,11 +20,11 @@ In `app/engine/bom_production.py`, BatchWise provides `add_pack_size_bom()`:
 def add_pack_size_bom(conn, base_bom_code: str, new_sku: str, new_name: str,
                       multiplier: float, new_packing_item_id: int, selling_price: float):
     """
-    1. Reads the base recipe from base_bom_code ('BOM-BREAD-400').
-    2. Creates the new finished SKU ('FG-BREAD-800').
+    1. Reads the base recipe from base_bom_code ('BOM-MURUKKU-200').
+    2. Creates the new finished SKU ('FG-MURUKKU-400').
     3. Creates a new BOM header linked to the new SKU.
     4. Copies component items:
-       - If category == 'packing_material', substitutes new_packing_item_id (800g pouch).
+       - If category == 'packing_material', substitutes new_packing_item_id (400g pouch).
        - If category == 'raw_material', scales quantity by multiplier (2.0x).
     """
 ```
@@ -37,14 +37,18 @@ from app.database import get_db
 from app.engine.bom_production import add_pack_size_bom, calculate_bom_requirements
 
 with get_db() as conn:
+    cur = conn.cursor()
+    cur.execute(\"SELECT id FROM items WHERE sku = 'PM-POUCH-400'\")
+    pouch_400_id = cur.fetchone()['id']
+
     item_id, bom_id = add_pack_size_bom(
         conn,
-        base_bom_code='BOM-BREAD-400',
-        new_sku='FG-BREAD-800',
-        new_name='Family Sliced Bread 800g',
+        base_bom_code='BOM-MURUKKU-200',
+        new_sku='FG-MURUKKU-400',
+        new_name='Traditional Murukku Family Pack 400g',
         multiplier=2.0,
-        new_packing_item_id=5,
-        selling_price=75.0
+        new_packing_item_id=pouch_400_id,
+        selling_price=95.0
     )
     calc = calculate_bom_requirements(conn, bom_id, target_qty=10.0)
     for c in calc['components']:
@@ -53,10 +57,10 @@ with get_db() as conn:
 ```
 **Expected Output:**
 ```
-Refined Wheat Flour Grade A: 5.05 kg (0.50 kg/unit + 1% scrap)
-Refined Cane Sugar: 0.603 kg
-Active Baker's Yeast & Salt Premix: 0.402 kg
-Food-Grade Family Bread Pouch 800g: 10.05 units
+Refined Flour (Maida/Rice): 4.0 kg
+Refined Cooking Oil: 1.0 litre
+Salt and Spice Mix: 0.12 kg
+400g Family Pack Printed Pouch: 10.0 pieces
 ```
 
 ---

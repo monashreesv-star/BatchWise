@@ -29,14 +29,14 @@
             </div>
             <div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary font-mono" style="font-size: 0.7rem;">DEMO STEP 6 (5:00–5:40)</span>
-                    <strong class="text-dark">Record ₹2,500 Partial Payment (Retailer A Supermarkets)</strong>
+                    <span class="badge bg-primary font-mono" style="font-size: 0.7rem;">DEMO STEP 7 (Section 5)</span>
+                    <strong class="text-dark">Record ₹4,000 Payment (Retailer A Supermarkets)</strong>
                 </div>
-                <small class="text-muted">Applies against Invoice INV-0001 (Total ₹4,200). Status updates to Partially Paid with remaining ₹1,700 balance due.</small>
+                <small class="text-muted">Applies against Invoice INV-0001 (Total ₹7,875). Status updates to Partially Paid with remaining ₹3,875 balance due.</small>
             </div>
         </div>
         <button class="btn btn-outline-primary btn-sm px-3 shadow-sm d-flex align-items-center" onclick="quickPayRetailerA()">
-            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Record Payment via NEFT
+            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Record ₹4,000 Payment via NEFT
         </button>
     </div>
 </div>
@@ -196,7 +196,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     invoice_id: 1,
-                    amount: 2500.0,
+                    amount: 4000.0,
                     payment_mode: 'bank_transfer',
                     reference_no: 'NEFT-RET-A-2026-001'
                 })
@@ -206,7 +206,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Payment Recorded!',
-                    text: `₹2,500.00 posted. Remaining Balance Due: ₹${d.data.balance_due.toFixed(2)}. Status: Partially Paid.`,
+                    text: `₹4,000.00 posted. Remaining Balance Due: ₹${(d.data.remaining_balance_due || d.data.balance_due).toFixed(2)}. Status: Partially Paid.`,
                     confirmButtonColor: '#4F46E5'
                 }).then(() => window.location.reload());
             } else {

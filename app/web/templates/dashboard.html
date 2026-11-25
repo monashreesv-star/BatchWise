@@ -131,14 +131,14 @@
         <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between">
             <div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.8rem;">Loaves produced</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.8rem;">Murukku produced</span>
                     <div class="kpi-icon-bubble kpi-bubble-purple">
                         <i class="bi bi-lightning-charge"></i>
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2">
                     <h3 class="fw-bold text-dark mb-0 font-mono" style="letter-spacing: -0.02em;">{{ total_output|int }}</h3>
-                    <small class="text-muted" style="font-size: 0.75rem;">99.5% yield</small>
+                    <small class="text-danger fw-semibold" style="font-size: 0.75rem;">188 pkts (-6% yield)</small>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-end mt-3 pt-2 border-top">
@@ -208,23 +208,23 @@
                         <canvas id="triplinkGaugeChart"></canvas>
                     </div>
                     <div style="position: absolute; text-align: center; pointer-events: none;">
-                        <span class="fw-bold font-mono text-dark" style="font-size: 1.5rem;">99.5%</span>
-                        <span class="text-muted d-block text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.05em;">Yield</span>
+                        <span class="fw-bold font-mono text-dark" style="font-size: 1.45rem;">94.0%</span>
+                        <span class="text-danger d-block text-uppercase fw-bold" style="font-size: 0.62rem; letter-spacing: 0.05em;">-6% Yield</span>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="d-flex flex-column gap-2 small">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #10B981;"></span> On track</span>
-                            <strong class="font-mono text-dark">995</strong>
+                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #10B981;"></span> Good pkts</span>
+                            <strong class="font-mono text-dark">188</strong>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #F59E0B;"></span> Scrap scrap</span>
-                            <strong class="font-mono text-warning">8 kg</strong>
+                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #F59E0B;"></span> Damaged</span>
+                            <strong class="font-mono text-warning">6 pouches</strong>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #4F46E5;"></span> Active lots</span>
-                            <strong class="font-mono text-primary">{{ active_batches }}</strong>
+                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #4F46E5;"></span> Oil var</span>
+                            <strong class="font-mono text-danger">+5% flag</strong>
                         </div>
                     </div>
                 </div>
@@ -320,80 +320,66 @@
                 <div class="col-6">
                     <div class="p-2 rounded-3 border bg-white h-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 1 &bull; Sales</span>
-                            {% if journey.so %}
-                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Done &#10003;</span>
-                            {% else %}
-                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
-                            {% endif %}
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 1 &bull; Procure</span>
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Inward &#10003;</span>
                         </div>
-                        <div class="fw-semibold text-dark small">Retailer A Order (₹4,200)</div>
+                        <div class="fw-semibold text-dark small">Flour PO & GRN (60 kg @ ₹45)</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Flour balance: 120 kg</div>
                     </div>
                 </div>
                 <!-- Step 2 -->
                 <div class="col-6">
                     <div class="p-2 rounded-3 border bg-white h-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 2 &bull; Procure</span>
-                            {% if journey.grn %}
-                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Inward &#10003;</span>
-                            {% else %}
-                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
-                            {% endif %}
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 2 &bull; Plant</span>
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Issued &#10003;</span>
                         </div>
-                        <div class="fw-semibold text-dark small">Flour PO & GRN (1,000 kg)</div>
+                        <div class="fw-semibold text-dark small">Murukku Run (40kg, 10.5L Oil)</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Oil variance: +5% flagged</div>
                     </div>
                 </div>
                 <!-- Step 3 -->
                 <div class="col-6">
                     <div class="p-2 rounded-3 border bg-white h-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 3 &bull; Plant</span>
-                            {% if journey.wo %}
-                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Baked &#10003;</span>
-                            {% else %}
-                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
-                            {% endif %}
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 3 &bull; Output</span>
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Output &#10003;</span>
                         </div>
-                        <div class="fw-semibold text-dark small">Baking Run & MQV (-₹277.50)</div>
+                        <div class="fw-semibold text-dark small">188 Pkts (Yield -6%, 6 Damaged)</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Stock: 238 pkts (50+188)</div>
                     </div>
                 </div>
                 <!-- Step 4 -->
                 <div class="col-6">
                     <div class="p-2 rounded-3 border bg-white h-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 4 &bull; Admin</span>
-                            {% if journey.inv %}
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 4 &bull; Sales</span>
                             <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Billed &#10003;</span>
-                            {% else %}
-                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
-                            {% endif %}
                         </div>
-                        <div class="fw-semibold text-dark small">GST Invoice (INV-0001)</div>
+                        <div class="fw-semibold text-dark small">Retailer A Order (150 Pkts = ₹7,875)</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">FG drops to 88 pkts</div>
                     </div>
                 </div>
                 <!-- Step 5 -->
                 <div class="col-6">
                     <div class="p-2 rounded-3 border bg-white h-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 5 &bull; Supply</span>
-                            <span class="badge bg-info bg-opacity-10 text-primary font-mono" style="font-size: 0.65rem;">Checked &#10003;</span>
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 5 &bull; Shortage</span>
+                            <span class="badge bg-info bg-opacity-10 text-primary font-mono" style="font-size: 0.65rem;">Flagged &#10003;</span>
                         </div>
-                        <div class="fw-semibold text-dark small">Distributor B Deficit (605)</div>
+                        <div class="fw-semibold text-dark small">Distributor B Deficit: 32 Pkts</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">120 ordered vs 88 on-hand</div>
                     </div>
                 </div>
                 <!-- Step 6 -->
                 <div class="col-6">
                     <div class="p-2 rounded-3 border bg-white h-100">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 6 &bull; Audit</span>
-                            {% if journey.pay %}
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 6 &bull; Accounts</span>
                             <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Paid &#10003;</span>
-                            {% else %}
-                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
-                            {% endif %}
                         </div>
-                        <div class="fw-semibold text-dark small">Collect ₹2,500 NEFT</div>
+                        <div class="fw-semibold text-dark small">Collect ₹4,000 NEFT</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Outstanding: ₹3,875</div>
                     </div>
                 </div>
             </div>

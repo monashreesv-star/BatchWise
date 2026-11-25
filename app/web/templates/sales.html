@@ -96,10 +96,10 @@
             </div>
             <div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary font-mono" style="font-size: 0.7rem;">DEMO STEP 1 (0:40–1:30)</span>
-                    <strong class="text-dark">Retailer A Order Placement by Salesman (Ravi Shankar)</strong>
+                    <span class="badge bg-primary font-mono" style="font-size: 0.7rem;">DEMO STEP 4 (4.1)</span>
+                    <strong class="text-dark">Retailer A Order Placement by Salesman A (Ravi Shankar)</strong>
                 </div>
-                <small class="text-muted">100 Loaves of Classic Bread 400g @ ₹40.00/unit &bull; Taxable: ₹4,000 + CGST: ₹100 + SGST: ₹100 = <strong>₹4,200 Grand Total</strong></small>
+                <small class="text-muted">150 Packets of Traditional Murukku 200g @ ₹50.00/unit &bull; Taxable: ₹7,500 + CGST: ₹187.50 + SGST: ₹187.50 = <strong>₹7,875 Grand Total</strong></small>
             </div>
         </div>
         <button class="btn btn-primary btn-sm px-3 shadow-sm d-flex align-items-center" onclick="quickBookRetailerA()">
@@ -304,15 +304,15 @@
     async function quickBookRetailerA() {
         Swal.fire({
             title: 'Booking Retailer A Order',
-            text: 'Placing order for 100 loaves Classic Bread @ ₹40/unit (₹4,200 total inc. GST)...',
+            text: 'Placing order for 150 packets Murukku 200g @ ₹50/unit (₹7,875 total inc. GST)...',
             didOpen: () => Swal.showLoading(),
             allowOutsideClick: false
         });
 
-        // Fetch dynamic customer ID for Retailer A and item ID for FG-BREAD-400
+        // Fetch dynamic customer ID for Retailer A and item ID for FG-MURUKKU-200
         const custSel = document.getElementById('customerId');
         const itemSel = document.getElementById('itemId');
-        const custId = custSel ? parseInt(custSel.options[0].value) : 1;
+        const custId = custSel ? parseInt(custSel.options[0].value) : 3;
         const itemId = itemSel ? parseInt(itemSel.options[0].value) : 6;
 
         try {
@@ -321,8 +321,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     customer_id: custId,
-                    items: [{ item_id: itemId, quantity: 100.0, unit_price: 40.0 }],
-                    notes: 'Benchmark order for Retailer A Supermarkets'
+                    items: [{ item_id: itemId, quantity: 150.0, unit_price: 50.0 }],
+                    notes: 'Section 5 Benchmark order for Retailer A Supermarkets'
                 })
             });
             const d = await res.json();

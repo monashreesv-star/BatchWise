@@ -8,7 +8,7 @@ from app.engine.gst_invoice import calculate_gst_breakdown, number_to_words_inr,
 class TestGSTInvoice(unittest.TestCase):
     def test_intrastate_gst(self):
         items = [{"item_id": 1, "quantity": 100, "unit_price": 40.0, "gst_rate": 5.0}]
-        res = calculate_gst_breakdown("Karnataka", items)
+        res = calculate_gst_breakdown("Tamil Nadu", items)
         self.assertTrue(res["is_intrastate"])
         self.assertEqual(res["total_taxable"], 4000.0)
         self.assertEqual(res["total_cgst"], 100.0)
@@ -18,7 +18,7 @@ class TestGSTInvoice(unittest.TestCase):
 
     def test_interstate_gst(self):
         items = [{"item_id": 1, "quantity": 100, "unit_price": 40.0, "gst_rate": 5.0}]
-        res = calculate_gst_breakdown("Maharashtra", items)
+        res = calculate_gst_breakdown("Karnataka", items)
         self.assertFalse(res["is_intrastate"])
         self.assertEqual(res["total_taxable"], 4000.0)
         self.assertEqual(res["total_cgst"], 0.0)

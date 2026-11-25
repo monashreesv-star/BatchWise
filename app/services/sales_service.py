@@ -195,6 +195,9 @@ def generate_invoice_for_so(conn, user: dict, so_id: int):
     return {
         "invoice_id": inv_id,
         "invoice_number": inv_number,
+        "total_taxable": total_taxable,
+        "total_cgst": total_cgst,
+        "total_sgst": total_sgst,
         "grand_total": grand_total,
         "balance_due": grand_total,
         "pdf_path": pdf_path

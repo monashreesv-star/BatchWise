@@ -74,11 +74,11 @@ $$\text{Yield Variance \%} = \left(\frac{\text{Actual Finished Units} - \text{Pl
 
 ## 4. Multi-Pack Architecture (Technical Differentiator)
 
-In technical interviews and real-world bakeries, introducing a new SKU (e.g., *Family Bread 800g*) should not require duplicating the core dough recipe. 
+In technical interviews and real-world food factories, introducing a new SKU (e.g., *Murukku Family Pack 400g*) should not require duplicating the core dough recipe. 
 
 BatchWise implements a **phantom/shared recipe pattern**:
-1. The core formulation (Flour, Sugar, Yeast, Salt) is authored once under the master BOM.
-2. The dynamic extension function `add_pack_size_bom(multiplier, packing_item_id)` scales ingredient ratios linearly ($2.0\times$ for 800g) while dynamically substituting packaging materials (`PM-POUCH-800` instead of `PM-POUCH-400`).
+1. The core formulation (Flour, Oil, Spice Mix) is authored once under the master BOM (`BOM-MURUKKU-200`).
+2. The dynamic extension function `add_pack_size_bom(multiplier, packing_item_id)` scales ingredient ratios linearly ($2.0\times$ for 400g) while dynamically substituting packaging materials (`PM-POUCH-400` instead of `PM-POUCH-200`).
 3. If the flour formulation changes, downstream packaging variants inherit updates without manual data duplication.
 
 ---
@@ -102,4 +102,4 @@ BatchWise implements a **phantom/shared recipe pattern**:
 
 1. **ACID Transaction Boundaries**: All multi-table mutations run within atomic transactions using Python's `@contextmanager get_db()`. If any step fails, the entire transaction rolls back cleanly.
 2. **Shortage Detection**: Before an order is committed, `check_stock_shortage()` evaluates active inventory. If demand exceeds stock, it traverses the active BOM, computes exact component replenishment requirements (including scrap allowances), and provides an instant procurement plan.
-3. **Statutory GST Engine**: Automatically resolves intrastate (CGST 2.5% + SGST 2.5%) vs. interstate (IGST 5.0%) tax regimes based on State Code compliance (Karnataka Code 29). Produces PDF 1.4 compliant tax documents natively without external CLI dependencies.
+3. **Statutory GST Engine**: Automatically resolves intrastate (CGST 2.5% + SGST 2.5%) for Tamil Nadu (State Code 33) vs. interstate (IGST 5.0%) for Karnataka (State Code 29). Produces PDF 1.4 compliant tax documents natively without external CLI dependencies.

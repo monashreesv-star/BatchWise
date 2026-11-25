@@ -14,15 +14,16 @@ class TestStockLedger(unittest.TestCase):
 
     def test_inward_outward_ledger_cycle(self):
         with get_db() as conn:
+            initial_stock = get_item_stock(conn, 1)
             b_id = record_inward(
                 conn, item_id=1, batch_number="TEST-BATCH-01", qty=500.0,
                 unit_cost=32.0, source_type="grn", source_id=1, mfg_date="2026-11-17"
             )
-            self.assertEqual(get_item_stock(conn, 1), 500.0)
+            self.assertEqual(get_item_stock(conn, 1), initial_stock + 500.0)
 
             tx_num = record_outward(conn, item_id=1, batch_id=b_id, qty=200.0, reference_type="WO", reference_id=1)
             self.assertTrue(tx_num.startswith("STX-"))
-            self.assertEqual(get_item_stock(conn, 1), 300.0)
+            self.assertEqual(get_item_stock(conn, 1), initial_stock + 300.0)
 
             is_valid, _ = verify_inventory_integrity(conn)
             self.assertTrue(is_valid)

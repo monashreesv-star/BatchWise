@@ -214,8 +214,8 @@ def add_pack_size_bom(conn, base_bom_code: str, new_sku: str, new_name: str,
     new_bom_code = f"BOM-{new_sku}"
     cur.execute("""
         INSERT INTO boms (bom_code, name, finished_item_id, base_qty, uom, version, description)
-        VALUES (?, ?, ?, 1.0, 'unit', 1, ?)
-    """, (new_bom_code, f"Recipe for {new_name}", new_item_id, f"Derived from {base_bom_code} (scale {multiplier}x)"))
+        VALUES (?, ?, ?, ?, 'unit', 1, ?)
+    """, (new_bom_code, f"Recipe for {new_name}", new_item_id, base_bom["base_qty"], f"Derived from {base_bom_code} (scale {multiplier}x)"))
     new_bom_id = cur.lastrowid
 
     cur.execute("""
@@ -226,17 +226,28 @@ def add_pack_size_bom(conn, base_bom_code: str, new_sku: str, new_name: str,
     """, (base_bom["id"],))
     base_items = cur.fetchall()
 
+    added_components = set()
     for bi in base_items:
         if bi["category"] == "packing_material":
-            cur.execute("""
-                INSERT INTO bom_items (bom_id, component_item_id, quantity, scrap_percentage, notes)
-                VALUES (?, ?, 1.0, ?, 'Specific packaging for new pack size')
-            """, (new_bom_id, new_packing_item_id, bi["scrap_percentage"]))
+            if new_packing_item_id not in added_components:
+                cur.execute("""
+                    INSERT INTO bom_items (bom_id, component_item_id, quantity, scrap_percentage, notes)
+                    VALUES (?, ?, ?, ?, 'Specific packaging for new pack size')
+                """, (new_bom_id, new_packing_item_id, bi["quantity"], bi["scrap_percentage"]))
+                added_components.add(new_packing_item_id)
+            elif bi["component_item_id"] not in added_components:
+                cur.execute("""
+                    INSERT INTO bom_items (bom_id, component_item_id, quantity, scrap_percentage, notes)
+                    VALUES (?, ?, ?, ?, 'Secondary packaging for new pack size')
+                """, (new_bom_id, bi["component_item_id"], bi["quantity"], bi["scrap_percentage"]))
+                added_components.add(bi["component_item_id"])
         else:
             scaled_qty = round(bi["quantity"] * multiplier, 4)
-            cur.execute("""
-                INSERT INTO bom_items (bom_id, component_item_id, quantity, scrap_percentage, notes)
-                VALUES (?, ?, ?, ?, 'Scaled from core dough recipe')
-            """, (new_bom_id, bi["component_item_id"], scaled_qty, bi["scrap_percentage"]))
+            if bi["component_item_id"] not in added_components:
+                cur.execute("""
+                    INSERT INTO bom_items (bom_id, component_item_id, quantity, scrap_percentage, notes)
+                    VALUES (?, ?, ?, ?, 'Scaled from core recipe')
+                """, (new_bom_id, bi["component_item_id"], scaled_qty, bi["scrap_percentage"]))
+                added_components.add(bi["component_item_id"])
 
     return new_item_id, new_bom_id
