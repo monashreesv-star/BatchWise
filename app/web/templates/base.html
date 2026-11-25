@@ -68,65 +68,76 @@
             letter-spacing: -0.02em;
         }
 
-        /* Modern Light Sidebar (Matching Triplink Reference) */
+        /* Modern Dark Navy Sidebar (Exact Match with Reference) */
         .app-sidebar {
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--sidebar-border);
+            background-color: #0B132B; /* Dark luxury navy */
+            border-right: 1px solid #1E293B;
             min-height: 100vh;
-            color: var(--sidebar-text);
+            color: #94A3B8;
             z-index: 1020;
         }
 
-        /* Workspace Switcher Card at Top of Sidebar */
-        .workspace-selector-card {
-            background: #FFFFFF;
-            border: 1px solid #EAEFF5;
-            border-radius: 12px;
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        .sidebar-brand-box {
+            padding: 16px 14px 12px 14px;
+            border-bottom: 1px solid #1E293B;
+            margin-bottom: 12px;
         }
 
-        .workspace-selector-card:hover {
-            border-color: #CBD5E1;
-            background: #F8FAFC;
-        }
-
-        .workspace-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-            color: #4F46E5;
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2563EB;
+            color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 0.95rem;
-            flex-shrink: 0;
-            border: 1px solid #C7D2FE;
+            font-size: 1.15rem;
+            box-shadow: 0 0 14px rgba(37, 99, 235, 0.45);
         }
+
+        .snack-pill-strip {
+            background: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 9999px;
+            padding: 4px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.68rem;
+            color: #CBD5E1;
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .snack-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+        .snack-dot.yellow { background: #FBBF24; }
+        .snack-dot.green { background: #10B981; }
+        .snack-dot.orange { background: #F97316; }
+        .snack-dot.pink { background: #EC4899; }
 
         .sidebar-section-title {
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #94A3B8;
+            color: #64748B;
             font-weight: 700;
-            padding: 1.1rem 1rem 0.35rem 1rem;
+            padding: 0.8rem 1rem 0.35rem 1rem;
         }
 
         .app-sidebar .nav-link {
-            color: #64748B;
+            color: #94A3B8;
             font-weight: 500;
             font-size: 0.84rem;
             padding: 0.65rem 0.9rem;
-            border-radius: 12px;
-            margin: 2px 10px;
+            border-radius: 10px;
+            margin: 2px 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -134,50 +145,64 @@
         }
 
         .app-sidebar .nav-link i.nav-icon {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             margin-right: 12px;
-            color: #94A3B8;
+            color: #64748B;
             transition: all 0.15s ease;
         }
 
         .app-sidebar .nav-link:hover {
-            color: #1E293B;
-            background-color: #F1F5F9;
+            color: #FFFFFF;
+            background-color: #1E293B;
         }
 
         .app-sidebar .nav-link:hover i.nav-icon {
-            color: #4F46E5;
+            color: #60A5FA;
         }
 
-        /* Active Navigation Item (Triplink Style) */
+        /* Active Navigation Item (Exact Reference Match: Royal Blue with Right Chevron) */
         .app-sidebar .nav-link.active {
-            color: #4F46E5;
-            background-color: #EEF2FF;
+            color: #FFFFFF !important;
+            background-color: #2563EB !important;
             font-weight: 600;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
         }
 
         .app-sidebar .nav-link.active i.nav-icon {
-            color: #4F46E5;
+            color: #FFFFFF !important;
+        }
+
+        .app-sidebar .nav-link.active::after {
+            content: "›";
+            font-size: 1.25rem;
+            line-height: 1;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.75);
+            margin-left: auto;
         }
 
         .nav-counter-pill {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 600;
             padding: 1px 7px;
             border-radius: 10px;
-            background: #F1F5F9;
-            color: #64748B;
+            background: #1E293B;
+            color: #94A3B8;
             font-family: 'JetBrains Mono', monospace;
         }
 
         .app-sidebar .nav-link.active .nav-counter-pill {
-            background: #4F46E5;
+            background: rgba(255, 255, 255, 0.2);
             color: #FFFFFF;
         }
 
-        /* Top Header Navbar (Matching Triplink Reference) */
+        /* Top Header Navbar (Matching Reference) */
         .app-header {
             background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            height: 64px;
+            z-index: 1000;
+        }
             border-bottom: 1px solid var(--sidebar-border);
             height: 64px;
             z-index: 1000;
@@ -467,48 +492,69 @@
 <body>
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <!-- Modern Left Sidebar (Exact Triplink Style) -->
+            <!-- Modern Dark Navy Sidebar (Exact Match with Reference) -->
             <aside class="col-md-3 col-xl-2 d-md-block app-sidebar py-3 px-3">
                 <div class="position-sticky top-0">
-                    <!-- Brand / Workspace Switcher (Triplink Style) -->
-                    <div class="workspace-selector-card mb-3">
-                        <div class="d-flex align-items-center gap-2 text-truncate">
-                            <div class="workspace-avatar">
-                                B
+                    <!-- Brand / Workspace Switcher (Order-to-Audit South Indian Snacks Mfg) -->
+                    <div class="sidebar-brand-box">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="sidebar-brand-icon">
+                                <i class="bi bi-fan"></i>
                             </div>
                             <div class="text-truncate">
-                                <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; letter-spacing: -0.01em;">BatchWise Foods</div>
-                                <div class="text-muted text-truncate" style="font-size: 0.7rem;">Operations workspace</div>
+                                <div class="fw-bold text-white lh-1 text-truncate" style="font-size: 1.05rem; letter-spacing: -0.01em;">Order-to-Audit</div>
+                                <div class="text-muted text-truncate" style="font-size: 0.72rem; color: #94A3B8 !important;">South Indian Snacks Mfg</div>
                             </div>
                         </div>
-                        <i class="bi bi-chevron-expand text-muted ms-1" style="font-size: 0.8rem;"></i>
+                        <!-- Snack Category Pill Strip -->
+                        <div class="snack-pill-strip">
+                            <span class="snack-dot yellow"></span><span>Murukku</span>
+                            <span class="snack-dot green"></span><span>Mixture</span>
+                            <span class="snack-dot orange"></span><span>Chips</span>
+                            <span class="snack-dot pink"></span><span>Sweets</span>
+                        </div>
                     </div>
 
-                    <!-- Navigation Groups (Strict Role-Based Scoping) -->
-                    <div class="sidebar-section-title">Workspace</div>
+                    <!-- Navigation Groups (Strict Role-Based Scoping & Reference Matching) -->
+                    <div class="sidebar-section-title">OPERATIONS & AUDIT</div>
                     <ul class="nav flex-column mb-2">
                         {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">
-                                <span><i class="bi bi-grid nav-icon"></i> Overview</span>
-                                <span class="nav-counter-pill">Live</span>
+                                <span><i class="bi bi-grid nav-icon"></i> Dashboard</span>
                             </a>
                         </li>
                         {% endif %}
 
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/inventory' and '#products' in request.url.path %}active{% endif %}" href="/inventory">
+                                <span><i class="bi bi-box-seam nav-icon"></i> Products</span>
+                            </a>
+                        </li>
+
                         {% if user and user.role in ['admin', 'salesman'] %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/sales' %}active{% endif %}" href="/sales">
-                                <span><i class="bi bi-inbox nav-icon"></i> B2B Sales Orders</span>
-                                <span class="nav-counter-pill">Field</span>
+                            <a class="nav-link {% if request.url.path == '/sales' and '#customers' in request.url.path %}active{% endif %}" href="/sales">
+                                <span><i class="bi bi-people nav-icon"></i> Customers</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/sales' and '#customers' not in request.url.path %}active{% endif %}" href="/sales">
+                                <span><i class="bi bi-cart3 nav-icon"></i> Orders</span>
                             </a>
                         </li>
                         {% endif %}
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/inventory' and '#products' not in request.url.path %}active{% endif %}" href="/inventory">
+                                <span><i class="bi bi-layers nav-icon"></i> Inventory</span>
+                            </a>
+                        </li>
 
                         {% if user and user.role in ['admin', 'purchase_manager', 'production_manager'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/purchase' %}active{% endif %}" href="/purchase">
-                                <span><i class="bi bi-truck nav-icon"></i> Procurement & GRN</span>
+                                <span><i class="bi bi-truck nav-icon"></i> Procurement</span>
                             </a>
                         </li>
                         {% endif %}
@@ -516,18 +562,7 @@
                         {% if user and user.role in ['admin', 'production_manager'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/production' %}active{% endif %}" href="/production">
-                                <span><i class="bi bi-gear-wide nav-icon"></i> Plant & Production BOM</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-
-                    <div class="sidebar-section-title">Manage & Finance</div>
-                    <ul class="nav flex-column mb-2">
-                        {% if user and user.role in ['admin', 'purchase_manager', 'production_manager', 'auditor', 'salesman'] %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
-                                <span><i class="bi bi-archive nav-icon"></i> Stock Ledger & Shortage</span>
+                                <span><i class="bi bi-gear-wide-connected nav-icon"></i> Production</span>
                             </a>
                         </li>
                         {% endif %}
@@ -535,8 +570,12 @@
                         {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/invoices' %}active{% endif %}" href="/invoices">
-                                <span><i class="bi bi-receipt-cutoff nav-icon"></i> GST Invoices</span>
-                                <span class="nav-counter-pill">5%</span>
+                                <span><i class="bi bi-receipt nav-icon"></i> Invoices</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/invoices' and '#payments' in request.url.path %}active{% endif %}" href="/invoices">
+                                <span><i class="bi bi-credit-card nav-icon"></i> Payments</span>
                             </a>
                         </li>
                         {% endif %}
@@ -544,7 +583,7 @@
                         {% if user and user.role in ['admin', 'production_manager', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
-                                <span><i class="bi bi-diagram-3 nav-icon"></i> 360° Traceability</span>
+                                <span><i class="bi bi-diagram-3 nav-icon"></i> Traceability</span>
                             </a>
                         </li>
                         {% endif %}
@@ -552,21 +591,20 @@
                         {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/reports' %}active{% endif %}" href="/reports">
-                                <span><i class="bi bi-file-earmark-spreadsheet nav-icon"></i> GSTR-1 & Audit</span>
+                                <span><i class="bi bi-bar-chart-line nav-icon"></i> Reports</span>
                             </a>
                         </li>
                         {% endif %}
                     </ul>
 
                     <!-- Evaluator Personas -->
-                    <div class="sidebar-section-title">Demo Personas</div>
+                    <div class="sidebar-section-title">QUICK ROLES</div>
                     <div class="px-2">
-                        <div class="d-flex flex-wrap gap-1 p-2 bg-light rounded-3 border">
-                            <a href="/switch-role/admin" class="badge bg-danger text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Admin</a>
-                            <a href="/switch-role/salesman" class="badge bg-primary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Sales</a>
-                            <a href="/switch-role/purchase" class="badge bg-warning text-dark text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Procure</a>
-                            <a href="/switch-role/production" class="badge bg-success text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Plant</a>
-                            <a href="/switch-role/auditor" class="badge bg-secondary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem; background-color: #7C3AED !important;">Auditor</a>
+                        <div class="d-flex flex-wrap gap-1 p-2 rounded-3 border" style="background: #111C44; border-color: #1E293B !important;">
+                            <a href="/switch-role/admin" class="badge bg-primary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Admin</a>
+                            <a href="/switch-role/salesman" class="badge bg-secondary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Sales</a>
+                            <a href="/switch-role/production" class="badge bg-success text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Supervisor</a>
+                            <a href="/switch-role/auditor" class="badge bg-warning text-dark text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Accountant</a>
                         </div>
                     </div>
                 </div>
@@ -574,94 +612,41 @@
 
             <!-- Main Workspace Application View -->
             <div class="col-md-9 col-xl-10 d-flex flex-column min-vh-100">
-                <!-- Top Header Navbar (Exact Triplink Style) -->
+                <!-- Top Header Navbar (Exact Reference Match) -->
                 <header class="app-header sticky-top px-4 d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-4">
-                        <!-- Breadcrumb Trail -->
-                        <div class="breadcrumb-trail d-none d-sm-flex">
-                            <span>Workspace</span>
-                            <i class="bi bi-chevron-right" style="font-size: 0.65rem;"></i>
-                            <span class="active-crumb">Overview</span>
-                        </div>
-
-                        <!-- Pill Search Bar (Triplink Style) -->
-                        <div class="search-pill d-none d-lg-flex" onclick="openSearchModal()">
-                            <i class="bi bi-search text-muted"></i>
-                            <span>Search tickets, bookings, batches...</span>
-                            <span class="kbd-pill ms-auto">Ctrl K</span>
-                        </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0 fw-heading" style="font-size: 1.15rem;">Executive Operations Dashboard</h5>
+                        <small class="text-muted" style="font-size: 0.75rem;">Live overview of sales, orders, production yield and inventory</small>
                     </div>
 
-                    <!-- Right Controls: Status Pill, Night Mode, Notifications, Date, User -->
-                    <div class="d-flex align-items-center gap-3">
-                        <!-- Live Status Pill (Triplink Style) -->
-                        <div class="status-sync-pill d-none d-md-flex">
-                            <span class="pulse-indicator"></span>
-                            <span>Workspace data saved locally</span>
+                    <!-- Right Controls: Role Selector, Refresh, User Pill, Logout -->
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Role Segmented Group (Exact Match) -->
+                        <div class="d-flex align-items-center gap-1 bg-light p-1 rounded-pill border">
+                            <span class="text-muted ms-2 small fw-semibold" style="font-size: 0.74rem;">Role:</span>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="/switch-role/admin" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'admin' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'admin' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Admin</a>
+                                <a href="/switch-role/salesman" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'salesman' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'salesman' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Salesman</a>
+                                <a href="/switch-role/production" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'production_manager' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'production_manager' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Supervisor</a>
+                                <a href="/switch-role/auditor" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'auditor' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'auditor' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Accountant</a>
+                            </div>
                         </div>
 
-                        <!-- Moon / Night Mode Icon -->
-                        <button class="icon-circle-btn d-none d-sm-flex" title="Toggle Theme">
-                            <i class="bi bi-moon"></i>
+                        <!-- Refresh Telemetry Button -->
+                        <button class="btn btn-sm btn-white-outline rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px;" onclick="window.location.reload()" title="Refresh Telemetry">
+                            <i class="bi bi-arrow-clockwise text-muted fs-6"></i>
                         </button>
 
-                        <!-- Notification Bell with Unread Dot -->
-                        <div class="dropdown">
-                            <button class="icon-circle-btn position-relative" data-bs-toggle="dropdown">
-                                <i class="bi bi-bell"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width: 7px; height: 7px;"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 p-0" style="min-width: 280px;">
-                                <div class="px-3 py-2 bg-light border-bottom rounded-top-3 fw-bold text-dark small">
-                                    Operational Notifications
-                                </div>
-                                <div class="p-2 small">
-                                    <div class="p-2 border-bottom">
-                                        <div class="fw-semibold text-dark">Retailer A Payment Received</div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">₹2,500 NEFT reconciled to invoice INV-0001</div>
-                                    </div>
-                                    <div class="p-2 border-bottom">
-                                        <div class="fw-semibold text-dark">Baking Run Completed</div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">995 Loaves produced, 8kg scrap logged</div>
-                                    </div>
-                                    <div class="p-2">
-                                        <div class="fw-semibold text-dark">ACID Double-Entry Verified</div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">Sum(Debit) = Sum(Credit) in stock ledger</div>
-                                    </div>
-                                </div>
-                            </ul>
+                        <!-- User Profile Pill (Purple Pill Exact Match) -->
+                        <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: #F3E8FF; border: 1px solid #E9D5FF; color: #7E22CE; font-size: 0.78rem; font-weight: 600;">
+                            <i class="bi bi-person-fill"></i>
+                            <span>{{ user.full_name or 'Admin (Director)' }}</span>
                         </div>
 
-                        <!-- Formatted Live Date (Triplink Style) -->
-                        <div class="text-muted d-none d-xl-block small" style="font-size: 0.78rem;">
-                            Thursday, November 26, 2026
-                        </div>
-
-                        <div class="vr my-2 mx-1 d-none d-sm-block"></div>
-
-                        <!-- User Profile Pill -->
-                        <div class="dropdown">
-                            <button class="btn btn-light btn-sm border d-flex align-items-center py-1 px-2 rounded-3 bg-white" data-bs-toggle="dropdown">
-                                <span class="avatar-initials me-2">{{ user.username[0]|upper if user else 'A' }}</span>
-                                <div class="text-start me-1 d-none d-lg-block">
-                                    <div class="fw-bold lh-1 text-dark" style="font-size: 0.8rem;">{{ user.full_name or user.username }}</div>
-                                    <small class="badge badge-role-{{ user.role }} text-uppercase" style="font-size: 0.62rem;">{{ user.role }}</small>
-                                </div>
-                                <i class="bi bi-chevron-down text-muted ms-1" style="font-size: 0.7rem;"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" style="min-width: 240px;">
-                                <li class="px-3 py-2 border-bottom">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Switch Persona</small>
-                                </li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/admin"><i class="bi bi-shield-lock text-danger me-2"></i> Factory Admin</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/salesman"><i class="bi bi-person text-primary me-2"></i> Ravi (Field Salesman A)</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/purchase"><i class="bi bi-truck text-warning me-2"></i> Priya (Purchase Desk)</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/production"><i class="bi bi-gear text-success me-2"></i> Suresh (Plant Supervisor)</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/auditor"><i class="bi bi-calculator text-info me-2"></i> Anita (External Auditor)</a></li>
-                                <li class="dropdown-divider"></li>
-                                <li><button class="dropdown-item text-danger py-2" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</button></li>
-                            </ul>
-                        </div>
+                        <!-- Logout Button (Outline Pill Exact Match) -->
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-flex align-items-center gap-1 shadow-sm" style="font-size: 0.76rem;" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
                     </div>
                 </header>
 
