@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BatchWise ERP{% endblock %} - Industrial Manufacturing Engine</title>
-    <!-- Google Fonts: Plus Jakarta Sans (Headings), Inter (UI Body), JetBrains Mono (Numbers/Financials) -->
+    
+    <!-- Google Fonts: Plus Jakarta Sans (Headings) & Inter (UI Body) & JetBrains Mono (Numbers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -19,31 +20,31 @@
     
     <style>
         :root {
+            /* Triplink / Modern Luxury Palette */
             --brand-primary: #4F46E5;
-            --brand-primary-dark: #3730A3;
+            --brand-primary-hover: #4338CA;
             --brand-primary-light: #EEF2FF;
-            --brand-accent: #2563EB;
-            --brand-emerald: #059669;
-            --brand-amber: #D97706;
-            --brand-rose: #E11D48;
+            --brand-primary-border: #C7D2FE;
+            --brand-teal: #10B981;
+            --brand-amber: #F59E0B;
+            --brand-rose: #EF4444;
             
             --bg-canvas: #F8FAFC;
             --bg-surface: #FFFFFF;
-            --sidebar-bg: #0B0F19;
-            --sidebar-surface: #111827;
-            --sidebar-border: #1E293B;
-            --sidebar-text: #94A3B8;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #EAEFF5;
+            --sidebar-text: #64748B;
+            --sidebar-text-active: #4F46E5;
             
             --text-heading: #0F172A;
             --text-body: #334155;
             --text-muted: #64748B;
             --border-subtle: #E2E8F0;
-            --border-card: #E5E7EB;
+            --border-card: #EAEFF5;
             
-            --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-            --shadow-hover: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
-            --radius-card: 14px;
+            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.025);
+            --shadow-hover: 0 10px 24px -4px rgba(15, 23, 42, 0.06), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+            --radius-card: 16px;
         }
 
         body {
@@ -51,14 +52,15 @@
             background-color: var(--bg-canvas);
             color: var(--text-body);
             overflow-x: hidden;
-            font-size: 0.9rem;
-            letter-spacing: -0.011em;
+            font-size: 0.88rem;
+            letter-spacing: -0.01em;
         }
 
         h1, h2, h3, h4, h5, h6, .fw-heading {
             font-family: 'Plus Jakarta Sans', sans-serif;
             letter-spacing: -0.025em;
             color: var(--text-heading);
+            font-weight: 700;
         }
 
         .font-mono {
@@ -66,7 +68,7 @@
             letter-spacing: -0.02em;
         }
 
-        /* Modern Sidebar */
+        /* Modern Light Sidebar (Matching Triplink Reference) */
         .app-sidebar {
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--sidebar-border);
@@ -75,157 +77,191 @@
             z-index: 1020;
         }
 
-        .brand-badge {
-            background: linear-gradient(135deg, #1E1B4B 0%, #172554 100%);
-            border: 1px solid rgba(99, 102, 241, 0.35);
+        /* Workspace Switcher Card at Top of Sidebar */
+        .workspace-selector-card {
+            background: #FFFFFF;
+            border: 1px solid #EAEFF5;
             border-radius: 12px;
-            padding: 12px 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
-        .brand-logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
-            color: #FFFFFF;
-            border-radius: 10px;
+        .workspace-selector-card:hover {
+            border-color: #CBD5E1;
+            background: #F8FAFC;
+        }
+
+        .workspace-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            color: #4F46E5;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.15rem;
-            box-shadow: 0 0 16px rgba(79, 70, 229, 0.5);
+            font-weight: 800;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            border: 1px solid #C7D2FE;
         }
 
         .sidebar-section-title {
             font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #475569;
+            letter-spacing: 0.08em;
+            color: #94A3B8;
             font-weight: 700;
-            padding: 1rem 1rem 0.35rem 1rem;
+            padding: 1.1rem 1rem 0.35rem 1rem;
         }
 
         .app-sidebar .nav-link {
-            color: #94A3B8;
+            color: #64748B;
             font-weight: 500;
             font-size: 0.84rem;
-            padding: 0.62rem 0.85rem;
-            border-radius: 9px;
+            padding: 0.65rem 0.9rem;
+            border-radius: 12px;
             margin: 2px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.15s ease-in-out;
-            position: relative;
+            transition: all 0.15s ease;
         }
 
         .app-sidebar .nav-link i.nav-icon {
-            font-size: 1.05rem;
-            margin-right: 10px;
-            color: #64748B;
+            font-size: 1.1rem;
+            margin-right: 12px;
+            color: #94A3B8;
             transition: all 0.15s ease;
         }
 
         .app-sidebar .nav-link:hover {
-            color: #F8FAFC;
-            background-color: rgba(255, 255, 255, 0.05);
-            transform: translateX(2px);
+            color: #1E293B;
+            background-color: #F1F5F9;
         }
 
         .app-sidebar .nav-link:hover i.nav-icon {
-            color: #A5B4FC;
+            color: #4F46E5;
         }
 
+        /* Active Navigation Item (Triplink Style) */
         .app-sidebar .nav-link.active {
-            color: #FFFFFF;
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+            color: #4F46E5;
+            background-color: #EEF2FF;
             font-weight: 600;
-            box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.5);
         }
 
         .app-sidebar .nav-link.active i.nav-icon {
+            color: #4F46E5;
+        }
+
+        .nav-counter-pill {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 1px 7px;
+            border-radius: 10px;
+            background: #F1F5F9;
+            color: #64748B;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .app-sidebar .nav-link.active .nav-counter-pill {
+            background: #4F46E5;
             color: #FFFFFF;
         }
 
-        /* Top Header Navbar */
+        /* Top Header Navbar (Matching Triplink Reference) */
         .app-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--border-subtle);
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--sidebar-border);
             height: 64px;
             z-index: 1000;
         }
 
-        /* Quick Persona Ribbon */
-        .persona-ribbon {
-            background: #FFFFFF;
-            border-bottom: 1px solid var(--border-subtle);
-            padding: 8px 24px;
-            font-size: 0.78rem;
+        .breadcrumb-trail {
+            font-size: 0.82rem;
+            color: #94A3B8;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .breadcrumb-trail .active-crumb {
+            color: #0F172A;
+            font-weight: 600;
+        }
+
+        /* Pill Search Bar (Triplink Style) */
+        .search-pill {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 9999px;
+            padding: 6px 14px;
+            color: #64748B;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            min-width: 250px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
-        .persona-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 9px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.73rem;
-            text-decoration: none;
-            transition: all 0.15s ease;
-            border: 1px solid transparent;
-        }
-
-        .persona-pill:hover {
-            transform: translateY(-1px);
-        }
-
-        .persona-pill.admin { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
-        .persona-pill.salesman { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
-        .persona-pill.purchase_manager { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
-        .persona-pill.production_manager { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
-        .persona-pill.auditor { background: #F5F3FF; color: #7C3AED; border-color: #DDD6FE; }
-
-        /* Search Bar Trigger (Cmd + K) */
-        .search-trigger {
-            background: #F1F5F9;
-            border: 1px solid var(--border-subtle);
-            border-radius: 9px;
-            padding: 6px 14px;
-            color: #64748B;
-            font-size: 0.82rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            min-width: 260px;
-        }
-
-        .search-trigger:hover {
-            background: #FFFFFF;
+        .search-pill:hover {
             border-color: #CBD5E1;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            background: #F8FAFC;
             color: #1E293B;
         }
 
-        .kbd-badge {
-            background: #FFFFFF;
-            border: 1px solid #CBD5E1;
-            border-radius: 5px;
+        .kbd-pill {
+            background: #F1F5F9;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
             padding: 1px 6px;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-family: 'JetBrains Mono', monospace;
-            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+            color: #64748B;
         }
 
-        /* Modern Card Pro */
+        .status-sync-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #475569;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 4px 10px;
+            border-radius: 9999px;
+        }
+
+        .icon-circle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            color: #64748B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .icon-circle-btn:hover {
+            background: #F8FAFC;
+            color: #0F172A;
+            border-color: #CBD5E1;
+        }
+
+        /* Modern Card Pro (Triplink Style) */
         .card-pro {
             background-color: var(--bg-surface);
             border: 1px solid var(--border-card);
@@ -239,47 +275,130 @@
             box-shadow: var(--shadow-hover);
         }
 
-        /* KPI Stat Cards */
-        .kpi-tile {
+        /* KPI Metric Cards with Mini Bar Sparklines (Triplink Style) */
+        .kpi-metric-card {
             background: #FFFFFF;
-            border: 1px solid var(--border-card);
-            border-radius: 14px;
-            padding: 1.25rem 1.35rem;
-            position: relative;
+            border: 1px solid #EAEFF5;
+            border-radius: 16px;
+            padding: 1.25rem 1.4rem;
             box-shadow: var(--shadow-card);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            overflow: hidden;
+            position: relative;
         }
 
-        .kpi-tile:hover {
+        .kpi-metric-card:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-hover);
             border-color: #CBD5E1;
         }
 
-        .kpi-tile::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-        }
-
-        .kpi-tile.kpi-revenue::before { background: linear-gradient(90deg, #4F46E5, #3B82F6); }
-        .kpi-tile.kpi-receivables::before { background: linear-gradient(90deg, #F43F5E, #FB7185); }
-        .kpi-tile.kpi-inventory::before { background: linear-gradient(90deg, #10B981, #34D399); }
-        .kpi-tile.kpi-yield::before { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
-
         .kpi-icon-bubble {
-            width: 44px;
-            height: 44px;
-            border-radius: 11px;
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
-            flex-shrink: 0;
+            font-size: 1.05rem;
+        }
+
+        .kpi-bubble-purple { background: #EEF2FF; color: #4F46E5; }
+        .kpi-bubble-amber { background: #FFFBEB; color: #F59E0B; }
+        .kpi-bubble-teal { background: #ECFDF5; color: #10B981; }
+        .kpi-bubble-rose { background: #FEF2F2; color: #EF4444; }
+
+        /* Mini CSS Sparkline Bars (Triplink Style) */
+        .sparkline-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 18px;
+        }
+
+        .sparkline-bar {
+            width: 5px;
+            border-radius: 2px;
+            background: #E2E8F0;
+            transition: height 0.3s ease;
+        }
+
+        .sparkline-bar.purple { background: #818CF8; }
+        .sparkline-bar.amber { background: #FBBF24; }
+        .sparkline-bar.teal { background: #34D399; }
+        .sparkline-bar.rose { background: #F87171; }
+
+        /* Brand Action Buttons */
+        .btn-brand-primary {
+            background: #4F46E5;
+            color: #FFFFFF;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 0.55rem 1.15rem;
+            border: none;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+            transition: all 0.15s ease;
+        }
+
+        .btn-brand-primary:hover {
+            background: #4338CA;
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-white-outline {
+            background: #FFFFFF;
+            color: #334155;
+            font-weight: 600;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 0.55rem 1.15rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            transition: all 0.15s ease;
+        }
+
+        .btn-white-outline:hover {
+            background: #F8FAFC;
+            color: #0F172A;
+            border-color: #CBD5E1;
+        }
+
+        /* Role Badges */
+        .badge-role-admin { background-color: #DC2626; color: white; }
+        .badge-role-salesman { background-color: #2563EB; color: white; }
+        .badge-role-purchase_manager { background-color: #D97706; color: white; }
+        .badge-role-production_manager { background-color: #059669; color: white; }
+        .badge-role-auditor { background-color: #7C3AED; color: white; }
+
+        /* Tables */
+        .table-pro {
+            width: 100%;
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-pro th {
+            background-color: #F8FAFC;
+            color: #64748B;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #EAEFF5;
+        }
+
+        .table-pro td {
+            padding: 0.95rem 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #F1F5F9;
+            color: #1E293B;
+            font-size: 0.85rem;
+        }
+
+        .table-pro tbody tr:hover {
+            background-color: #F8FAFC;
         }
 
         /* Status Pills */
@@ -292,7 +411,7 @@
             font-size: 0.72rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
         }
 
         .status-dot {
@@ -302,90 +421,32 @@
         }
 
         .status-pill.success { background: #ECFDF5; color: #047857; }
-        .status-pill.success .status-dot { background: #10B981; box-shadow: 0 0 6px #10B981; }
+        .status-pill.success .status-dot { background: #10B981; }
 
         .status-pill.warning { background: #FFFBEB; color: #B45309; }
-        .status-pill.warning .status-dot { background: #F59E0B; box-shadow: 0 0 6px #F59E0B; }
+        .status-pill.warning .status-dot { background: #F59E0B; }
 
         .status-pill.info { background: #EFF6FF; color: #1D4ED8; }
-        .status-pill.info .status-dot { background: #3B82F6; box-shadow: 0 0 6px #3B82F6; }
+        .status-pill.info .status-dot { background: #3B82F6; }
 
         .status-pill.danger { background: #FFF1F2; color: #BE123C; }
-        .status-pill.danger .status-dot { background: #F43F5E; box-shadow: 0 0 6px #F43F5E; }
+        .status-pill.danger .status-dot { background: #F43F5E; }
 
-        /* Role Badges */
-        .badge-role-admin { background-color: #DC2626; color: white; }
-        .badge-role-salesman { background-color: #2563EB; color: white; }
-        .badge-role-purchase_manager { background-color: #D97706; color: white; }
-        .badge-role-production_manager { background-color: #059669; color: white; }
-        .badge-role-auditor { background-color: #7C3AED; color: white; }
-
-        /* Modern Tables */
-        .table-pro {
-            width: 100%;
-            margin-bottom: 0;
-            border-collapse: separate;
-            border-spacing: 0;
+        /* Live Pulse Dot */
+        .pulse-indicator {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #10B981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: radar-pulse 1.8s infinite;
         }
 
-        .table-pro th {
-            background-color: #F8FAFC;
-            color: #475569;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 0.85rem 1rem;
-            border-bottom: 1px solid #E2E8F0;
-            white-space: nowrap;
-        }
-
-        .table-pro td {
-            padding: 0.95rem 1rem;
-            vertical-align: middle;
-            border-bottom: 1px solid #F1F5F9;
-            color: #1E293B;
-            font-size: 0.85rem;
-        }
-
-        .table-pro tbody tr {
-            transition: background-color 0.1s ease;
-        }
-
-        .table-pro tbody tr:hover {
-            background-color: #F8FAFC;
-        }
-
-        /* Buttons */
-        .btn-brand {
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
-            color: #FFFFFF;
-            border: none;
-            font-weight: 600;
-            border-radius: 9px;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-            transition: all 0.15s ease;
-        }
-
-        .btn-brand:hover {
-            color: #FFFFFF;
-            background: linear-gradient(135deg, #4338CA 0%, #2563EB 100%);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .btn-sim-pulse {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #3B82F6 100%);
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-            animation: pulse-glow 2.5s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
-            70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        @keyframes radar-pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
         .avatar-initials {
@@ -400,275 +461,189 @@
             align-items: center;
             justify-content: center;
         }
-
-        /* Live Radar Pulse Dot */
-        .pulse-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #10B981;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: radar-pulse 1.8s infinite;
-        }
-
-        @keyframes radar-pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* Modal Backdrop Polish */
-        .modal-content {
-            border-radius: 16px;
-            border: 1px solid var(--border-card);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <!-- Left Modern Dark Sidebar -->
-            <aside class="col-md-3 col-xl-2 d-md-block app-sidebar py-3 px-2">
+            <!-- Modern Left Sidebar (Exact Triplink Style) -->
+            <aside class="col-md-3 col-xl-2 d-md-block app-sidebar py-3 px-3">
                 <div class="position-sticky top-0">
-                    <!-- Brand Header -->
-                    <div class="brand-badge mb-3 mx-2">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="brand-logo-icon">
-                                    <i class="bi bi-boxes"></i>
-                                </div>
-                                <div>
-                                    <h6 class="text-white fw-bold mb-0" style="letter-spacing: -0.01em;">BatchWise</h6>
-                                    <small class="text-secondary" style="font-size: 0.68rem; letter-spacing: 0.05em;">INDUSTRIAL ERP</small>
-                                </div>
+                    <!-- Brand / Workspace Switcher (Triplink Style) -->
+                    <div class="workspace-selector-card mb-3">
+                        <div class="d-flex align-items-center gap-2 text-truncate">
+                            <div class="workspace-avatar">
+                                B
                             </div>
-                            <span class="badge bg-indigo font-mono px-2 py-1" style="background-color: #3730A3; font-size: 0.65rem; color: #E0E7FF;">v2.4 PRO</span>
+                            <div class="text-truncate">
+                                <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; letter-spacing: -0.01em;">BatchWise Foods</div>
+                                <div class="text-muted text-truncate" style="font-size: 0.7rem;">Operations workspace</div>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Live System Engine Status Pill -->
-                    <div class="bg-dark bg-opacity-75 border border-secondary border-opacity-25 rounded-3 p-2 mx-2 mb-3">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="d-flex align-items-center gap-2 text-light font-mono" style="font-size: 0.72rem;">
-                                <span class="pulse-indicator"></span> WAL ACID Active
-                            </span>
-                            <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30" style="font-size: 0.65rem;">ONLINE</span>
-                        </div>
-                        <div class="text-secondary mt-1 text-truncate" style="font-size: 0.7rem;">
-                            <i class="bi bi-geo-alt me-1 text-primary"></i> Karnataka State [29] &bull; FIFO
-                        </div>
+                        <i class="bi bi-chevron-expand text-muted ms-1" style="font-size: 0.8rem;"></i>
                     </div>
 
                     <!-- Navigation Groups -->
-                    <div class="sidebar-section-title">Core Operations</div>
+                    <div class="sidebar-section-title">Workspace</div>
                     <ul class="nav flex-column mb-2">
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">
-                                <span><i class="bi bi-speedometer2 nav-icon"></i> Dashboard & Analytics</span>
+                                <span><i class="bi bi-grid nav-icon"></i> Overview</span>
+                                <span class="nav-counter-pill">Live</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/sales' %}active{% endif %}" href="/sales">
-                                <span><i class="bi bi-cart-check nav-icon"></i> B2B Sales & Orders</span>
+                                <span><i class="bi bi-inbox nav-icon"></i> B2B Sales Orders</span>
+                                <span class="nav-counter-pill">1</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/purchase' %}active{% endif %}" href="/purchase">
-                                <span><i class="bi bi-truck nav-icon"></i> Procurement (PO/GRN)</span>
+                                <span><i class="bi bi-truck nav-icon"></i> Procurement & GRN</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/production' %}active{% endif %}" href="/production">
-                                <span><i class="bi bi-gear-wide-connected nav-icon"></i> Production Floor & BOM</span>
+                                <span><i class="bi bi-gear-wide nav-icon"></i> Plant & Baking BOM</span>
                             </a>
                         </li>
                     </ul>
 
-                    <div class="sidebar-section-title">Inventory & Finance</div>
+                    <div class="sidebar-section-title">Manage & Finance</div>
                     <ul class="nav flex-column mb-2">
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
-                                <span><i class="bi bi-archive nav-icon"></i> Stock Ledger & Shortage</span>
+                                <span><i class="bi bi-archive nav-icon"></i> Stock Ledger & FIFO</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/invoices' %}active{% endif %}" href="/invoices">
-                                <span><i class="bi bi-receipt-cutoff nav-icon"></i> GST Invoices & Receivables</span>
+                                <span><i class="bi bi-receipt-cutoff nav-icon"></i> GST Invoices</span>
+                                <span class="nav-counter-pill">5%</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
-                                <span><i class="bi bi-diagram-3 nav-icon"></i> 360° Batch Traceability</span>
+                                <span><i class="bi bi-diagram-3 nav-icon"></i> 360° Traceability</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/reports' %}active{% endif %}" href="/reports">
-                                <span><i class="bi bi-file-earmark-spreadsheet nav-icon"></i> Audit & GSTR-1 Reports</span>
+                                <span><i class="bi bi-file-earmark-spreadsheet nav-icon"></i> GSTR-1 & Audit</span>
                             </a>
                         </li>
                     </ul>
 
-                    <!-- Evaluator Persona Quick-Switch Block -->
-                    <div class="sidebar-section-title">Evaluator Quick Roles</div>
+                    <!-- Evaluator Personas -->
+                    <div class="sidebar-section-title">Demo Personas</div>
                     <div class="px-2">
-                        <div class="d-flex flex-wrap gap-1 p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-20">
-                            <a href="/switch-role/admin" class="btn btn-sm btn-outline-danger py-0 px-2 font-mono" style="font-size: 0.68rem;" title="Full Administrator">Admin</a>
-                            <a href="/switch-role/salesman" class="btn btn-sm btn-outline-primary py-0 px-2 font-mono" style="font-size: 0.68rem;" title="Field Salesman">Sales</a>
-                            <a href="/switch-role/purchase" class="btn btn-sm btn-outline-warning py-0 px-2 font-mono" style="font-size: 0.68rem;" title="Procurement Mgr">Procure</a>
-                            <a href="/switch-role/production" class="btn btn-sm btn-outline-success py-0 px-2 font-mono" style="font-size: 0.68rem;" title="Plant Supervisor">Plant</a>
-                            <a href="/switch-role/auditor" class="btn btn-sm btn-outline-info py-0 px-2 font-mono" style="font-size: 0.68rem;" title="Internal Auditor">Auditor</a>
+                        <div class="d-flex flex-wrap gap-1 p-2 bg-light rounded-3 border">
+                            <a href="/switch-role/admin" class="badge bg-danger text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Admin</a>
+                            <a href="/switch-role/salesman" class="badge bg-primary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Sales</a>
+                            <a href="/switch-role/purchase" class="badge bg-warning text-dark text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Procure</a>
+                            <a href="/switch-role/production" class="badge bg-success text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Plant</a>
+                            <a href="/switch-role/auditor" class="badge bg-secondary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem; background-color: #7C3AED !important;">Auditor</a>
                         </div>
                     </div>
                 </div>
             </aside>
 
-            <!-- Main Application View -->
+            <!-- Main Workspace Application View -->
             <div class="col-md-9 col-xl-10 d-flex flex-column min-vh-100">
-                <!-- Top Glassmorphism Navigation Bar -->
+                <!-- Top Header Navbar (Exact Triplink Style) -->
                 <header class="app-header sticky-top px-4 d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-3">
-                        <!-- Quick Search Trigger (Ctrl + K) -->
-                        <div class="search-trigger d-none d-lg-flex" onclick="openSearchModal()">
-                            <i class="bi bi-search"></i>
-                            <span>Quick search SKU, batch, PO, invoice...</span>
-                            <span class="kbd-badge ms-auto">Ctrl K</span>
+                    <div class="d-flex align-items-center gap-4">
+                        <!-- Breadcrumb Trail -->
+                        <div class="breadcrumb-trail d-none d-sm-flex">
+                            <span>Workspace</span>
+                            <i class="bi bi-chevron-right" style="font-size: 0.65rem;"></i>
+                            <span class="active-crumb">Overview</span>
                         </div>
 
-                        <div class="d-none d-md-flex align-items-center text-muted small">
-                            <span class="badge bg-light text-dark border me-2"><i class="bi bi-building me-1 text-primary"></i> BatchWise Bakeries Pvt Ltd</span>
-                            <span class="font-mono text-secondary" style="font-size: 0.72rem;">GSTIN: 29AABCU9603R1Z7</span>
+                        <!-- Pill Search Bar (Triplink Style) -->
+                        <div class="search-pill d-none d-lg-flex" onclick="openSearchModal()">
+                            <i class="bi bi-search text-muted"></i>
+                            <span>Search tickets, bookings, batches...</span>
+                            <span class="kbd-pill ms-auto">Ctrl K</span>
                         </div>
                     </div>
 
-                    <!-- Right Controls: 1-Click Simulation, Role Switcher, Profile -->
-                    <div class="d-flex align-items-center gap-2">
-                        <!-- 1-Click Master Benchmark Simulation Button -->
-                        <button type="button" class="btn btn-brand btn-sm btn-sim-pulse d-flex align-items-center px-3 shadow-sm" onclick="runBenchmarkSimulation()">
-                            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i>
-                            <span class="d-none d-sm-inline">Run 8-Min Evaluator Journey</span>
+                    <!-- Right Controls: Status Pill, Night Mode, Notifications, Date, User -->
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Live Status Pill (Triplink Style) -->
+                        <div class="status-sync-pill d-none d-md-flex">
+                            <span class="pulse-indicator"></span>
+                            <span>Workspace data saved locally</span>
+                        </div>
+
+                        <!-- Moon / Night Mode Icon -->
+                        <button class="icon-circle-btn d-none d-sm-flex" title="Toggle Theme">
+                            <i class="bi bi-moon"></i>
                         </button>
 
-                        <button type="button" class="btn btn-outline-secondary btn-sm px-2 text-muted bg-white shadow-sm" onclick="resetDatabase()" title="Reset Database to Seed State">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                        </button>
-
-                        <!-- Notification Bell (Interactive Dropdown) -->
+                        <!-- Notification Bell with Unread Dot -->
                         <div class="dropdown">
-                            <button class="btn btn-light btn-sm border bg-white shadow-sm px-2 position-relative" type="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-bell text-secondary"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1" style="font-size: 0.6rem;">
-                                    3
-                                </span>
+                            <button class="icon-circle-btn position-relative" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width: 7px; height: 7px;"></span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 p-0" style="min-width: 300px;">
-                                <div class="px-3 py-2 bg-light border-bottom rounded-top-3 d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold text-dark small">System Operational Alerts</span>
-                                    <span class="badge bg-primary text-light font-mono">3 Unread</span>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 p-0" style="min-width: 280px;">
+                                <div class="px-3 py-2 bg-light border-bottom rounded-top-3 fw-bold text-dark small">
+                                    Operational Notifications
                                 </div>
-                                <div class="p-2" style="max-height: 250px; overflow-y: auto;">
-                                    <div class="p-2 border-bottom small">
-                                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
-                                            <span><i class="bi bi-cash-stack text-success me-1"></i> Payment Received</span>
-                                            <span>Just now</span>
-                                        </div>
-                                        <div class="text-dark fw-semibold mt-1">₹2,500 NEFT from Retailer A</div>
+                                <div class="p-2 small">
+                                    <div class="p-2 border-bottom">
+                                        <div class="fw-semibold text-dark">Retailer A Payment Received</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">₹2,500 NEFT reconciled to invoice INV-0001</div>
                                     </div>
-                                    <div class="p-2 border-bottom small">
-                                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
-                                            <span><i class="bi bi-exclamation-triangle text-warning me-1"></i> MQV Variance Logged</span>
-                                            <span>10m ago</span>
-                                        </div>
-                                        <div class="text-dark fw-semibold mt-1">Baking Batch: -₹277.50 scrap variance</div>
+                                    <div class="p-2 border-bottom">
+                                        <div class="fw-semibold text-dark">Baking Run Completed</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">995 Loaves produced, 8kg scrap logged</div>
                                     </div>
-                                    <div class="p-2 small">
-                                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
-                                            <span><i class="bi bi-shield-check text-info me-1"></i> Double-Entry Verification</span>
-                                            <span>1h ago</span>
-                                        </div>
-                                        <div class="text-dark fw-semibold mt-1">Conservation Law Verified: Debit = Credit</div>
+                                    <div class="p-2">
+                                        <div class="fw-semibold text-dark">ACID Double-Entry Verified</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Sum(Debit) = Sum(Credit) in stock ledger</div>
                                     </div>
                                 </div>
                             </ul>
                         </div>
 
-                        <div class="vr my-2 mx-1"></div>
+                        <!-- Formatted Live Date (Triplink Style) -->
+                        <div class="text-muted d-none d-xl-block small" style="font-size: 0.78rem;">
+                            Thursday, November 26, 2026
+                        </div>
 
-                        <!-- Role Switch Dropdown -->
+                        <div class="vr my-2 mx-1 d-none d-sm-block"></div>
+
+                        <!-- User Profile Pill -->
                         <div class="dropdown">
-                            <button class="btn btn-light btn-sm border bg-white shadow-sm dropdown-toggle d-flex align-items-center py-1 px-2" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-light btn-sm border d-flex align-items-center py-1 px-2 rounded-3 bg-white" data-bs-toggle="dropdown">
                                 <span class="avatar-initials me-2">{{ user.username[0]|upper if user else 'A' }}</span>
                                 <div class="text-start me-1 d-none d-lg-block">
                                     <div class="fw-bold lh-1 text-dark" style="font-size: 0.8rem;">{{ user.full_name or user.username }}</div>
-                                    <small class="badge badge-role-{{ user.role }} text-uppercase" style="font-size: 0.65rem;">{{ user.role }}</small>
+                                    <small class="badge badge-role-{{ user.role }} text-uppercase" style="font-size: 0.62rem;">{{ user.role }}</small>
                                 </div>
+                                <i class="bi bi-chevron-down text-muted ms-1" style="font-size: 0.7rem;"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" style="min-width: 250px;">
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" style="min-width: 240px;">
                                 <li class="px-3 py-2 border-bottom">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Switch Evaluation Persona</small>
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Switch Persona</small>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="/switch-role/admin">
-                                        <span><i class="bi bi-shield-lock-fill text-danger me-2"></i> System Administrator</span>
-                                        <span class="badge bg-danger text-light font-mono" style="font-size: 0.65rem;">ADMIN</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="/switch-role/salesman">
-                                        <span><i class="bi bi-person-fill text-primary me-2"></i> Ravi (Field Sales)</span>
-                                        <span class="badge bg-primary text-light font-mono" style="font-size: 0.65rem;">SALES</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="/switch-role/purchase">
-                                        <span><i class="bi bi-truck text-warning me-2"></i> Priya (Procurement)</span>
-                                        <span class="badge bg-warning text-dark font-mono" style="font-size: 0.65rem;">PURCHASE</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="/switch-role/production">
-                                        <span><i class="bi bi-gear-fill text-success me-2"></i> Kumar (Plant Supervisor)</span>
-                                        <span class="badge bg-success text-light font-mono" style="font-size: 0.65rem;">PLANT</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="/switch-role/auditor">
-                                        <span><i class="bi bi-calculator-fill text-info me-2"></i> Anita (Internal Auditor)</span>
-                                        <span class="badge bg-secondary text-light font-mono" style="font-size: 0.65rem; background-color: #7C3AED !important;">AUDITOR</span>
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/admin"><i class="bi bi-shield-lock text-danger me-2"></i> System Administrator</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/salesman"><i class="bi bi-person text-primary me-2"></i> Ravi (Field Sales)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/purchase"><i class="bi bi-truck text-warning me-2"></i> Priya (Procurement)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/production"><i class="bi bi-gear text-success me-2"></i> Kumar (Plant Supervisor)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/auditor"><i class="bi bi-calculator text-info me-2"></i> Anita (Internal Auditor)</a></li>
                                 <li class="dropdown-divider"></li>
-                                <li>
-                                    <button class="dropdown-item text-danger py-2" onclick="logout()">
-                                        <i class="bi bi-box-arrow-right me-2"></i> Sign Out
-                                    </button>
-                                </li>
+                                <li><button class="dropdown-item text-danger py-2" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</button></li>
                             </ul>
                         </div>
                     </div>
                 </header>
 
-                <!-- Persona Quick Switch Ribbon -->
-                <div class="persona-ribbon">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted fw-semibold">Active Persona:</span>
-                        <span class="badge badge-role-{{ user.role }} text-uppercase font-mono px-2 py-1" style="font-size: 0.7rem;">
-                            {{ user.role }} ({{ user.full_name }})
-                        </span>
-                    </div>
-                    <div class="d-none d-md-flex align-items-center gap-1">
-                        <span class="text-muted me-2">⚡ 1-Click Switch:</span>
-                        <a href="/switch-role/admin" class="persona-pill admin" title="Administrator Role">👑 Admin</a>
-                        <a href="/switch-role/salesman" class="persona-pill salesman" title="Salesman Role">👔 Sales (Ravi)</a>
-                        <a href="/switch-role/purchase" class="persona-pill purchase_manager" title="Purchase Manager Role">📦 Procure (Priya)</a>
-                        <a href="/switch-role/production" class="persona-pill production_manager" title="Plant Supervisor Role">🏭 Plant (Kumar)</a>
-                        <a href="/switch-role/auditor" class="persona-pill auditor" title="Auditor Role">🔍 Auditor (Anita)</a>
-                    </div>
-                </div>
-
-                <!-- Page Dynamic Body -->
+                <!-- Page Body Content -->
                 <main class="flex-grow-1 p-4">
                     {% block content %}{% endblock %}
                 </main>
@@ -676,7 +651,7 @@
                 <!-- Technical Footer -->
                 <footer class="bg-white border-top py-3 px-4 text-muted small d-flex flex-wrap justify-content-between align-items-center">
                     <div>
-                        <strong>BatchWise Manufacturing ERP</strong> &bull; Technical Internship Benchmark Edition
+                        <strong>BatchWise Manufacturing ERP</strong> &bull; Technical Internship Submission Edition
                     </div>
                     <div class="d-flex align-items-center gap-3">
                         <span class="font-mono"><i class="bi bi-shield-check text-success me-1"></i> Double-Entry Conservation: VERIFIED</span>
@@ -687,51 +662,40 @@
         </div>
     </div>
 
-    <!-- Quick Search (Cmd + K) Modal -->
+    <!-- Quick Search Modal (Ctrl + K) -->
     <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
                 <div class="modal-header border-bottom p-3">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 fs-5 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-0 fs-5 shadow-none" id="globalSearchInput" placeholder="Type SKU, Batch, PO, Customer or Invoice number..." autofocus oninput="handleGlobalSearch(this.value)">
+                        <input type="text" class="form-control border-0 fs-5 shadow-none" id="globalSearchInput" placeholder="Search orders, batches, SKUs, invoices..." autofocus oninput="handleGlobalSearch(this.value)">
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-3" id="searchResultsContainer" style="max-height: 380px; overflow-y: auto;">
-                    <div class="text-muted small mb-2 text-uppercase fw-bold">Quick Navigation Shortcuts</div>
+                    <div class="text-muted small mb-2 text-uppercase fw-bold">Quick Navigation</div>
                     <div class="list-group list-group-flush mb-3">
                         <a href="/sales" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 rounded-2">
-                            <span><i class="bi bi-cart text-primary me-2"></i> B2B Sales Orders Portal</span>
+                            <span><i class="bi bi-inbox text-primary me-2"></i> B2B Sales Orders Registry</span>
                             <span class="badge bg-light text-muted border font-mono">/sales</span>
                         </a>
                         <a href="/purchase" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 rounded-2">
-                            <span><i class="bi bi-truck text-warning me-2"></i> Flour Procurement & GRN Inward</span>
+                            <span><i class="bi bi-truck text-warning me-2"></i> Procurement & GRN Inward</span>
                             <span class="badge bg-light text-muted border font-mono">/purchase</span>
                         </a>
                         <a href="/production" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 rounded-2">
-                            <span><i class="bi bi-gear text-success me-2"></i> Production Baking Run & BOM Variance</span>
+                            <span><i class="bi bi-gear text-success me-2"></i> Plant Production & Baking BOM</span>
                             <span class="badge bg-light text-muted border font-mono">/production</span>
                         </a>
                         <a href="/inventory" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 rounded-2">
-                            <span><i class="bi bi-archive text-info me-2"></i> Stock Ledger & Shortage Analysis</span>
+                            <span><i class="bi bi-archive text-info me-2"></i> Stock Ledger & Shortage Intelligence</span>
                             <span class="badge bg-light text-muted border font-mono">/inventory</span>
                         </a>
                         <a href="/invoices" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 rounded-2">
-                            <span><i class="bi bi-receipt text-danger me-2"></i> GST Invoices & Customer Payments</span>
+                            <span><i class="bi bi-receipt text-danger me-2"></i> GST Invoices & Receivables</span>
                             <span class="badge bg-light text-muted border font-mono">/invoices</span>
                         </a>
-                        <a href="/traceability" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 rounded-2">
-                            <span><i class="bi bi-diagram-3 text-secondary me-2"></i> 360° Upstream & Downstream Genealogy</span>
-                            <span class="badge bg-light text-muted border font-mono">/traceability</span>
-                        </a>
-                    </div>
-                    <div class="text-muted small mb-2 text-uppercase fw-bold">Benchmark Entity Shortcuts</div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="/traceability?batch=RM-FLOUR-2026-B01" class="badge bg-light text-dark border p-2 text-decoration-none font-mono">🌾 Batch: RM-FLOUR-2026-B01</a>
-                        <a href="/traceability?batch=FG-BREAD-2026-B01" class="badge bg-light text-dark border p-2 text-decoration-none font-mono">🍞 Batch: FG-BREAD-2026-B01</a>
-                        <a href="/invoices" class="badge bg-light text-dark border p-2 text-decoration-none font-mono">📄 Invoice: INV-20261124-0001</a>
-                        <a href="/sales" class="badge bg-light text-dark border p-2 text-decoration-none font-mono">🛒 Retailer A Supermarkets</a>
                     </div>
                 </div>
             </div>
@@ -760,10 +724,9 @@
         }
 
         function handleGlobalSearch(query) {
-            // Live client-side instant filtering in modal
             const q = query.toLowerCase().trim();
             const container = document.getElementById('searchResultsContainer');
-            const items = container.querySelectorAll('.list-group-item, .badge');
+            const items = container.querySelectorAll('.list-group-item');
             items.forEach(el => {
                 const txt = el.textContent.toLowerCase();
                 if (!q || txt.includes(q)) {
@@ -784,7 +747,7 @@
                 title: '⚡ Run 8-Minute Evaluator Journey',
                 html: `
                     <div class="text-start small p-2">
-                        <div class="text-muted mb-2">Executing complete industrial manufacturing and financial lifecycle:</div>
+                        <div class="text-muted mb-2">Executing end-to-end industrial manufacturing lifecycle:</div>
                         <ul class="list-unstyled mb-0">
                             <li class="py-1">✅ <strong>Step 1:</strong> Salesman books Retailer A Order (100 loaves @ ₹40 = ₹4,200)</li>
                             <li class="py-1">✅ <strong>Step 2:</strong> Inward 1,000 kg Flour PO & GRN (Batch RM-FLOUR @ ₹30)</li>
@@ -805,7 +768,7 @@
                         const res = await fetch('/api/benchmark/simulate-journey', { method: 'POST' });
                         const data = await res.json();
                         if (!res.ok || !data.success) {
-                            throw new Error(data.error || 'Simulation execution failed');
+                            throw new Error(data.error || 'Simulation failed');
                         }
                         return data;
                     } catch (error) {
@@ -816,7 +779,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Benchmark Journey Complete! 🎉',
+                        title: 'Journey Complete! 🎉',
                         text: 'All operational records, stock batches, MQV variance logs, and GST invoices are live.',
                         icon: 'success',
                         confirmButtonColor: '#4F46E5'
@@ -825,26 +788,6 @@
                     });
                 }
             });
-        }
-
-        async function resetDatabase() {
-            const conf = await Swal.fire({
-                title: 'Reset Database to Seed State?',
-                text: 'This reloads initial master BOMs, items, and preloads the clean benchmark scenario.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#DC2626',
-                confirmButtonText: 'Yes, Reset Database'
-            });
-            if (conf.isConfirmed) {
-                const res = await fetch('/api/benchmark/reset-seed', { method: 'POST' });
-                const d = await res.json();
-                if (res.ok) {
-                    Swal.fire('Database Reset Complete', d.message, 'success').then(() => window.location.reload());
-                } else {
-                    Swal.fire('Error', d.error, 'error');
-                }
-            }
         }
     </script>
     {% block scripts %}{% endblock %}

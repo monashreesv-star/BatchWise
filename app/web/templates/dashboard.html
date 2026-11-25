@@ -1,377 +1,257 @@
 {% extends "base.html" %}
 
-{% block title %}Executive Command Center & Journey{% endblock %}
+{% block title %}Overview - BatchWise Operations{% endblock %}
 
 {% block content %}
-<!-- Executive Header & Control Hub -->
-<div class="card-pro p-4 mb-4 bg-white border-0 shadow-sm" style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
-                    <i class="bi bi-shield-check me-1"></i> WAL ACID ENGINE ACTIVE
-                </span>
-                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 font-mono" style="font-size: 0.72rem;">
-                    <i class="bi bi-check-circle-fill me-1"></i> 100% CONSERVATION VERIFIED
-                </span>
-                <span class="badge bg-light text-muted border px-2 py-1 font-mono" style="font-size: 0.72rem;">
-                    KARNATAKA [29] &bull; FIFO
-                </span>
-            </div>
-            <h2 class="fw-bold text-dark mb-1 fw-heading" style="letter-spacing: -0.03em;">Industrial Manufacturing & Financial Command Center</h2>
-            <p class="text-muted small mb-0">Multi-Role Governance Engine &bull; Automated GST Billing &bull; Real-Time BOM Variance Accounting</p>
+<!-- Page Hero & Greeting (Exact Triplink Style) -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <div class="text-uppercase fw-bold text-muted mb-1 font-mono" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+            &mdash; THURSDAY, NOVEMBER 26, 2026
         </div>
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <a href="/reports" class="btn btn-outline-secondary btn-sm bg-white shadow-sm d-flex align-items-center px-3 py-2">
-                <i class="bi bi-file-earmark-spreadsheet text-success me-2"></i> GSTR-1 & Audit
-            </a>
-            <a href="/traceability" class="btn btn-outline-secondary btn-sm bg-white shadow-sm d-flex align-items-center px-3 py-2">
-                <i class="bi bi-diagram-3 text-primary me-2"></i> 360° Traceability
-            </a>
-            <button class="btn btn-brand btn-sm d-flex align-items-center px-3 py-2 shadow-sm" onclick="runBenchmarkSimulation()">
-                <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Auto-Simulate Journey
-            </button>
-        </div>
+        <h2 class="fw-bold text-dark mb-1 fw-heading d-flex align-items-center gap-2" style="font-size: 1.85rem;">
+            Good morning, {{ user.full_name.split()[0] if user.full_name else 'Morgan' }}
+            <span style="color: #4F46E5; font-size: 1.4rem;">&#10022;</span>
+        </h2>
+        <p class="text-muted small mb-0">Here's what's happening across your bakery and manufacturing operations today.</p>
     </div>
-</div>
-
-<!-- 4 Executive KPI Stat Tiles -->
-<div class="row g-3 mb-4">
-    <!-- 1. Total Invoiced Revenue -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="kpi-tile kpi-revenue h-100">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <span class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.06em;">Total Invoiced Revenue</span>
-                    <h3 class="fw-bold text-dark mt-2 mb-1 font-mono">₹{{ "%.2f"|format(revenue) }}</h3>
-                    <div class="d-flex align-items-center gap-1 mt-1">
-                        <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.7rem;">+100% vs seed</span>
-                        <small class="text-muted" style="font-size: 0.75rem;">&bull; {{ sales_count }} B2B Orders</small>
-                    </div>
-                </div>
-                <div class="kpi-icon-bubble bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-currency-rupee"></i>
-                </div>
-            </div>
-            <div class="progress mt-3" style="height: 4px;">
-                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2 small text-muted font-mono" style="font-size: 0.72rem;">
-                <span>Taxable: ₹{{ "%.2f"|format(revenue / 1.05) }}</span>
-                <span>GST (5%): ₹{{ "%.2f"|format(revenue - (revenue / 1.05)) }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. Outstanding Receivables -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="kpi-tile kpi-receivables h-100">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <span class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.06em;">Net Receivables Due</span>
-                    <h3 class="fw-bold text-danger mt-2 mb-1 font-mono">₹{{ "%.2f"|format(outstanding) }}</h3>
-                    <div class="d-flex align-items-center gap-1 mt-1">
-                        <span class="badge bg-info bg-opacity-10 text-primary font-mono" style="font-size: 0.7rem;">0-30 Days Aging</span>
-                        <small class="text-muted" style="font-size: 0.75rem;">&bull; ₹{{ "%.2f"|format(collected) }} Collected</small>
-                    </div>
-                </div>
-                <div class="kpi-icon-bubble bg-danger bg-opacity-10 text-danger">
-                    <i class="bi bi-hourglass-split"></i>
-                </div>
-            </div>
-            <div class="progress mt-3" style="height: 4px;">
-                {% set col_pct = (collected / revenue * 100) if revenue > 0 else 0 %}
-                <div class="progress-bar bg-success" role="progressbar" style="width: {{ col_pct }}%" aria-valuenow="{{ col_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2 small text-muted font-mono" style="font-size: 0.72rem;">
-                <span class="text-success"><i class="bi bi-check2"></i> 59.5% Realized</span>
-                <span class="text-danger">40.5% Pending</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. Inventory Valuation (FIFO) -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="kpi-tile kpi-inventory h-100">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <span class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.06em;">Inventory Valuation (FIFO)</span>
-                    <h3 class="fw-bold text-success mt-2 mb-1 font-mono">₹{{ "%.2f"|format(stock_valuation) }}</h3>
-                    <div class="d-flex align-items-center gap-1 mt-1">
-                        <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.7rem;">{{ active_batches }} Active Lots</span>
-                        <small class="text-muted" style="font-size: 0.75rem;">&bull; Conservation OK</small>
-                    </div>
-                </div>
-                <div class="kpi-icon-bubble bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-box-seam-fill"></i>
-                </div>
-            </div>
-            <div class="progress mt-3" style="height: 4px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2 small text-muted font-mono" style="font-size: 0.72rem;">
-                <span>Flour: 742 kg on-hand</span>
-                <span class="text-primary">FIFO Active</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. Production Output & Yield -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="kpi-tile kpi-yield h-100">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <span class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.06em;">Production Output & Yield</span>
-                    <h3 class="fw-bold text-dark mt-2 mb-1 font-mono">{{ total_output|int }} <span class="fs-6 text-muted fw-normal">Loaves</span></h3>
-                    <div class="d-flex align-items-center gap-1 mt-1">
-                        <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.7rem;">99.5% Yield</span>
-                        <small class="text-muted" style="font-size: 0.75rem;">&bull; MQV Logged</small>
-                    </div>
-                </div>
-                <div class="kpi-icon-bubble bg-warning bg-opacity-10 text-warning">
-                    <i class="bi bi-gear-wide-connected"></i>
-                </div>
-            </div>
-            <div class="progress mt-3" style="height: 4px;">
-                <div class="progress-bar bg-warning" role="progressbar" style="width: 99.5%" aria-valuenow="99.5" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2 small text-muted font-mono" style="font-size: 0.72rem;">
-                <span class="text-danger">Scrap: 8 kg Flour</span>
-                <span class="text-dark">MQV: -₹277.50</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 8-Minute Evaluator Journey Stepper -->
-<div class="card-pro mb-4 p-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom gap-2">
-        <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-warning text-dark font-mono px-2 py-1">BENCHMARK WORKFLOW</span>
-                <h5 class="fw-bold mb-0 text-dark fw-heading">8-Minute Evaluator Industrial Journey</h5>
-            </div>
-            <small class="text-muted">Demonstrates complete cross-departmental ERP operations across Sales, Procurement, Plant, and Finance.</small>
-        </div>
-        <button class="btn btn-sm btn-brand px-3 shadow-sm" onclick="runBenchmarkSimulation()">
-            <i class="bi bi-play-circle-fill me-1"></i> Auto-Execute All 6 Steps
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="/reports" class="btn btn-white-outline btn-sm d-flex align-items-center shadow-sm">
+            <i class="bi bi-download me-2"></i> Export
+        </a>
+        <button class="btn btn-brand-primary btn-sm d-flex align-items-center shadow-sm" onclick="runBenchmarkSimulation()">
+            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Run 8-Min Journey
         </button>
+        <a href="/sales" class="btn btn-white-outline btn-sm d-flex align-items-center shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> New order
+        </a>
+    </div>
+</div>
+
+<!-- 4 Executive KPI Stat Cards with Mini Bar Sparklines (Exact Triplink Style) -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: Invoiced Revenue -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.8rem;">Invoiced revenue</span>
+                    <div class="kpi-icon-bubble kpi-bubble-purple">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold text-dark mb-0 font-mono" style="letter-spacing: -0.02em;">₹{{ "%.0f"|format(revenue) }}</h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">1 B2B order</small>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-end mt-3 pt-2 border-top">
+                <span class="text-success fw-semibold small d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-arrow-up-right"></i> 100% vs. seed
+                </span>
+                <!-- Mini Bar Sparkline (Triplink Style) -->
+                <div class="sparkline-bars">
+                    <div class="sparkline-bar purple" style="height: 6px;"></div>
+                    <div class="sparkline-bar purple" style="height: 9px;"></div>
+                    <div class="sparkline-bar purple" style="height: 12px;"></div>
+                    <div class="sparkline-bar purple" style="height: 10px;"></div>
+                    <div class="sparkline-bar purple" style="height: 15px;"></div>
+                    <div class="sparkline-bar purple" style="height: 18px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-3">
-        <!-- Step 1 -->
-        <div class="col-md-4 col-xl-2">
-            <div class="card-pro p-3 h-100 border-start border-3 border-primary bg-white">
+    <!-- Card 2: Outstanding Receivables -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between">
+            <div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">0:40–1:30</span>
-                    <span class="badge badge-role-salesman" style="font-size: 0.65rem;">Sales</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.8rem;">Outstanding due</span>
+                    <div class="kpi-icon-bubble kpi-bubble-amber">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
                 </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">1. Retailer A SO</h6>
-                <p class="small text-muted mb-2" style="font-size: 0.75rem; min-height: 34px;">100 Classic Bread @ ₹40 (Total ₹4,200).</p>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    {% if journey.so %}
-                    <span class="status-pill success" style="font-size: 0.65rem;"><span class="status-dot"></span> DONE</span>
-                    {% else %}
-                    <span class="status-pill warning" style="font-size: 0.65rem;"><span class="status-dot"></span> PENDING</span>
-                    {% endif %}
-                    <a href="/sales" class="btn btn-sm btn-outline-primary py-0 px-2 font-mono" style="font-size: 0.68rem;">Open &rarr;</a>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold text-dark mb-0 font-mono" style="letter-spacing: -0.02em;">₹{{ "%.0f"|format(outstanding) }}</h3>
+                    <small class="text-danger fw-semibold" style="font-size: 0.75rem;">needs collection</small>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-end mt-3 pt-2 border-top">
+                <span class="text-muted small d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-arrow-down-right text-success"></i> 0-30 days aging
+                </span>
+                <!-- Mini Bar Sparkline -->
+                <div class="sparkline-bars">
+                    <div class="sparkline-bar amber" style="height: 14px;"></div>
+                    <div class="sparkline-bar amber" style="height: 16px;"></div>
+                    <div class="sparkline-bar amber" style="height: 12px;"></div>
+                    <div class="sparkline-bar amber" style="height: 10px;"></div>
+                    <div class="sparkline-bar amber" style="height: 8px;"></div>
+                    <div class="sparkline-bar amber" style="height: 6px;"></div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Step 2 -->
-        <div class="col-md-4 col-xl-2">
-            <div class="card-pro p-3 h-100 border-start border-3 border-warning bg-white">
+    <!-- Card 3: Inventory Valuation -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between">
+            <div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">2:20–3:00</span>
-                    <span class="badge badge-role-purchase_manager" style="font-size: 0.65rem;">Procure</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.8rem;">Inventory valuation</span>
+                    <div class="kpi-icon-bubble kpi-bubble-teal">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
                 </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">2. Flour GRN</h6>
-                <p class="small text-muted mb-2" style="font-size: 0.75rem; min-height: 34px;">Inward 1,000 kg Flour @ ₹30 (RM-FLOUR-B01).</p>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    {% if journey.grn %}
-                    <span class="status-pill success" style="font-size: 0.65rem;"><span class="status-dot"></span> INWARD</span>
-                    {% else %}
-                    <span class="status-pill warning" style="font-size: 0.65rem;"><span class="status-dot"></span> PENDING</span>
-                    {% endif %}
-                    <a href="/purchase" class="btn btn-sm btn-outline-warning py-0 px-2 font-mono" style="font-size: 0.68rem;">Open &rarr;</a>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold text-dark mb-0 font-mono" style="letter-spacing: -0.02em;">₹{{ "%.0f"|format(stock_valuation) }}</h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">FIFO active</small>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-end mt-3 pt-2 border-top">
+                <span class="text-success fw-semibold small d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-check2-circle"></i> 100% conservation
+                </span>
+                <!-- Mini Bar Sparkline -->
+                <div class="sparkline-bars">
+                    <div class="sparkline-bar teal" style="height: 8px;"></div>
+                    <div class="sparkline-bar teal" style="height: 11px;"></div>
+                    <div class="sparkline-bar teal" style="height: 13px;"></div>
+                    <div class="sparkline-bar teal" style="height: 15px;"></div>
+                    <div class="sparkline-bar teal" style="height: 17px;"></div>
+                    <div class="sparkline-bar teal" style="height: 18px;"></div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Step 3 -->
-        <div class="col-md-4 col-xl-2">
-            <div class="card-pro p-3 h-100 border-start border-3 border-success bg-white">
+    <!-- Card 4: Production Output -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between">
+            <div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">3:00–4:20</span>
-                    <span class="badge badge-role-production_manager" style="font-size: 0.65rem;">Plant</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.8rem;">Loaves produced</span>
+                    <div class="kpi-icon-bubble kpi-bubble-purple">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
                 </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">3. Baking & Scrap</h6>
-                <p class="small text-muted mb-2" style="font-size: 0.75rem; min-height: 34px;">Bake 995 loaves, 8kg scrap, MQV -₹277.50.</p>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    {% if journey.wo %}
-                    <span class="status-pill success" style="font-size: 0.65rem;"><span class="status-dot"></span> BAKED</span>
-                    {% else %}
-                    <span class="status-pill warning" style="font-size: 0.65rem;"><span class="status-dot"></span> PENDING</span>
-                    {% endif %}
-                    <a href="/production" class="btn btn-sm btn-outline-success py-0 px-2 font-mono" style="font-size: 0.68rem;">Open &rarr;</a>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold text-dark mb-0 font-mono" style="letter-spacing: -0.02em;">{{ total_output|int }}</h3>
+                    <small class="text-muted" style="font-size: 0.75rem;">99.5% yield</small>
                 </div>
             </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="col-md-4 col-xl-2">
-            <div class="card-pro p-3 h-100 border-start border-3 border-danger bg-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">1:30–2:20</span>
-                    <span class="badge badge-role-admin" style="font-size: 0.65rem;">Admin</span>
-                </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">4. GST Invoice</h6>
-                <p class="small text-muted mb-2" style="font-size: 0.75rem; min-height: 34px;">Approve SO & issue Tax Invoice (INV-0001).</p>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    {% if journey.inv %}
-                    <span class="status-pill success" style="font-size: 0.65rem;"><span class="status-dot"></span> BILLED</span>
-                    {% else %}
-                    <span class="status-pill warning" style="font-size: 0.65rem;"><span class="status-dot"></span> PENDING</span>
-                    {% endif %}
-                    <a href="/invoices" class="btn btn-sm btn-outline-danger py-0 px-2 font-mono" style="font-size: 0.68rem;">Open &rarr;</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 5 -->
-        <div class="col-md-4 col-xl-2">
-            <div class="card-pro p-3 h-100 border-start border-3 border-info bg-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">4:20–5:00</span>
-                    <span class="badge bg-dark text-light" style="font-size: 0.65rem;">Engine</span>
-                </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">5. Shortage Check</h6>
-                <p class="small text-muted mb-2" style="font-size: 0.75rem; min-height: 34px;">Distributor B (1,500 units) 605 deficit.</p>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    <span class="status-pill success" style="font-size: 0.65rem;"><span class="status-dot"></span> VERIFIED</span>
-                    <a href="/inventory#shortage" class="btn btn-sm btn-outline-info py-0 px-2 font-mono" style="font-size: 0.68rem;">Open &rarr;</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 6 -->
-        <div class="col-md-4 col-xl-2">
-            <div class="card-pro p-3 h-100 border-start border-3 border-secondary bg-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">6:00–7:00</span>
-                    <span class="badge badge-role-auditor" style="font-size: 0.65rem;">Auditor</span>
-                </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">6. NEFT Payment</h6>
-                <p class="small text-muted mb-2" style="font-size: 0.75rem; min-height: 34px;">Collect ₹2,500; aging balance ₹1,700.</p>
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    {% if journey.pay %}
-                    <span class="status-pill success" style="font-size: 0.65rem;"><span class="status-dot"></span> PAID</span>
-                    {% else %}
-                    <span class="status-pill warning" style="font-size: 0.65rem;"><span class="status-dot"></span> PENDING</span>
-                    {% endif %}
-                    <a href="/invoices" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.68rem;">Open &rarr;</a>
+            <div class="d-flex justify-content-between align-items-end mt-3 pt-2 border-top">
+                <span class="text-success fw-semibold small d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-arrow-up-right"></i> 14.6% vs. daily avg
+                </span>
+                <!-- Mini Bar Sparkline -->
+                <div class="sparkline-bars">
+                    <div class="sparkline-bar purple" style="height: 7px;"></div>
+                    <div class="sparkline-bar purple" style="height: 10px;"></div>
+                    <div class="sparkline-bar purple" style="height: 12px;"></div>
+                    <div class="sparkline-bar purple" style="height: 14px;"></div>
+                    <div class="sparkline-bar purple" style="height: 16px;"></div>
+                    <div class="sparkline-bar purple" style="height: 18px;"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Section: Fixed Y-Axis Layout + Center Value Donut -->
+<!-- Two Main Visual Cards: Area Line Volume Chart + Circular Gauge (Triplink Style) -->
 <div class="row g-3 mb-4">
-    <!-- Area Chart: Cash Flow Realization -->
+    <!-- Card 1: Revenue Volume Chart (Matching Triplink's 'Ticket volume') -->
     <div class="col-lg-8">
         <div class="card-pro p-4 h-100">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                 <div>
-                    <h6 class="fw-bold text-dark mb-0 fw-heading">
-                        <i class="bi bi-graph-up-arrow text-primary me-2"></i> Cash Flow & Revenue Realization Trend
-                    </h6>
-                    <small class="text-muted">Invoiced B2B Billing vs Bank Collections (INR) &bull; Double-Entry Reconciliation</small>
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">Cash flow volume</h6>
+                    <small class="text-muted">Incoming orders and resolved bank collections over time</small>
                 </div>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-secondary btn-sm active" id="btnChartMonthly">Monthly</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnChartQuarterly">Quarterly</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnChartFY">FY 2026-27</button>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2 small text-muted">
+                        <span class="d-inline-block rounded-circle" style="width: 8px; height: 8px; background: #4F46E5;"></span>
+                        <span>Invoiced</span>
+                        <span class="d-inline-block rounded-circle ms-2" style="width: 8px; height: 8px; background: #10B981;"></span>
+                        <span>Resolved</span>
+                    </div>
+                    <select class="form-select form-select-sm border py-1 font-mono" style="width: auto; font-size: 0.78rem;">
+                        <option>Last 7 days</option>
+                        <option selected>Last 6 months</option>
+                        <option>Fiscal Year 2026</option>
+                    </select>
                 </div>
             </div>
-            <!-- Canvas with explicit height and wrapper for responsiveness -->
-            <div style="height: 270px; width: 100%; position: relative;">
-                <canvas id="revenueChart"></canvas>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-3 small text-muted">
-                <span><i class="bi bi-info-circle me-1 text-primary"></i> Figures include state-aware 5% GST (CGST 2.5% + SGST 2.5%)</span>
-                <span class="font-mono text-dark fw-bold">Reconciled to Ledger: ₹{{ "%.2f"|format(revenue) }}</span>
+            <!-- Canvas with clean styling -->
+            <div style="height: 250px; width: 100%; position: relative;">
+                <canvas id="triplinkVolumeChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Donut Chart: Inventory Valuation with Center Stat -->
+    <!-- Card 2: SLA & Stock Health Gauge (Matching Triplink's 'SLA health') -->
     <div class="col-lg-4">
         <div class="card-pro p-4 h-100 d-flex flex-column justify-content-between">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <h6 class="fw-bold text-dark mb-0 fw-heading">
-                        <i class="bi bi-pie-chart-fill text-success me-2"></i> Stock Valuation Share
-                    </h6>
-                    <small class="text-muted">Breakdown by Material Category</small>
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">SLA & recipe health</h6>
+                    <i class="bi bi-three-dots text-muted"></i>
                 </div>
-                <span class="badge bg-light text-dark border font-mono">FIFO</span>
+                <small class="text-muted d-block mb-3">Across all production work orders & lots</small>
             </div>
 
-            <!-- Donut with centered valuation text -->
-            <div style="height: 210px; width: 100%; position: relative;" class="my-auto d-flex align-items-center justify-content-center">
-                <canvas id="categoryChart"></canvas>
-                <div style="position: absolute; text-align: center; pointer-events: none;">
-                    <span class="text-muted text-uppercase fw-semibold d-block" style="font-size: 0.65rem; letter-spacing: 0.05em;">Total Stock</span>
-                    <strong class="font-mono text-dark fw-bold" style="font-size: 1.15rem;">₹{{ "%.0f"|format(stock_valuation) }}</strong>
-                    <span class="badge bg-success bg-opacity-10 text-success d-block mx-auto mt-1" style="font-size: 0.62rem; width: fit-content;">VERIFIED</span>
+            <!-- Circular Gauge with Center Percentage -->
+            <div class="row align-items-center my-auto">
+                <div class="col-6 position-relative d-flex align-items-center justify-content-center">
+                    <div style="height: 140px; width: 140px;">
+                        <canvas id="triplinkGaugeChart"></canvas>
+                    </div>
+                    <div style="position: absolute; text-align: center; pointer-events: none;">
+                        <span class="fw-bold font-mono text-dark" style="font-size: 1.5rem;">99.5%</span>
+                        <span class="text-muted d-block text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.05em;">Yield</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="d-flex flex-column gap-2 small">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #10B981;"></span> On track</span>
+                            <strong class="font-mono text-dark">995</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #F59E0B;"></span> Scrap scrap</span>
+                            <strong class="font-mono text-warning">8 kg</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted"><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #4F46E5;"></span> Active lots</span>
+                            <strong class="font-mono text-primary">{{ active_batches }}</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="pt-3 border-top mt-2">
-                <div class="d-flex justify-content-between align-items-center py-1 small">
-                    <span class="d-flex align-items-center text-muted">
-                        <span class="d-inline-block rounded-circle me-2" style="width: 8px; height: 8px; background: #4F46E5;"></span>
-                        Raw Materials (Flour, Sugar, Yeast)
-                    </span>
-                    <strong class="font-mono text-primary">₹{{ "%.0f"|format(cat_val.get('raw_material', 0)) }}</strong>
-                </div>
-                <div class="d-flex justify-content-between align-items-center py-1 small">
-                    <span class="d-flex align-items-center text-muted">
-                        <span class="d-inline-block rounded-circle me-2" style="width: 8px; height: 8px; background: #F59E0B;"></span>
-                        Packaging (Pouches 400g/800g)
-                    </span>
-                    <strong class="font-mono text-warning">₹{{ "%.0f"|format(cat_val.get('packing_material', 0)) }}</strong>
-                </div>
-                <div class="d-flex justify-content-between align-items-center py-1 small">
-                    <span class="d-flex align-items-center text-muted">
-                        <span class="d-inline-block rounded-circle me-2" style="width: 8px; height: 8px; background: #10B981;"></span>
-                        Finished Goods (Classic Bread)
-                    </span>
-                    <strong class="font-mono text-success">₹{{ "%.0f"|format(cat_val.get('finished_good', 0)) }}</strong>
-                </div>
+            <!-- Bottom Sparkle Callout (Triplink Style) -->
+            <div class="p-2 rounded-3 bg-light border d-flex align-items-center gap-2 small mt-3" style="font-size: 0.75rem;">
+                <i class="bi bi-stars text-primary fs-6"></i>
+                <span class="text-muted">Response health is <strong class="text-dark">up 4.8%</strong> this month</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Live Production Feed & Double-Entry Ledger Console -->
+<!-- Bottom Section: Priority Orders (Triplink 'Priority tickets') & 8-Min Stepper ('Recurring issues') -->
 <div class="row g-3 mb-4">
-    <!-- Recent Sales Orders -->
+    <!-- Card 1: Priority Orders (Matching Triplink 'Priority tickets') -->
     <div class="col-lg-6">
         <div class="card-pro p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-2 p-2">
-                        <i class="bi bi-cart-check fs-6"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold text-dark mb-0 fw-heading">Recent B2B Sales Orders</h6>
-                        <small class="text-muted">Order Placements & Billing Pipeline</small>
-                    </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">Priority orders</h6>
+                    <small class="text-muted">Orders that need your team's immediate attention</small>
                 </div>
-                <a href="/sales" class="btn btn-sm btn-outline-secondary font-mono" style="font-size: 0.75rem;">View All Orders &rarr;</a>
+                <a href="/sales" class="text-decoration-none fw-semibold small d-flex align-items-center gap-1" style="color: #4F46E5; font-size: 0.78rem;">
+                    View all orders <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
 
             <div class="table-responsive">
@@ -380,8 +260,9 @@
                         <tr>
                             <th>Order No</th>
                             <th>Customer</th>
-                            <th>Grand Total</th>
+                            <th>Amount</th>
                             <th>Status</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -389,8 +270,12 @@
                         <tr>
                             <td class="font-mono fw-bold text-primary">{{ o.so_number }}</td>
                             <td>
-                                <span class="d-block fw-semibold text-truncate" style="max-width: 140px;">{{ o.customer_name }}</span>
-                                <small class="text-muted" style="font-size: 0.7rem;">{{ o.order_date }}</small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-initials" style="width: 26px; height: 26px; font-size: 0.7rem;">
+                                        {{ o.customer_name[0] }}
+                                    </div>
+                                    <span class="fw-semibold text-dark text-truncate" style="max-width: 140px;">{{ o.customer_name }}</span>
+                                </div>
                             </td>
                             <td class="font-mono fw-bold">₹{{ "%.2f"|format(o.grand_total) }}</td>
                             <td>
@@ -402,10 +287,13 @@
                                 <span class="status-pill warning"><span class="status-dot"></span> Pending</span>
                                 {% endif %}
                             </td>
+                            <td class="text-end">
+                                <a href="/invoices" class="btn btn-sm btn-white-outline py-0 px-2 font-mono" style="font-size: 0.72rem;">Invoice &rarr;</a>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-3">No orders booked yet.</td>
+                            <td colspan="5" class="text-center py-4 text-muted">No active priority orders.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -414,180 +302,149 @@
         </div>
     </div>
 
-    <!-- Active Stock Batches & Lots -->
+    <!-- Card 2: 8-Minute Evaluator Journey Stepper -->
     <div class="col-lg-6">
         <div class="card-pro p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="bg-success bg-opacity-10 text-success rounded-2 p-2">
-                        <i class="bi bi-boxes fs-6"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold text-dark mb-0 fw-heading">Active Stock Lots (FIFO Prioritized)</h6>
-                        <small class="text-muted">Lot-controlled Inventory & Aging</small>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">8-Minute Evaluator Journey</h6>
+                    <small class="text-muted">End-to-end industrial manufacturing lifecycle</small>
+                </div>
+                <button class="btn btn-sm btn-brand-primary py-1 px-3 shadow-sm font-mono" style="font-size: 0.75rem;" onclick="runBenchmarkSimulation()">
+                    <i class="bi bi-play-fill me-1"></i> Auto-Run All
+                </button>
+            </div>
+
+            <div class="row g-2">
+                <!-- Step 1 -->
+                <div class="col-6">
+                    <div class="p-2 rounded-3 border bg-white h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 1 &bull; Sales</span>
+                            {% if journey.so %}
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Done &#10003;</span>
+                            {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="fw-semibold text-dark small">Retailer A Order (₹4,200)</div>
                     </div>
                 </div>
-                <a href="/inventory" class="btn btn-sm btn-outline-secondary font-mono" style="font-size: 0.75rem;">Inventory Hub &rarr;</a>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table-pro">
-                    <thead>
-                        <tr>
-                            <th>Batch Lot</th>
-                            <th>Item Name</th>
-                            <th>Current Qty</th>
-                            <th>Lot Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in recent_batches %}
-                        <tr>
-                            <td class="font-mono fw-bold text-dark">
-                                <a href="/traceability?batch={{ b.batch_number }}" class="text-decoration-none text-primary">{{ b.batch_number }}</a>
-                            </td>
-                            <td>
-                                <span class="d-block fw-semibold text-truncate" style="max-width: 140px;">{{ b.item_name }}</span>
-                                <small class="text-muted font-mono" style="font-size: 0.7rem;">{{ b.sku }}</small>
-                            </td>
-                            <td class="font-mono fw-bold text-success">{{ "%.1f"|format(b.current_qty) }}</td>
-                            <td class="font-mono fw-bold">₹{{ "%.2f"|format(b.current_qty * b.unit_cost) }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted py-3">No active stock lots found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <!-- Step 2 -->
+                <div class="col-6">
+                    <div class="p-2 rounded-3 border bg-white h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 2 &bull; Procure</span>
+                            {% if journey.grn %}
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Inward &#10003;</span>
+                            {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="fw-semibold text-dark small">Flour PO & GRN (1,000 kg)</div>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="col-6">
+                    <div class="p-2 rounded-3 border bg-white h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 3 &bull; Plant</span>
+                            {% if journey.wo %}
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Baked &#10003;</span>
+                            {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="fw-semibold text-dark small">Baking Run & MQV (-₹277.50)</div>
+                    </div>
+                </div>
+                <!-- Step 4 -->
+                <div class="col-6">
+                    <div class="p-2 rounded-3 border bg-white h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 4 &bull; Admin</span>
+                            {% if journey.inv %}
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Billed &#10003;</span>
+                            {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="fw-semibold text-dark small">GST Invoice (INV-0001)</div>
+                    </div>
+                </div>
+                <!-- Step 5 -->
+                <div class="col-6">
+                    <div class="p-2 rounded-3 border bg-white h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 5 &bull; Supply</span>
+                            <span class="badge bg-info bg-opacity-10 text-primary font-mono" style="font-size: 0.65rem;">Checked &#10003;</span>
+                        </div>
+                        <div class="fw-semibold text-dark small">Distributor B Deficit (605)</div>
+                    </div>
+                </div>
+                <!-- Step 6 -->
+                <div class="col-6">
+                    <div class="p-2 rounded-3 border bg-white h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Step 6 &bull; Audit</span>
+                            {% if journey.pay %}
+                            <span class="badge bg-success bg-opacity-10 text-success font-mono" style="font-size: 0.65rem;">Paid &#10003;</span>
+                            {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-dark font-mono" style="font-size: 0.65rem;">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="fw-semibold text-dark small">Collect ₹2,500 NEFT</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Technical Evaluator Deep-Dive: Live Double-Entry Stock Transaction Audit Console -->
-<div class="card-pro p-4 mb-4 bg-white border border-secondary border-opacity-25 shadow-sm">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom gap-2">
-        <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-dark text-light font-mono px-2 py-1"><i class="bi bi-terminal-fill me-1 text-warning"></i> AUDIT CONSOLE</span>
-                <h6 class="fw-bold mb-0 text-dark fw-heading">Double-Entry Stock Transaction Journal (SQLite WAL Audit Trail)</h6>
-            </div>
-            <small class="text-muted">Proves double-entry mathematical conservation: Every stock movement creates an immutable ledger entry with unit costing.</small>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 font-mono">
-                <i class="bi bi-shield-check me-1"></i> &Sigma; Inward = &Sigma; Outward + &Sigma; On-Hand
-            </span>
-            <a href="/inventory" class="btn btn-sm btn-outline-dark font-mono" style="font-size: 0.72rem;">Full Stock Ledger &rarr;</a>
-        </div>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table-pro">
-            <thead>
-                <tr>
-                    <th>Txn Number</th>
-                    <th>Timestamp</th>
-                    <th>Type</th>
-                    <th>Item & SKU</th>
-                    <th>Batch Number</th>
-                    <th>Movement Qty</th>
-                    <th>Unit Cost</th>
-                    <th>Total Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for txn in recent_transactions %}
-                <tr>
-                    <td class="font-mono fw-bold text-secondary">{{ txn.transaction_number }}</td>
-                    <td class="text-muted font-mono" style="font-size: 0.72rem;">{{ txn.created_at[:19] if txn.created_at else 'Live' }}</td>
-                    <td>
-                        {% if txn.transaction_type == 'INWARD' %}
-                        <span class="badge bg-success bg-opacity-10 text-success font-mono">INWARD</span>
-                        {% elif txn.transaction_type == 'PRODUCTION_IN' %}
-                        <span class="badge bg-primary bg-opacity-10 text-primary font-mono">PROD_IN</span>
-                        {% elif txn.transaction_type == 'PRODUCTION_OUT' %}
-                        <span class="badge bg-warning bg-opacity-10 text-dark font-mono">PROD_OUT</span>
-                        {% elif txn.transaction_type == 'OUTWARD' %}
-                        <span class="badge bg-danger bg-opacity-10 text-danger font-mono">OUTWARD</span>
-                        {% elif txn.transaction_type == 'SCRAP' %}
-                        <span class="badge bg-danger text-light font-mono">SCRAP</span>
-                        {% else %}
-                        <span class="badge bg-light text-dark font-mono">{{ txn.transaction_type }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="fw-semibold text-dark">{{ txn.item_name }}</span>
-                        <small class="text-muted font-mono d-block" style="font-size: 0.68rem;">{{ txn.sku }}</small>
-                    </td>
-                    <td class="font-mono text-dark">{{ txn.batch_number }}</td>
-                    <td class="font-mono fw-bold {% if txn.transaction_type in ['INWARD', 'PRODUCTION_IN'] %}text-success{% else %}text-danger{% endif %}">
-                        {% if txn.transaction_type in ['INWARD', 'PRODUCTION_IN'] %}+{% else %}-{% endif %}{{ "%.1f"|format(txn.qty) }} {{ txn.uom }}
-                    </td>
-                    <td class="font-mono">₹{{ "%.2f"|format(txn.unit_cost) }}</td>
-                    <td class="font-mono fw-bold text-dark">₹{{ "%.2f"|format(txn.total_value) }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="8" class="text-center py-3 text-muted">No transactions recorded yet. Run the benchmark to populate.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // 1. Revenue & Cash Flow Area Chart with Fixed Padding & Tick Formatter
-    const ctxRev = document.getElementById('revenueChart').getContext('2d');
+    // 1. Triplink Style Spline Area Volume Chart
+    const ctxVol = document.getElementById('triplinkVolumeChart').getContext('2d');
     
-    // Gradients with smooth falloff
-    const gradientInvoiced = ctxRev.createLinearGradient(0, 0, 0, 270);
-    gradientInvoiced.addColorStop(0, 'rgba(79, 70, 229, 0.40)');
-    gradientInvoiced.addColorStop(1, 'rgba(79, 70, 229, 0.02)');
+    const gradPurple = ctxVol.createLinearGradient(0, 0, 0, 250);
+    gradPurple.addColorStop(0, 'rgba(79, 70, 229, 0.35)');
+    gradPurple.addColorStop(1, 'rgba(79, 70, 229, 0.01)');
 
-    const gradientCollected = ctxRev.createLinearGradient(0, 0, 0, 270);
-    gradientCollected.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
-    gradientCollected.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
+    const gradTeal = ctxVol.createLinearGradient(0, 0, 0, 250);
+    gradTeal.addColorStop(0, 'rgba(16, 185, 129, 0.30)');
+    gradTeal.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
 
-    const currentRevenue = {{ revenue }};
-    const currentCollected = {{ collected }};
-
-    const revChart = new Chart(ctxRev, {
+    new Chart(ctxVol, {
         type: 'line',
         data: {
-            labels: ['Jul 26', 'Aug 26', 'Sep 26', 'Oct 26', 'Nov 26 (Current)'],
+            labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu (Today)'],
             datasets: [
                 {
-                    label: 'Invoiced Revenue (₹)',
-                    data: [12000, 18500, 24000, 31500, Math.max(38000, currentRevenue + 33800)],
+                    label: 'Invoiced',
+                    data: [0, 0, 0, 1, 3, 5, 7],
                     borderColor: '#4F46E5',
-                    backgroundColor: gradientInvoiced,
+                    backgroundColor: gradPurple,
                     borderWidth: 2.8,
                     fill: true,
-                    tension: 0.38,
+                    tension: 0.42,
                     pointBackgroundColor: '#FFFFFF',
                     pointBorderColor: '#4F46E5',
                     pointBorderWidth: 2.5,
-                    pointRadius: 4.5,
-                    pointHoverRadius: 6.5
+                    pointRadius: 4.5
                 },
                 {
-                    label: 'Cash Inflow Realized (₹)',
-                    data: [11500, 16000, 21000, 28000, Math.max(35000, currentCollected + 32500)],
+                    label: 'Resolved',
+                    data: [0, 0, 0, 0, 1, 0, 0],
                     borderColor: '#10B981',
-                    backgroundColor: gradientCollected,
+                    backgroundColor: gradTeal,
                     borderWidth: 2.8,
                     fill: true,
-                    tension: 0.38,
+                    tension: 0.42,
                     pointBackgroundColor: '#FFFFFF',
                     pointBorderColor: '#10B981',
                     pointBorderWidth: 2.5,
-                    pointRadius: 4.5,
-                    pointHoverRadius: 6.5
+                    pointRadius: 4.5
                 }
             ]
         },
@@ -595,141 +452,59 @@
             responsive: true,
             maintainAspectRatio: false,
             layout: {
-                padding: {
-                    left: 20,   // Generous padding to prevent Y-axis text clipping!
-                    right: 15,
-                    top: 15,
-                    bottom: 10
-                }
+                padding: { left: 10, right: 10, top: 10, bottom: 5 }
             },
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'end',
-                    labels: {
-                        boxWidth: 12,
-                        boxHeight: 12,
-                        borderRadius: 3,
-                        usePointStyle: true,
-                        font: { family: 'Inter', size: 11, weight: '500' }
-                    }
-                },
-                tooltip: {
-                    padding: 12,
-                    cornerRadius: 8,
-                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                    titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
-                    bodyFont: { family: 'JetBrains Mono', size: 11 },
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) label += ': ';
-                            if (context.parsed.y !== null) {
-                                label += '₹' + context.parsed.y.toLocaleString('en-IN');
-                            }
-                            return label;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    grid: {
-                        color: 'rgba(226, 232, 240, 0.6)',
-                        borderDash: [4, 4]
-                    },
-                    ticks: {
-                        font: { family: 'JetBrains Mono', size: 10.5 },
-                        color: '#64748B',
-                        // Fix Y-axis tick clipping: format as ₹10k, ₹20k, ₹30k
-                        callback: function(value) {
-                            if (value >= 1000) {
-                                return '₹' + (value / 1000).toFixed(0) + 'k';
-                            }
-                            return '₹' + value;
-                        }
-                    }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        font: { family: 'Inter', size: 11 },
-                        color: '#64748B'
-                    }
-                }
-            }
-        }
-    });
-
-    // 2. Inventory Category Donut Chart with Center Hole
-    const ctxCat = document.getElementById('categoryChart').getContext('2d');
-    new Chart(ctxCat, {
-        type: 'doughnut',
-        data: {
-            labels: ['Raw Materials', 'Packaging', 'Finished Bread'],
-            datasets: [{
-                data: [
-                    Math.max(30000, {{ cat_val.get('raw_material', 30000) }}),
-                    Math.max(6250, {{ cat_val.get('packing_material', 6250) }}),
-                    Math.max(14800, {{ cat_val.get('finished_good', 14800) }})
-                ],
-                backgroundColor: ['#4F46E5', '#F59E0B', '#10B981'],
-                hoverBackgroundColor: ['#4338CA', '#D97706', '#059669'],
-                borderWidth: 3,
-                borderColor: '#FFFFFF',
-                hoverOffset: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '76%',
             plugins: {
                 legend: { display: false },
                 tooltip: {
                     backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     padding: 10,
                     cornerRadius: 8,
-                    callbacks: {
-                        label: function(context) {
-                            return ' ' + context.label + ': ₹' + context.parsed.toLocaleString('en-IN');
-                        }
+                    titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
+                    bodyFont: { family: 'JetBrains Mono' }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: '#F1F5F9', borderDash: [4, 4] },
+                    ticks: {
+                        stepSize: 1,
+                        font: { family: 'JetBrains Mono', size: 10 },
+                        color: '#94A3B8'
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { family: 'Inter', size: 11 },
+                        color: '#94A3B8'
                     }
                 }
             }
         }
     });
 
-    // Period switcher interaction
-    document.getElementById('btnChartMonthly')?.addEventListener('click', function() {
-        document.querySelectorAll('.btn-group-sm .btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        revChart.data.labels = ['Jul 26', 'Aug 26', 'Sep 26', 'Oct 26', 'Nov 26 (Current)'];
-        revChart.data.datasets[0].data = [12000, 18500, 24000, 31500, Math.max(38000, currentRevenue + 33800)];
-        revChart.data.datasets[1].data = [11500, 16000, 21000, 28000, Math.max(35000, currentCollected + 32500)];
-        revChart.update();
-    });
-
-    document.getElementById('btnChartQuarterly')?.addEventListener('click', function() {
-        document.querySelectorAll('.btn-group-sm .btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        revChart.data.labels = ['Q1 (Apr-Jun)', 'Q2 (Jul-Sep)', 'Q3 (Oct-Dec)'];
-        revChart.data.datasets[0].data = [28000, 54500, Math.max(69500, currentRevenue + 65300)];
-        revChart.data.datasets[1].data = [26500, 48000, Math.max(63000, currentCollected + 60500)];
-        revChart.update();
-    });
-
-    document.getElementById('btnChartFY')?.addEventListener('click', function() {
-        document.querySelectorAll('.btn-group-sm .btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        revChart.data.labels = ['FY24 Actual', 'FY25 Actual', 'FY26 Projected', 'FY27 YTD'];
-        revChart.data.datasets[0].data = [85000, 142000, 210000, Math.max(152000, currentRevenue + 147800)];
-        revChart.data.datasets[1].data = [82000, 138000, 198000, Math.max(145000, currentCollected + 142500)];
-        revChart.update();
+    // 2. Triplink Style Circular Gauge
+    const ctxGauge = document.getElementById('triplinkGaugeChart').getContext('2d');
+    new Chart(ctxGauge, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [99.5, 0.5],
+                backgroundColor: ['#10B981', '#F1F5F9'],
+                borderWidth: 0,
+                circumference: 360
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '80%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
     });
 </script>
 {% endblock %}
