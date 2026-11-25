@@ -484,56 +484,78 @@
                         <i class="bi bi-chevron-expand text-muted ms-1" style="font-size: 0.8rem;"></i>
                     </div>
 
-                    <!-- Navigation Groups -->
+                    <!-- Navigation Groups (Strict Role-Based Scoping) -->
                     <div class="sidebar-section-title">Workspace</div>
                     <ul class="nav flex-column mb-2">
+                        {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">
                                 <span><i class="bi bi-grid nav-icon"></i> Overview</span>
                                 <span class="nav-counter-pill">Live</span>
                             </a>
                         </li>
+                        {% endif %}
+
+                        {% if user and user.role in ['admin', 'salesman'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/sales' %}active{% endif %}" href="/sales">
                                 <span><i class="bi bi-inbox nav-icon"></i> B2B Sales Orders</span>
-                                <span class="nav-counter-pill">1</span>
+                                <span class="nav-counter-pill">Field</span>
                             </a>
                         </li>
+                        {% endif %}
+
+                        {% if user and user.role in ['admin', 'purchase_manager', 'production_manager'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/purchase' %}active{% endif %}" href="/purchase">
                                 <span><i class="bi bi-truck nav-icon"></i> Procurement & GRN</span>
                             </a>
                         </li>
+                        {% endif %}
+
+                        {% if user and user.role in ['admin', 'production_manager'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/production' %}active{% endif %}" href="/production">
-                                <span><i class="bi bi-gear-wide nav-icon"></i> Plant & Baking BOM</span>
+                                <span><i class="bi bi-gear-wide nav-icon"></i> Plant & Production BOM</span>
                             </a>
                         </li>
+                        {% endif %}
                     </ul>
 
                     <div class="sidebar-section-title">Manage & Finance</div>
                     <ul class="nav flex-column mb-2">
+                        {% if user and user.role in ['admin', 'purchase_manager', 'production_manager', 'auditor', 'salesman'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
-                                <span><i class="bi bi-archive nav-icon"></i> Stock Ledger & FIFO</span>
+                                <span><i class="bi bi-archive nav-icon"></i> Stock Ledger & Shortage</span>
                             </a>
                         </li>
+                        {% endif %}
+
+                        {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/invoices' %}active{% endif %}" href="/invoices">
                                 <span><i class="bi bi-receipt-cutoff nav-icon"></i> GST Invoices</span>
                                 <span class="nav-counter-pill">5%</span>
                             </a>
                         </li>
+                        {% endif %}
+
+                        {% if user and user.role in ['admin', 'production_manager', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
                                 <span><i class="bi bi-diagram-3 nav-icon"></i> 360° Traceability</span>
                             </a>
                         </li>
+                        {% endif %}
+
+                        {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/reports' %}active{% endif %}" href="/reports">
                                 <span><i class="bi bi-file-earmark-spreadsheet nav-icon"></i> GSTR-1 & Audit</span>
                             </a>
                         </li>
+                        {% endif %}
                     </ul>
 
                     <!-- Evaluator Personas -->
@@ -631,11 +653,11 @@
                                 <li class="px-3 py-2 border-bottom">
                                     <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Switch Persona</small>
                                 </li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/admin"><i class="bi bi-shield-lock text-danger me-2"></i> System Administrator</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/salesman"><i class="bi bi-person text-primary me-2"></i> Ravi (Field Sales)</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/purchase"><i class="bi bi-truck text-warning me-2"></i> Priya (Procurement)</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/production"><i class="bi bi-gear text-success me-2"></i> Kumar (Plant Supervisor)</a></li>
-                                <li><a class="dropdown-item py-2" href="/switch-role/auditor"><i class="bi bi-calculator text-info me-2"></i> Anita (Internal Auditor)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/admin"><i class="bi bi-shield-lock text-danger me-2"></i> Factory Admin</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/salesman"><i class="bi bi-person text-primary me-2"></i> Ravi (Field Salesman A)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/purchase"><i class="bi bi-truck text-warning me-2"></i> Priya (Purchase Desk)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/production"><i class="bi bi-gear text-success me-2"></i> Suresh (Plant Supervisor)</a></li>
+                                <li><a class="dropdown-item py-2" href="/switch-role/auditor"><i class="bi bi-calculator text-info me-2"></i> Anita (External Auditor)</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li><button class="dropdown-item text-danger py-2" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</button></li>
                             </ul>

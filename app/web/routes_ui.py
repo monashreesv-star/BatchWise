@@ -15,10 +15,27 @@ def render_template(request: Request, name: str, context: dict = None, status_co
     ctx["request"] = request
     return templates.TemplateResponse(request=request, name=name, context=ctx, status_code=status_code)
 
+def check_role_access(user, allowed_roles: list, page_title: str, request: Request):
+    if user["role"] == "admin" or user["role"] in allowed_roles:
+        return None
+    return render_template(request, "unauthorized.html", {
+        "user": user,
+        "page_title": page_title,
+        "authorized_roles": allowed_roles
+    }, status_code=403)
+
 async def ui_dashboard(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login")
+
+    # Route specialized roles to their respective domain workspace
+    if user["role"] == "salesman":
+        return RedirectResponse(url="/sales")
+    if user["role"] == "production_manager":
+        return RedirectResponse(url="/production")
+    if user["role"] == "purchase_manager":
+        return RedirectResponse(url="/purchase")
 
     with get_db() as conn:
         sales_count = execute_one("SELECT COUNT(*) as c, COALESCE(SUM(grand_total), 0) as s FROM sales_orders")
@@ -114,7 +131,7 @@ async def ui_quick_login(request: Request):
         "admin": "admin",
         "salesman": "sales_ravi",
         "purchase": "purchase_priya",
-        "production": "prod_kumar",
+        "production": "prod_suresh",
         "auditor": "audit_anita"
     }
     username = user_map.get(role, "admin")
@@ -124,7 +141,17 @@ async def ui_quick_login(request: Request):
 
     from app.security import create_session_token
     token = create_session_token(user["id"], user["username"], user["role"])
-    response = RedirectResponse(url="/", status_code=302)
+    
+    # Destination according to persona domain
+    dest_map = {
+        "admin": "/",
+        "salesman": "/sales",
+        "purchase": "/purchase",
+        "production": "/production",
+        "auditor": "/reports"
+    }
+    target_url = dest_map.get(role, "/")
+    response = RedirectResponse(url=target_url, status_code=302)
     response.set_cookie("batchwise_session", token, httponly=True, max_age=86400, samesite="lax")
     return response
 
@@ -132,6 +159,10 @@ async def ui_sales(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "salesman"], "B2B Sales Orders", request)
+    if denied:
+        return denied
 
     orders = execute_query("""
         SELECT so.*, p.name as customer_name, p.gstin as customer_gstin, u.full_name as salesman_name,
@@ -164,6 +195,10 @@ async def ui_purchase(request: Request):
     if not user:
         return RedirectResponse(url="/login")
 
+    denied = check_role_access(user, ["admin", "purchase_manager", "production_manager"], "Procurement & GRN", request)
+    if denied:
+        return denied
+
     pos = execute_query("""
         SELECT po.*, p.name as supplier_name, u.full_name as creator_name
         FROM purchase_orders po
@@ -190,6 +225,10 @@ async def ui_production(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "production_manager"], "Plant & Production BOM", request)
+    if denied:
+        return denied
 
     work_orders = execute_query("""
         SELECT wo.*, i.name as finished_good_name, b.bom_code
@@ -241,6 +280,10 @@ async def ui_invoices(request: Request):
     if not user:
         return RedirectResponse(url="/login")
 
+    denied = check_role_access(user, ["admin", "auditor"], "GST Invoices & Receivables", request)
+    if denied:
+        return denied
+
     invoices = execute_query("""
         SELECT inv.*, p.name as customer_name, p.gstin as customer_gstin
         FROM invoices inv
@@ -256,6 +299,10 @@ async def ui_traceability(request: Request):
     if not user:
         return RedirectResponse(url="/login")
 
+    denied = check_role_access(user, ["admin", "production_manager", "auditor"], "360° Traceability Matrix", request)
+    if denied:
+        return denied
+
     all_batches = execute_query("""
         SELECT sb.batch_number, sb.source_type, i.sku, i.name, i.category
         FROM stock_batches sb
@@ -270,6 +317,10 @@ async def ui_reports(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "auditor"], "GSTR-1 & Financial Audit Reports", request)
+    if denied:
+        return denied
 
     with get_db() as conn:
         stock_summary = get_monthly_stock_ledger_summary(conn)

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Access Restricted (403) - BatchWise ERP{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card-pro text-center p-5 shadow-sm border">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 text-danger mb-4" style="width: 72px; height: 72px;">
+                <i class="bi bi-shield-lock-fill fs-1"></i>
+            </div>
+            
+            <h4 class="fw-bold fw-heading text-dark mb-2">Access Restricted (Role Authorization Required)</h4>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">
+                Your current active persona <strong class="text-dark">{{ user.full_name }}</strong> (<span class="badge bg-secondary font-mono">{{ user.role|upper }}</span>) does not have access permissions for this module under NIT Trichy Section 3 governance rules.
+            </p>
+
+            <div class="bg-light rounded-3 p-3 border mb-4 text-start font-mono" style="font-size: 0.8rem;">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Requested Module:</span>
+                    <strong class="text-dark">{{ page_title }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Your Role:</span>
+                    <span class="text-danger fw-bold">{{ user.role }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Authorized Roles:</span>
+                    <span class="text-success fw-bold">{{ authorized_roles|join(', ') }}</span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                {% if user.role == 'salesman' %}
+                <a href="/sales" class="btn btn-brand-primary px-4">
+                    <i class="bi bi-inbox me-1"></i> Go to Field Sales Portal
+                </a>
+                {% elif user.role == 'production_manager' %}
+                <a href="/production" class="btn btn-brand-primary px-4">
+                    <i class="bi bi-gear-wide me-1"></i> Go to Plant Floor & BOM
+                </a>
+                {% elif user.role == 'purchase_manager' %}
+                <a href="/purchase" class="btn btn-brand-primary px-4">
+                    <i class="bi bi-truck me-1"></i> Go to Procurement Desk
+                </a>
+                {% elif user.role == 'auditor' %}
+                <a href="/reports" class="btn btn-brand-primary px-4">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Go to Audit & Reports
+                </a>
+                {% else %}
+                <a href="/" class="btn btn-brand-primary px-4">
+                    <i class="bi bi-grid me-1"></i> Return to Executive Overview
+                </a>
+                {% endif %}
+                <a href="/switch-role/admin" class="btn btn-white-outline px-3">
+                    <i class="bi bi-person-badge me-1"></i> Switch to Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
