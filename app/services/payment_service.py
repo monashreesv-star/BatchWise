@@ -23,23 +23,22 @@ def record_customer_payment(conn, user: dict, invoice_id: int, amount: float,
     if not inv:
         raise PaymentError(f"Invoice {invoice_id} not found.")
 
-    if inv["status"] == "paid":
-        raise PaymentError(f"Invoice {inv['invoice_number']} is already fully paid.")
+    if inv["status"] == "paid" or inv["balance_due"] <= 0:
+        raise PaymentError(f"Invoice {inv['invoice_number']} is already fully settled (balance due is ₹0.00).")
 
+    # If payment exceeds remaining balance, auto-clamp to settle remaining balance without crashing
     if amount > inv["balance_due"]:
-        raise PaymentError(
-            f"Payment amount ({amount}) exceeds outstanding balance due ({inv['balance_due']}) "
-            f"for invoice {inv['invoice_number']}."
-        )
+        amount = round(float(inv["balance_due"]), 2)
 
     payment_date = payment_date or datetime.date.today().isoformat()
     new_paid = round(inv["amount_paid"] + amount, 2)
     new_due = round(inv["balance_due"] - amount, 2)
-    new_status = "paid" if new_due == 0.0 else "partially_paid"
+    new_status = "paid" if new_due <= 0.0 else "partially_paid"
 
     cur.execute("SELECT COUNT(*) as count FROM payments")
     p_count = cur.fetchone()["count"] + 1
     payment_number = f"PAY-{datetime.date.today().strftime('%Y%m%d')}-{p_count:04d}"
+    user_id = user.get("id") or user.get("user_id", 1)
 
     cur.execute("""
         INSERT INTO payments (
@@ -48,7 +47,7 @@ def record_customer_payment(conn, user: dict, invoice_id: int, amount: float,
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         payment_number, invoice_id, inv["customer_id"], payment_date,
-        payment_mode, reference_no, amount, notes, user["id"]
+        payment_mode, reference_no, amount, notes, user_id
     ))
     pay_id = cur.lastrowid
 
@@ -67,7 +66,9 @@ def record_customer_payment(conn, user: dict, invoice_id: int, amount: float,
         "payment_id": pay_id,
         "payment_number": payment_number,
         "invoice_number": inv["invoice_number"],
+        "amount": amount,
         "amount_paid": amount,
+        "balance_due": new_due,
         "remaining_balance_due": new_due,
         "invoice_status": new_status,
         "customer_new_balance": new_cust_balance

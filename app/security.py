@@ -26,6 +26,7 @@ def verify_password(password: str, hashed: str) -> bool:
 
 def create_session_token(user_id: int, username: str, role: str) -> str:
     payload = {
+        "id": user_id,
         "user_id": user_id,
         "username": username,
         "role": role,
@@ -44,7 +45,12 @@ def verify_session_token(token: str):
         expected_sig = hmac.new(SECRET_KEY.encode('utf-8'), payload_bytes, hashlib.sha256).hexdigest()
         if not hmac.compare_digest(sig, expected_sig):
             return None
-        return json.loads(payload_bytes.decode('utf-8'))
+        data = json.loads(payload_bytes.decode('utf-8'))
+        if "user_id" in data and "id" not in data:
+            data["id"] = data["user_id"]
+        elif "id" in data and "user_id" not in data:
+            data["user_id"] = data["id"]
+        return data
     except Exception:
         return None
 

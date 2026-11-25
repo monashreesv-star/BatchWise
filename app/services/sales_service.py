@@ -29,6 +29,7 @@ def create_sales_order(conn, user: dict, customer_id: int, items: list, notes: s
     cur.execute("SELECT COUNT(*) as count FROM sales_orders")
     so_count = cur.fetchone()["count"] + 1
     so_number = f"SO-{datetime.date.today().strftime('%Y%m%d')}-{so_count:04d}"
+    user_id = user.get("id") or user.get("user_id", 1)
 
     cur.execute("""
         INSERT INTO sales_orders (
@@ -36,7 +37,7 @@ def create_sales_order(conn, user: dict, customer_id: int, items: list, notes: s
             total_taxable, total_cgst, total_sgst, total_tax, grand_total, notes
         ) VALUES (?, ?, ?, 'pending_approval', ?, ?, ?, ?, ?, ?, ?)
     """, (
-        so_number, customer_id, user["id"], datetime.date.today().isoformat(),
+        so_number, customer_id, user_id, datetime.date.today().isoformat(),
         gst_calc["total_taxable"], gst_calc["total_cgst"], gst_calc["total_sgst"],
         gst_calc["total_tax"], gst_calc["grand_total"], notes
     ))
@@ -73,11 +74,12 @@ def approve_sales_order(conn, user: dict, so_id: int):
     if so["status"] != "pending_approval":
         raise SalesServiceError(f"Cannot approve sales order in '{so['status']}' state.")
 
+    user_id = user.get("id") or user.get("user_id", 1)
     cur.execute("""
         UPDATE sales_orders
         SET status = 'approved', approved_by = ?, approved_at = CURRENT_TIMESTAMP
         WHERE id = ?
-    """, (user["id"], so_id))
+    """, (user_id, so_id))
 
     return {"so_id": so_id, "status": "approved"}
 

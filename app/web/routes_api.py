@@ -26,7 +26,14 @@ def get_current_user(request: Request):
             token = auth.split(" ")[1]
     if not token:
         return None
-    return verify_session_token(token)
+    session_data = verify_session_token(token)
+    if not session_data:
+        return None
+    if "user_id" in session_data and "id" not in session_data:
+        session_data["id"] = session_data["user_id"]
+    elif "id" in session_data and "user_id" not in session_data:
+        session_data["user_id"] = session_data["id"]
+    return session_data
 
 async def api_login(request: Request):
     data = await request.json()

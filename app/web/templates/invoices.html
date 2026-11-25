@@ -11,11 +11,11 @@
                 <i class="bi bi-file-earmark-pdf-fill me-1"></i> PURE-PYTHON PDF 1.4
             </span>
         </div>
-        <p class="text-muted small mb-0">Official Tax Documents &bull; Karnataka GSTIN 29 Compliance &bull; Real-time Payment Reconciliation</p>
+        <p class="text-muted small mb-0">Official Tax Documents &bull; Tamil Nadu GSTIN 33 Compliance &bull; Real-time Payment Reconciliation</p>
     </div>
     <div class="d-flex gap-2">
         <button class="btn btn-brand btn-sm d-flex align-items-center px-3 shadow-sm" onclick="quickPayRetailerA()">
-            <i class="bi bi-cash-coin me-1 text-warning"></i> Quick Record ₹2,500 Payment
+            <i class="bi bi-cash-coin me-1 text-warning"></i> Quick Record ₹4,000 Payment
         </button>
     </div>
 </div>
@@ -70,7 +70,7 @@
             </thead>
             <tbody>
                 {% for inv in invoices %}
-                <tr>
+                <tr class="invoice-row" data-inv-id="{{ inv.id }}" data-balance="{{ inv.balance_due }}">
                     <td class="font-mono fw-bold text-primary">{{ inv.invoice_number }}</td>
                     <td class="font-mono text-muted small">{{ inv.invoice_date }}</td>
                     <td>
@@ -183,9 +183,21 @@
     }
 
     async function quickPayRetailerA() {
+        // Inspect row to get actual invoice ID and balance due
+        const firstRow = document.querySelector('.invoice-row');
+        let invId = 1;
+        let payAmt = 4000.0;
+        if (firstRow) {
+            invId = parseInt(firstRow.getAttribute('data-inv-id')) || 1;
+            const bal = parseFloat(firstRow.getAttribute('data-balance') || '4000');
+            if (bal > 0) {
+                payAmt = Math.min(4000.0, bal);
+            }
+        }
+
         Swal.fire({
-            title: 'Recording Partial Payment',
-            text: 'Posting ₹2,500.00 NEFT payment against Retailer A invoice...',
+            title: 'Recording Payment',
+            text: `Posting ₹${payAmt.toFixed(2)} NEFT payment against Retailer A invoice...`,
             didOpen: () => Swal.showLoading(),
             allowOutsideClick: false
         });
@@ -195,22 +207,23 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    invoice_id: 1,
-                    amount: 4000.0,
+                    invoice_id: invId,
+                    amount: payAmt,
                     payment_mode: 'bank_transfer',
                     reference_no: 'NEFT-RET-A-2026-001'
                 })
             });
             const d = await res.json();
             if (res.ok && d.success) {
+                const due = d.data.remaining_balance_due !== undefined ? d.data.remaining_balance_due : d.data.balance_due;
                 Swal.fire({
                     icon: 'success',
                     title: 'Payment Recorded!',
-                    text: `₹4,000.00 posted. Remaining Balance Due: ₹${(d.data.remaining_balance_due || d.data.balance_due).toFixed(2)}. Status: Partially Paid.`,
+                    text: `₹${(d.data.amount_paid || payAmt).toFixed(2)} posted. Remaining Balance Due: ₹${Number(due).toFixed(2)}. Status: ${d.data.status || 'Updated'}.`,
                     confirmButtonColor: '#4F46E5'
                 }).then(() => window.location.reload());
             } else {
-                Swal.fire('Error', d.error || 'Failed to record payment', 'error');
+                Swal.fire('Notice', d.error || 'Failed to record payment', 'info');
             }
         } catch (e) {
             Swal.fire('Error', e.message, 'error');

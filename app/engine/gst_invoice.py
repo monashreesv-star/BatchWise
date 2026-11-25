@@ -140,6 +140,10 @@ def generate_gst_invoice_pdf(invoice_data: dict, output_path: str = None) -> str
     so_ref = invoice_data.get("so_number", "N/A")
 
     stream_lines = []
+    def pdf_txt(font, size, x, y, text, color="0 0 0 rg"):
+        safe = str(text).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+        return f"BT /{font} {size} Tf {color} {x} {y} Td ({safe}) Tj ET"
+
     stream_lines.append("q")
     stream_lines.append("0.5 0.5 0.5 RG")
     stream_lines.append("1 w")
@@ -147,37 +151,35 @@ def generate_gst_invoice_pdf(invoice_data: dict, output_path: str = None) -> str
     
     stream_lines.append("0.1 0.25 0.5 rg")
     stream_lines.append("30 770 535 40 re f")
-    stream_lines.append("BT /F1 18 Tf 1 1 1 rg 230 782 Td (TAX INVOICE) Tj ET")
+    stream_lines.append(pdf_txt("F1", 18, 230, 782, "TAX INVOICE", color="1 1 1 rg"))
 
-    stream_lines.append("0 0 0 rg")
-    stream_lines.append("BT /F1 11 Tf 40 750 Td (" + c_name + ") Tj ET")
-    stream_lines.append("BT /F2 9 Tf 40 735 Td (GSTIN: " + c_gstin + " | State: Karnataka [29]) Tj ET")
-    stream_lines.append("BT /F2 8 Tf 40 722 Td (" + c_addr[:75] + ") Tj ET")
+    stream_lines.append(pdf_txt("F1", 11, 40, 750, c_name))
+    stream_lines.append(pdf_txt("F2", 9, 40, 735, f"GSTIN: {c_gstin} | State: {COMPANY['state']} [{COMPANY['state_code']}]"))
+    stream_lines.append(pdf_txt("F2", 8, 40, 722, c_addr[:75]))
 
-    stream_lines.append("BT /F1 9 Tf 360 750 Td (Invoice No: " + inv_num + ") Tj ET")
-    stream_lines.append("BT /F2 9 Tf 360 735 Td (Invoice Date: " + inv_date + ") Tj ET")
-    stream_lines.append("BT /F2 9 Tf 360 722 Td (Due Date: " + due_date + " | SO: " + so_ref + ") Tj ET")
+    stream_lines.append(pdf_txt("F1", 9, 360, 750, f"Invoice No: {inv_num}"))
+    stream_lines.append(pdf_txt("F2", 9, 360, 735, f"Invoice Date: {inv_date}"))
+    stream_lines.append(pdf_txt("F2", 9, 360, 722, f"Due Date: {due_date} | SO: {so_ref}"))
 
     stream_lines.append("0.8 0.8 0.8 RG 30 710 m 565 710 l S")
 
-    stream_lines.append("BT /F1 10 Tf 40 695 Td (Billed To / Consignee:) Tj ET")
-    stream_lines.append("BT /F1 9 Tf 40 680 Td (" + cust_name + ") Tj ET")
-    stream_lines.append("BT /F2 8 Tf 40 668 Td (GSTIN: " + cust_gstin + " | State: " + cust.get("state", "Karnataka") + ") Tj ET")
-    stream_lines.append("BT /F2 8 Tf 40 656 Td (Address: " + cust_addr[:70] + ") Tj ET")
+    stream_lines.append(pdf_txt("F1", 10, 40, 695, "Billed To / Consignee:"))
+    stream_lines.append(pdf_txt("F1", 9, 40, 680, cust_name))
+    stream_lines.append(pdf_txt("F2", 8, 40, 668, f"GSTIN: {cust_gstin} | State: {cust.get('state', 'Tamil Nadu')}"))
+    stream_lines.append(pdf_txt("F2", 8, 40, 656, f"Address: {cust_addr[:70]}"))
 
     stream_lines.append("0.9 0.92 0.95 rg 30 635 535 18 re f")
     stream_lines.append("0 0 0 RG 30 635 535 18 re S")
-    stream_lines.append("BT /F1 8 Tf 0 0 0 rg")
-    stream_lines.append("35 640 Td (#) Tj")
-    stream_lines.append("55 640 Td (Item Description) Tj")
-    stream_lines.append("205 640 Td (HSN) Tj")
-    stream_lines.append("245 640 Td (Batch) Tj")
-    stream_lines.append("325 640 Td (Qty) Tj")
-    stream_lines.append("365 640 Td (Rate) Tj")
-    stream_lines.append("415 640 Td (Taxable) Tj")
-    stream_lines.append("475 640 Td (GST) Tj")
-    stream_lines.append("520 640 Td (Total) Tj")
-    stream_lines.append("ET")
+    
+    stream_lines.append(pdf_txt("F1", 8, 35, 640, "#"))
+    stream_lines.append(pdf_txt("F1", 8, 55, 640, "Item Description"))
+    stream_lines.append(pdf_txt("F1", 8, 205, 640, "HSN"))
+    stream_lines.append(pdf_txt("F1", 8, 245, 640, "Batch"))
+    stream_lines.append(pdf_txt("F1", 8, 325, 640, "Qty"))
+    stream_lines.append(pdf_txt("F1", 8, 365, 640, "Rate"))
+    stream_lines.append(pdf_txt("F1", 8, 415, 640, "Taxable"))
+    stream_lines.append(pdf_txt("F1", 8, 475, 640, "GST"))
+    stream_lines.append(pdf_txt("F1", 8, 520, 640, "Total"))
 
     y = 618
     for idx, it in enumerate(invoice_data["items"], start=1):
@@ -190,55 +192,53 @@ def generate_gst_invoice_pdf(invoice_data: dict, output_path: str = None) -> str
         gst_pct = f"{it.get('gst_rate', 5.0):.0f}%"
         tot_str = f"{it['total_amount']:.2f}"
 
-        stream_lines.append("BT /F2 8 Tf 0 0 0 rg")
-        stream_lines.append(f"35 {y} Td ({idx}) Tj")
-        stream_lines.append(f"55 {y} Td ({desc}) Tj")
-        stream_lines.append(f"205 {y} Td ({hsn}) Tj")
-        stream_lines.append(f"245 {y} Td ({b_no}) Tj")
-        stream_lines.append(f"325 {y} Td ({qty_str}) Tj")
-        stream_lines.append(f"365 {y} Td ({rate_str}) Tj")
-        stream_lines.append(f"415 {y} Td ({taxable_str}) Tj")
-        stream_lines.append(f"475 {y} Td ({gst_pct}) Tj")
-        stream_lines.append(f"520 {y} Td ({tot_str}) Tj")
-        stream_lines.append("ET")
+        stream_lines.append(pdf_txt("F2", 8, 35, y, str(idx)))
+        stream_lines.append(pdf_txt("F2", 8, 55, y, desc))
+        stream_lines.append(pdf_txt("F2", 8, 205, y, hsn))
+        stream_lines.append(pdf_txt("F2", 8, 245, y, b_no))
+        stream_lines.append(pdf_txt("F2", 8, 325, y, qty_str))
+        stream_lines.append(pdf_txt("F2", 8, 365, y, rate_str))
+        stream_lines.append(pdf_txt("F2", 8, 415, y, taxable_str))
+        stream_lines.append(pdf_txt("F2", 8, 475, y, gst_pct))
+        stream_lines.append(pdf_txt("F2", 8, 520, y, tot_str))
         y -= 16
 
     stream_lines.append(f"0.8 0.8 0.8 RG 30 {y} m 565 {y} l S")
     y -= 18
-    stream_lines.append("BT /F2 9 Tf 350 " + str(y) + " Td (Taxable Amount:) Tj ET")
-    stream_lines.append(f"BT /F2 9 Tf 480 {y} Td (INR {invoice_data['total_taxable']:.2f}) Tj ET")
+    stream_lines.append(pdf_txt("F2", 9, 350, y, "Taxable Amount:"))
+    stream_lines.append(pdf_txt("F2", 9, 480, y, f"INR {invoice_data['total_taxable']:.2f}"))
 
     if invoice_data.get("total_cgst", 0.0) > 0:
         y -= 14
-        stream_lines.append("BT /F2 9 Tf 350 " + str(y) + " Td (Central GST [CGST 2.5%]:) Tj ET")
-        stream_lines.append(f"BT /F2 9 Tf 480 {y} Td (INR {invoice_data['total_cgst']:.2f}) Tj ET")
+        stream_lines.append(pdf_txt("F2", 9, 350, y, "Central GST [CGST 2.5%]:"))
+        stream_lines.append(pdf_txt("F2", 9, 480, y, f"INR {invoice_data['total_cgst']:.2f}"))
         y -= 14
-        stream_lines.append("BT /F2 9 Tf 350 " + str(y) + " Td (State GST [SGST 2.5%]:) Tj ET")
-        stream_lines.append(f"BT /F2 9 Tf 480 {y} Td (INR {invoice_data['total_sgst']:.2f}) Tj ET")
+        stream_lines.append(pdf_txt("F2", 9, 350, y, "State GST [SGST 2.5%]:"))
+        stream_lines.append(pdf_txt("F2", 9, 480, y, f"INR {invoice_data['total_sgst']:.2f}"))
     elif invoice_data.get("total_igst", 0.0) > 0:
         y -= 14
-        stream_lines.append("BT /F2 9 Tf 350 " + str(y) + " Td (Integrated GST [IGST 5%]:) Tj ET")
-        stream_lines.append(f"BT /F2 9 Tf 480 {y} Td (INR {invoice_data['total_igst']:.2f}) Tj ET")
+        stream_lines.append(pdf_txt("F2", 9, 350, y, "Integrated GST [IGST 5%]:"))
+        stream_lines.append(pdf_txt("F2", 9, 480, y, f"INR {invoice_data['total_igst']:.2f}"))
 
     y -= 16
     stream_lines.append(f"0.1 0.25 0.5 rg 340 {y-3} 225 18 re f")
-    stream_lines.append(f"BT /F1 10 Tf 1 1 1 rg 350 {y+2} Td (Grand Total [INR]:) Tj 480 {y+2} Td (INR {invoice_data['grand_total']:.2f}) Tj ET")
+    stream_lines.append(pdf_txt("F1", 10, 350, y+2, "Grand Total [INR]:", color="1 1 1 rg"))
+    stream_lines.append(pdf_txt("F1", 10, 480, y+2, f"INR {invoice_data['grand_total']:.2f}", color="1 1 1 rg"))
 
     y -= 25
     words = number_to_words_inr(invoice_data["grand_total"])
-    stream_lines.append("0 0 0 rg")
-    stream_lines.append(f"BT /F1 8 Tf 40 {y} Td (Amount Chargeable in Words:) Tj ET")
-    stream_lines.append(f"BT /F2 8 Tf 40 {y-12} Td ({words[:80]}) Tj ET")
+    stream_lines.append(pdf_txt("F1", 8, 40, y, "Amount Chargeable in Words:"))
+    stream_lines.append(pdf_txt("F2", 8, 40, y-12, words[:80]))
 
     y_footer = 75
     stream_lines.append(f"0.8 0.8 0.8 RG 30 {y_footer+45} m 565 {y_footer+45} l S")
-    stream_lines.append(f"BT /F1 8 Tf 40 {y_footer+30} Td (Bank Details for NEFT/RTGS:) Tj ET")
-    stream_lines.append(f"BT /F2 8 Tf 40 {y_footer+18} Td (Bank: HDFC Bank | A/C: 50200048192841 | IFSC: HDFC0001248) Tj ET")
-    stream_lines.append(f"BT /F2 7 Tf 40 {y_footer+6} Td (Declaration: Goods once sold will not be taken back or exchanged.) Tj ET")
+    stream_lines.append(pdf_txt("F1", 8, 40, y_footer+30, "Bank Details for NEFT/RTGS:"))
+    stream_lines.append(pdf_txt("F2", 8, 40, y_footer+18, "Bank: HDFC Bank | A/C: 50200048192841 | IFSC: HDFC0001248"))
+    stream_lines.append(pdf_txt("F2", 7, 40, y_footer+6, "Declaration: Goods once sold will not be taken back or exchanged."))
 
-    stream_lines.append(f"BT /F1 8 Tf 420 {y_footer+30} Td (For BatchWise Bakeries Pvt Ltd) Tj ET")
-    stream_lines.append(f"BT /F2 7 Tf 440 {y_footer+6} Td (Authorized Signatory) Tj ET")
-    stream_lines.append(f"0.5 0.5 0.5 RG 410 {y_footer+15} 130 0.5 re S")
+    stream_lines.append(pdf_txt("F1", 8, 380, y_footer+30, f"For {c_name}"))
+    stream_lines.append(pdf_txt("F2", 7, 440, y_footer+6, "Authorized Signatory"))
+    stream_lines.append(f"0.5 0.5 0.5 RG 380 {y_footer+15} 170 0.5 re S")
 
     stream_lines.append("Q")
 

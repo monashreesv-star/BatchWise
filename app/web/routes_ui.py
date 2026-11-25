@@ -13,7 +13,15 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 def render_template(request: Request, name: str, context: dict = None, status_code: int = 200):
     ctx = context.copy() if context else {}
     ctx["request"] = request
-    return templates.TemplateResponse(request=request, name=name, context=ctx, status_code=status_code)
+    try:
+        template = templates.get_template(name)
+        content = template.render(ctx)
+        return HTMLResponse(content=content, status_code=status_code)
+    except Exception:
+        try:
+            return templates.TemplateResponse(request=request, name=name, context=ctx, status_code=status_code)
+        except Exception:
+            return templates.TemplateResponse(name, ctx, status_code=status_code)
 
 def check_role_access(user, allowed_roles: list, page_title: str, request: Request):
     if user["role"] == "admin" or user["role"] in allowed_roles:

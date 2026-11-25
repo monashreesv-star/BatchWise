@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Sign In - BatchWise ERP</title>
+    <title>Sign In - BatchWise Order-to-Audit Manufacturing System</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
+        :root {
+            --brand-primary: #2563EB;
+            --brand-accent: #3B82F6;
+            --sidebar-navy: #0B132B;
+            --card-navy: #1C2541;
+            --border-navy: #2A3656;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: radial-gradient(circle at 50% 20%, #1E1B4B 0%, #0F172A 70%, #020617 100%);
+            background: radial-gradient(circle at 50% 0%, #172554 0%, #0B132B 55%, #030712 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
+            padding: 2rem 1rem;
             color: #F8FAFC;
         }
 
@@ -29,169 +37,278 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
+        .auth-container {
+            width: 100%;
+            max-width: 540px;
+        }
+
         .login-card {
             border-radius: 20px;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            width: 100%;
-            max-width: 480px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            padding: 2.25rem;
         }
 
-        .btn-persona {
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.05);
-            color: #E2E8F0;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            transition: all 0.15s ease;
-            text-decoration: none;
+        .brand-badge {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
         }
 
-        .btn-persona:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 8px;
+        }
+
+        .btn-role-quick {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
+            color: #E2E8F0;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-role-quick:hover {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: #3B82F6;
             color: #FFFFFF;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
         }
 
-        .form-control {
-            background: rgba(2, 6, 23, 0.6);
+        .btn-role-quick i {
+            font-size: 1.15rem;
+        }
+
+        .btn-role-quick span {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .role-admin:hover i { color: #EF4444; }
+        .role-sales:hover i { color: #3B82F6; }
+        .role-supervisor:hover i { color: #10B981; }
+        .role-purchase:hover i { color: #F59E0B; }
+        .role-auditor:hover i { color: #8B5CF6; }
+
+        .input-group-custom {
+            position: relative;
+        }
+
+        .form-control-custom {
+            background: rgba(11, 19, 43, 0.75);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #FFFFFF;
             border-radius: 10px;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem 1rem 0.75rem 2.6rem;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            width: 100%;
         }
 
-        .form-control:focus {
-            background: rgba(2, 6, 23, 0.8);
-            border-color: #6366F1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        .form-control-custom:focus {
+            background: rgba(11, 19, 43, 0.95);
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
             color: #FFFFFF;
+            outline: none;
         }
 
-        .btn-brand-login {
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .btn-submit-login {
+            background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%);
             border: none;
             color: white;
             font-weight: 600;
             border-radius: 10px;
-            padding: 0.8rem;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
-            transition: all 0.15s ease;
+            padding: 0.85rem;
+            font-size: 0.92rem;
+            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+            transition: all 0.2s ease;
         }
 
-        .btn-brand-login:hover {
+        .btn-submit-login:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.55);
+            color: white;
+        }
+
+        .footer-tag {
+            font-size: 0.72rem;
+            color: #94A3B8;
+            letter-spacing: 0.01em;
         }
     </style>
 </head>
 <body>
-    <div class="login-card p-4 p-md-5">
-        <!-- Logo & Brand Header -->
-        <div class="text-center mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-4 bg-primary bg-opacity-25 border border-primary border-opacity-50 text-white mb-3 shadow-sm">
-                <i class="bi bi-boxes fs-2"></i>
+    <div class="auth-container">
+        <div class="login-card">
+            <!-- Header Branding -->
+            <div class="text-center mb-4">
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                    <div class="brand-badge">
+                        <i class="bi bi-box-seam-fill text-white fs-4"></i>
+                    </div>
+                    <div class="text-start">
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="fw-bold text-white mb-0" style="letter-spacing: -0.02em;">BatchWise</h3>
+                            <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 font-mono" style="font-size: 0.65rem;">v2.5-PROD</span>
+                        </div>
+                        <div class="text-white-50 small fw-medium" style="font-size: 0.78rem;">Order-to-Audit Manufacturing System</div>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-0 mt-2" style="font-size: 0.8rem; line-height: 1.4;">
+                    South Indian Snacks Mfg &bull; Murukku, Mixture, Chips & Sweets<br>
+                    <span class="text-info font-mono" style="font-size: 0.75rem;">NIT Tiruchirappalli CDI Benchmark &bull; Tamil Nadu [33]</span>
+                </p>
             </div>
-            <h3 class="fw-bold text-white mb-1">BatchWise ERP</h3>
-            <p class="text-white-50 small mb-0">Industrial Manufacturing Engine &bull; Karnataka [29]</p>
-        </div>
 
-        <!-- 1-Click Evaluator Quick Access Card -->
-        <div class="p-3 rounded-4 mb-4" style="background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.2);">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-uppercase fw-bold text-warning font-mono" style="font-size: 0.7rem;">
-                    <i class="bi bi-lightning-charge-fill me-1"></i> Evaluator 1-Click Persona Access
-                </span>
-                <span class="badge bg-secondary font-mono" style="font-size: 0.6rem;">INSTANT LOGIN</span>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="/switch-role/admin" class="btn-persona text-danger border-danger border-opacity-50">
-                    <i class="bi bi-shield-lock-fill"></i> Admin
-                </a>
-                <a href="/switch-role/salesman" class="btn-persona text-primary border-primary border-opacity-50">
-                    <i class="bi bi-person-fill"></i> Salesman
-                </a>
-                <a href="/switch-role/purchase" class="btn-persona text-warning border-warning border-opacity-50">
-                    <i class="bi bi-truck"></i> Purchase Mgr
-                </a>
-                <a href="/switch-role/production" class="btn-persona text-success border-success border-opacity-50">
-                    <i class="bi bi-gear-fill"></i> Plant Mgr
-                </a>
-                <a href="/switch-role/auditor" class="btn-persona text-info border-info border-opacity-50">
-                    <i class="bi bi-calculator-fill"></i> Auditor
-                </a>
-            </div>
-        </div>
-
-        <!-- Standard Login Form -->
-        <form id="loginForm">
-            <div class="mb-3">
-                <label class="form-label small fw-semibold text-white-50">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-end-0 text-white-50" style="border-color: rgba(255, 255, 255, 0.15);">
-                        <i class="bi bi-person"></i>
+            <!-- Evaluator 1-Click Role Switcher -->
+            <div class="p-3 rounded-4 mb-4" style="background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.18);">
+                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-white border-opacity-10">
+                    <span class="text-uppercase fw-bold text-warning font-mono" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+                        <i class="bi bi-lightning-charge-fill me-1"></i> Evaluator 1-Click Persona Access
                     </span>
-                    <input type="text" id="username" class="form-control border-start-0 ps-0" value="admin" required>
+                    <span class="badge bg-primary bg-opacity-25 text-primary font-mono" style="font-size: 0.6rem;">INSTANT LOGIN</span>
+                </div>
+                
+                <div class="persona-grid mt-2">
+                    <a href="/switch-role/admin" class="btn-role-quick role-admin" title="Full System Access, Approvals & Invoicing">
+                        <i class="bi bi-shield-lock-fill text-danger"></i>
+                        <span>Admin</span>
+                    </a>
+                    <a href="/switch-role/salesman" class="btn-role-quick role-sales" title="Mobile Field Order Booking">
+                        <i class="bi bi-phone-fill text-primary"></i>
+                        <span>Salesman</span>
+                    </a>
+                    <a href="/switch-role/production" class="btn-role-quick role-supervisor" title="Floor Tablet, BOM & Variance Run">
+                        <i class="bi bi-gear-wide-connected text-success"></i>
+                        <span>Supervisor</span>
+                    </a>
+                    <a href="/switch-role/purchase" class="btn-role-quick role-purchase" title="Raw Material PO & Goods Receipt GRN">
+                        <i class="bi bi-truck text-warning"></i>
+                        <span>Purchase</span>
+                    </a>
+                    <a href="/switch-role/auditor" class="btn-role-quick role-auditor" title="GSTR-1, Double-Entry & Audit Reports">
+                        <i class="bi bi-file-earmark-spreadsheet-fill text-info"></i>
+                        <span>Auditor</span>
+                    </a>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label small fw-semibold text-white-50">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-end-0 text-white-50" style="border-color: rgba(255, 255, 255, 0.15);">
-                        <i class="bi bi-key"></i>
-                    </span>
-                    <input type="password" id="password" class="form-control border-start-0 ps-0" value="admin123" required>
+            <!-- Standard Credential Form -->
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-white-50 mb-1" style="font-size: 0.8rem;">Username</label>
+                    <div class="input-group-custom">
+                        <i class="bi bi-person-fill input-icon"></i>
+                        <input type="text" id="username" class="form-control-custom" placeholder="admin / sales_ravi / prod_suresh" value="admin" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label small fw-semibold text-white-50 mb-0" style="font-size: 0.8rem;">Password</label>
+                        <span class="text-muted font-mono" style="font-size: 0.7rem;">Default: admin123</span>
+                    </div>
+                    <div class="input-group-custom">
+                        <i class="bi bi-lock-fill input-icon"></i>
+                        <input type="password" id="password" class="form-control-custom" placeholder="••••••••" value="admin123" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit-login w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign In to Operations Console</span>
+                </button>
+            </form>
+
+            <!-- Bottom System Metadata -->
+            <div class="text-center mt-4 pt-3 border-top border-white border-opacity-10 footer-tag">
+                <div class="mb-1 text-white-50">
+                    <i class="bi bi-shield-check text-success me-1"></i> Role-Based Access Scoped (RBAC) &bull; Double-Entry Stock Ledger
+                </div>
+                <div class="font-mono text-muted" style="font-size: 0.68rem;">
+                    Pure-Python Architecture &bull; SIDCO Industrial Estate, Tiruchirappalli, TN [33]
                 </div>
             </div>
-
-            <button type="submit" class="btn btn-brand-login w-100 d-flex align-items-center justify-content-center gap-2">
-                <i class="bi bi-box-arrow-in-right"></i> Sign In to Operations Command
-            </button>
-        </form>
-
-        <div class="text-center mt-4 pt-3 border-top border-white border-opacity-10 text-white-50 small" style="font-size: 0.72rem;">
-            Double-Entry Stock Ledger &bull; Conservation of Mass &bull; FIFO Depletion &bull; GST 29
         </div>
     </div>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            Swal.showLoading();
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: document.getElementById('username').value,
-                    password: document.getElementById('password').value
-                })
+            Swal.fire({
+                title: 'Authenticating...',
+                text: 'Verifying credentials with HMAC-SHA256 session vault...',
+                didOpen: () => Swal.showLoading(),
+                allowOutsideClick: false
             });
-            const data = await res.json();
-            if (res.ok && data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Authenticated!',
-                    text: `Signed in as ${data.user.full_name} (${data.user.role.toUpperCase()})`,
-                    timer: 1000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = '/';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value.trim(),
+                        password: document.getElementById('password').value
+                    })
                 });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Authentication Failed',
-                    text: data.error || 'Invalid credentials'
-                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Authenticated!',
+                        text: `Welcome back, ${data.user.full_name}!`,
+                        timer: 900,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Navigate to designated portal based on role
+                        const dest = {
+                            'salesman': '/sales',
+                            'production_manager': '/production',
+                            'purchase_manager': '/purchase',
+                            'auditor': '/reports'
+                        }[data.user.role] || '/';
+                        window.location.href = dest;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Authentication Failed',
+                        text: data.error || 'Invalid credentials',
+                        confirmButtonColor: '#2563EB'
+                    });
+                }
+            } catch (err) {
+                Swal.fire('Error', err.message, 'error');
             }
         });
     </script>

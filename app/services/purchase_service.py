@@ -26,6 +26,7 @@ def create_purchase_order(conn, user: dict, supplier_id: int, items: list):
     po_count = cur.fetchone()["count"] + 1
     po_number = f"PO-{datetime.date.today().strftime('%Y%m%d')}-{po_count:04d}"
 
+    user_id = user.get("id") or user.get("user_id", 1)
     cur.execute("""
         INSERT INTO purchase_orders (
             po_number, supplier_id, status, order_date,
@@ -33,7 +34,7 @@ def create_purchase_order(conn, user: dict, supplier_id: int, items: list):
         ) VALUES (?, ?, 'approved', ?, ?, ?, ?, ?)
     """, (
         po_number, supplier_id, datetime.date.today().isoformat(),
-        gst_calc["total_taxable"], gst_calc["total_tax"], gst_calc["grand_total"], user["id"]
+        gst_calc["total_taxable"], gst_calc["total_tax"], gst_calc["grand_total"], user_id
     ))
     po_id = cur.lastrowid
 
@@ -74,6 +75,7 @@ def create_goods_receipt_note(conn, user: dict, po_id: int, supplier_invoice_no:
 
     total_amt = round(sum(it["accepted_qty"] * it["unit_cost"] for it in received_items), 2)
 
+    user_id = user.get("id") or user.get("user_id", 1)
     cur.execute("""
         INSERT INTO goods_receipt_notes (
             grn_number, po_id, supplier_id, receipt_date, vehicle_no,
@@ -81,7 +83,7 @@ def create_goods_receipt_note(conn, user: dict, po_id: int, supplier_invoice_no:
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         grn_number, po_id, po["supplier_id"], receipt_date, vehicle_no,
-        supplier_invoice_no, receipt_date, total_amt, user["id"]
+        supplier_invoice_no, receipt_date, total_amt, user_id
     ))
     grn_id = cur.lastrowid
 

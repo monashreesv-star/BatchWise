@@ -28,7 +28,7 @@
 
         <div class="d-flex flex-wrap gap-2">
             <a href="/sales" class="btn btn-primary px-3 py-2 fw-semibold d-flex align-items-center gap-1 shadow-sm rounded-pill" style="background-color: #3B82F6; border: none; font-size: 0.82rem;">
-                <i class="bi bi-plus-lg"></i> + New Order
+                <i class="bi bi-plus-lg me-1"></i> New Order
             </a>
             <a href="/production" class="btn px-3 py-2 fw-semibold d-flex align-items-center gap-1 rounded-pill text-white" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.35); font-size: 0.82rem; backdrop-filter: blur(4px);">
                 <i class="bi bi-journal-plus"></i> Log Batch
@@ -369,7 +369,7 @@
 </div>
 {% endblock %}
 
-{% block extra_scripts %}
+{% block scripts %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const ctx = document.getElementById("salesYieldChart");

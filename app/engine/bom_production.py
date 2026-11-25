@@ -59,7 +59,8 @@ def calculate_bom_requirements(conn, bom_id: int, target_qty: float):
     }
 
 def create_work_order(conn, bom_id: int, target_qty: float, batch_number: str,
-                      start_date: str, created_by: int = None, notes: str = None):
+                      start_date: str = None, created_by: int = None, notes: str = None):
+    start_date = start_date or datetime.date.today().isoformat()
     calc = calculate_bom_requirements(conn, bom_id, target_qty)
     bom = calc["bom"]
 
