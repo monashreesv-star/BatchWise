@@ -59,6 +59,13 @@ async def ui_dashboard(request: Request):
             ORDER BY sb.id DESC LIMIT 5
         """)
 
+        recent_transactions = execute_query("""
+            SELECT st.*, i.name as item_name, i.sku, i.uom
+            FROM stock_transactions st
+            JOIN items i ON st.item_id = i.id
+            ORDER BY st.id DESC LIMIT 6
+        """)
+
         # Determine benchmark journey progress flags
         so_done = execute_one("SELECT COUNT(*) as c FROM sales_orders")["c"] > 0
         grn_done = execute_one("SELECT COUNT(*) as c FROM goods_receipt_notes")["c"] > 0
@@ -90,6 +97,7 @@ async def ui_dashboard(request: Request):
         },
         "recent_orders": recent_orders,
         "recent_batches": recent_batches,
+        "recent_transactions": recent_transactions,
         "items": items,
         "customers": customers,
         "suppliers": suppliers,
