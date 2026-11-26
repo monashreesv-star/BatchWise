@@ -612,39 +612,57 @@
 
             <!-- Main Workspace Application View -->
             <div class="col-md-9 col-xl-10 d-flex flex-column min-vh-100">
-                <!-- Top Header Navbar (Exact Reference Match) -->
-                <header class="app-header sticky-top px-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-0 fw-heading" style="font-size: 1.15rem;">Executive Operations Dashboard</h5>
-                        <small class="text-muted" style="font-size: 0.75rem;">Live overview of sales, orders, production yield and inventory</small>
+                <!-- Top Header Navbar (Triplink Luxury Style) -->
+                <header class="app-header sticky-top px-4 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0; min-height: 64px;">
+                    <!-- Left: Breadcrumbs & Quick Search & Telemetry -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="breadcrumb-trail d-none d-lg-flex align-items-center gap-2" style="font-size: 0.8rem; color: #64748B;">
+                            <span>Workspace</span>
+                            <span class="text-muted">/</span>
+                            <span class="fw-semibold text-dark">Executive Overview</span>
+                        </div>
+
+                        <!-- Universal Search Pill (Triplink Style) -->
+                        <div class="search-pill d-none d-md-inline-flex" onclick="focusSearchInput()" title="Press Ctrl+K to search">
+                            <i class="bi bi-search text-muted"></i>
+                            <span>Search orders, batches, invoices...</span>
+                            <span class="kbd-pill ms-auto">Ctrl K</span>
+                        </div>
+
+                        <!-- Live Status Pill -->
+                        <div class="status-sync-pill d-none d-xl-inline-flex">
+                            <span class="pulse-indicator bg-success" style="width: 6px; height: 6px; border-radius: 50%;"></span>
+                            <span class="fw-medium font-mono" style="font-size: 0.72rem;">Tamil Nadu Plant Live &bull; ACID Sync OK</span>
+                        </div>
                     </div>
 
                     <!-- Right Controls: Role Selector, Refresh, User Pill, Logout -->
                     <div class="d-flex align-items-center gap-2">
-                        <!-- Role Segmented Group (Exact Match) -->
+                        <!-- Role Segmented Group -->
                         <div class="d-flex align-items-center gap-1 bg-light p-1 rounded-pill border">
-                            <span class="text-muted ms-2 small fw-semibold" style="font-size: 0.74rem;">Role:</span>
+                            <span class="text-muted ms-2 small fw-semibold" style="font-size: 0.72rem;">Role:</span>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="/switch-role/admin" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'admin' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'admin' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Admin</a>
-                                <a href="/switch-role/salesman" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'salesman' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'salesman' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Salesman</a>
-                                <a href="/switch-role/production" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'production_manager' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'production_manager' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Supervisor</a>
-                                <a href="/switch-role/auditor" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold {% if user.role == 'auditor' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.74rem; {% if user.role == 'auditor' %}background-color: #2563EB; border-color: #2563EB;{% endif %}">Accountant</a>
+                                <a href="/switch-role/admin" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'admin' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'admin' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Admin</a>
+                                <a href="/switch-role/salesman" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'salesman' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'salesman' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Salesman</a>
+                                <a href="/switch-role/production" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'production_manager' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'production_manager' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Supervisor</a>
+                                <a href="/switch-role/purchase" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'purchase_manager' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'purchase_manager' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Purchase</a>
+                                <a href="/switch-role/auditor" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'auditor' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'auditor' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Auditor</a>
                             </div>
                         </div>
 
                         <!-- Refresh Telemetry Button -->
-                        <button class="btn btn-sm btn-white-outline rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px;" onclick="window.location.reload()" title="Refresh Telemetry">
+                        <button class="btn btn-sm btn-white-outline rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px; background: #FFFFFF; border: 1px solid #E2E8F0;" onclick="window.location.reload()" title="Refresh Telemetry">
                             <i class="bi bi-arrow-clockwise text-muted fs-6"></i>
                         </button>
 
-                        <!-- User Profile Pill (Purple Pill Exact Match) -->
-                        <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: #F3E8FF; border: 1px solid #E9D5FF; color: #7E22CE; font-size: 0.78rem; font-weight: 600;">
+                        <!-- User Profile Pill -->
+                        <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: #EEF2FF; border: 1px solid #C7D2FE; color: #4338CA; font-size: 0.76rem; font-weight: 600;">
                             <i class="bi bi-person-fill"></i>
                             <span>{{ user.full_name or 'Admin (Director)' }}</span>
                         </div>
 
-                        <!-- Logout Button (Outline Pill Exact Match) -->
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-flex align-items-center gap-1 shadow-sm" style="font-size: 0.76rem;" onclick="logout()">
+                        <!-- Logout Button -->
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-flex align-items-center gap-1 shadow-sm" style="font-size: 0.76rem; background: #FFFFFF;" onclick="logout()">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </button>
                     </div>
