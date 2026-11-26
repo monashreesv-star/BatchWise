@@ -5,20 +5,29 @@ from app.database import get_db
 
 def get_monthly_stock_ledger_summary(conn, month_str: str = None):
     month_str = month_str or datetime.date.today().strftime("%Y-%m")
-    start_date = f"{month_str}-01"
+    try:
+        parts = month_str.split("-")
+        year, month = int(parts[0]), int(parts[1])
+        import calendar
+        last_day = calendar.monthrange(year, month)[1]
+        start_date = f"{month_str}-01 00:00:00"
+        end_date = f"{month_str}-{last_day:02d} 23:59:59"
+    except Exception:
+        start_date = f"{month_str}-01 00:00:00"
+        end_date = f"{month_str}-31 23:59:59"
 
     cur = conn.cursor()
     cur.execute("""
         SELECT i.id, i.sku, i.name, i.uom, i.category, i.standard_cost,
                COALESCE(SUM(CASE WHEN st.created_at < ? THEN st.qty ELSE 0 END), 0.0) as opening_qty,
-               COALESCE(SUM(CASE WHEN st.created_at >= ? AND st.qty > 0 THEN st.qty ELSE 0 END), 0.0) as inward_qty,
-               COALESCE(SUM(CASE WHEN st.created_at >= ? AND st.qty < 0 THEN ABS(st.qty) ELSE 0 END), 0.0) as outward_qty,
-               COALESCE(SUM(st.qty), 0.0) as closing_qty
+               COALESCE(SUM(CASE WHEN st.created_at >= ? AND st.created_at <= ? AND st.qty > 0 THEN st.qty ELSE 0 END), 0.0) as inward_qty,
+               COALESCE(SUM(CASE WHEN st.created_at >= ? AND st.created_at <= ? AND st.qty < 0 THEN ABS(st.qty) ELSE 0 END), 0.0) as outward_qty,
+               COALESCE(SUM(CASE WHEN st.created_at <= ? THEN st.qty ELSE 0 END), 0.0) as closing_qty
         FROM items i
         LEFT JOIN stock_transactions st ON i.id = st.item_id
         GROUP BY i.id
         ORDER BY i.category, i.sku
-    """, (start_date, start_date, start_date))
+    """, (start_date, start_date, end_date, start_date, end_date, end_date))
     rows = cur.fetchall()
 
     summary = []
@@ -85,7 +94,12 @@ def get_production_variance_report(conn):
         ORDER BY wo.id DESC
     """)
     orders = cur.fetchall()
-    return {"work_orders": orders}
+    formatted = []
+    for wo in orders:
+        row = dict(wo)
+        row["yield_efficiency_percentage"] = round((wo["actual_qty"] / wo["target_qty"]) * 100.0, 2) if wo["target_qty"] > 0 else 0.0
+        formatted.append(row)
+    return {"work_orders": formatted}
 
 def export_to_csv(data: list, headers: list, field_names: list) -> str:
     output = io.StringIO()

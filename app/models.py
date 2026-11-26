@@ -181,6 +181,7 @@ CREATE TABLE IF NOT EXISTS production_work_orders (
     actual_unit_cost REAL NOT NULL DEFAULT 0.0,
     material_quantity_variance REAL NOT NULL DEFAULT 0.0,
     material_cost_variance REAL NOT NULL DEFAULT 0.0,
+    yield_efficiency_percentage REAL NOT NULL DEFAULT 0.0,
     yield_variance_percentage REAL NOT NULL DEFAULT 0.0,
     notes TEXT,
     created_by INTEGER REFERENCES users(id),
@@ -311,6 +312,10 @@ CREATE INDEX IF NOT EXISTS idx_payments_invoice ON payments(invoice_id);
 def init_db(db_path=None):
     with get_db(db_path) as conn:
         conn.executescript(SCHEMA_SQL)
+        try:
+            conn.execute("ALTER TABLE production_work_orders ADD COLUMN yield_efficiency_percentage REAL DEFAULT 0.0")
+        except Exception:
+            pass
 
 def reset_db(db_path=None):
     with get_db(db_path) as conn:

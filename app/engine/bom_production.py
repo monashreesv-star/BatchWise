@@ -58,16 +58,54 @@ def calculate_bom_requirements(conn, bom_id: int, target_qty: float):
         "standard_unit_material_cost": round(total_std_cost / target_qty, 2) if target_qty > 0 else 0.0
     }
 
-def create_work_order(conn, bom_id: int, target_qty: float, batch_number: str,
+def create_work_order(conn, bom_id: int, target_qty: float, batch_number: str = None,
                       start_date: str = None, created_by: int = None, notes: str = None):
     start_date = start_date or datetime.date.today().isoformat()
     calc = calculate_bom_requirements(conn, bom_id, target_qty)
     bom = calc["bom"]
 
     cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) as count FROM production_work_orders")
-    wo_count = cur.fetchone()["count"] + 1
-    wo_number = f"WO-{datetime.date.today().strftime('%Y%m%d')}-{wo_count:04d}"
+    
+    # 1. Monotonically generate unique work order number with collision guard
+    cur.execute("SELECT MAX(id) as max_id FROM production_work_orders")
+    max_id = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    wo_number = f"WO-{today_str}-{max_id:04d}"
+    while cur.execute("SELECT 1 FROM production_work_orders WHERE wo_number = ?", (wo_number,)).fetchone():
+        max_id += 1
+        wo_number = f"WO-{today_str}-{max_id:04d}"
+
+    # 2. Auto-generate or sanitize batch number to prevent UNIQUE constraint errors
+    if not batch_number or not str(batch_number).strip():
+        cur.execute("SELECT sku FROM items WHERE id = ?", (bom["finished_item_id"],))
+        item_row = cur.fetchone()
+        sku_clean = (item_row["sku"] if item_row else "BATCH").replace(" ", "-").upper()
+        cur.execute("SELECT COUNT(*) as c FROM production_work_orders WHERE finished_item_id = ?", (bom["finished_item_id"],))
+        seq = cur.fetchone()["c"] + 1
+        batch_number = f"FG-{sku_clean}-{today_str}-B{seq:02d}"
+        while (cur.execute("SELECT 1 FROM production_work_orders WHERE batch_number = ?", (batch_number,)).fetchone() or
+               cur.execute("SELECT 1 FROM stock_batches WHERE batch_number = ?", (batch_number,)).fetchone()):
+            seq += 1
+            batch_number = f"FG-{sku_clean}-{today_str}-B{seq:02d}"
+    else:
+        batch_number = str(batch_number).strip()
+        # Check if this batch number already exists in production_work_orders
+        cur.execute("SELECT * FROM production_work_orders WHERE batch_number = ?", (batch_number,))
+        existing = cur.fetchone()
+        if existing:
+            # Idempotent re-submission: if exact same planned run is repeated, return existing ID gracefully
+            if existing["bom_id"] == bom_id and abs(existing["target_qty"] - target_qty) < 0.001 and existing["status"] in ("planned", "in_progress"):
+                return existing["id"]
+
+            # If work order already completed or parameters differ, version suffix to prevent crash
+            base_batch = batch_number
+            ver = 2
+            cand_batch = f"{base_batch}-V{ver}"
+            while (cur.execute("SELECT 1 FROM production_work_orders WHERE batch_number = ?", (cand_batch,)).fetchone() or
+                   cur.execute("SELECT 1 FROM stock_batches WHERE batch_number = ?", (cand_batch,)).fetchone()):
+                ver += 1
+                cand_batch = f"{base_batch}-V{ver}"
+            batch_number = cand_batch
 
     cur.execute("""
         INSERT INTO production_work_orders (
@@ -96,7 +134,22 @@ def execute_production_run(conn, wo_id: int, actual_qty_produced: float,
     if not wo:
         raise ProductionError(f"Work order {wo_id} does not exist.")
     if wo["status"] == "completed":
-        raise ProductionError(f"Work order {wo['wo_number']} is already completed.")
+        yield_eff = round((wo["actual_qty"] / wo["target_qty"]) * 100.0, 2) if wo["target_qty"] > 0 else 0.0
+        return {
+            "wo_id": wo_id,
+            "wo_number": wo["wo_number"],
+            "batch_number": wo["batch_number"],
+            "actual_qty_produced": wo["actual_qty"],
+            "total_actual_material_cost": wo["actual_material_cost"],
+            "total_actual_cost": wo["total_actual_cost"],
+            "actual_unit_cost": wo["actual_unit_cost"],
+            "material_quantity_variance": wo["material_quantity_variance"],
+            "yield_efficiency_percentage": yield_eff,
+            "yield_variance_percentage": wo["yield_variance_percentage"],
+            "scrap_finished_units": wo["scrap_qty"],
+            "already_completed": True,
+            "message": f"Work order {wo['wo_number']} is already completed."
+        }
 
     if actual_qty_produced <= 0:
         raise ProductionError("Actual quantity produced must be greater than zero.")
@@ -160,7 +213,8 @@ def execute_production_run(conn, wo_id: int, actual_qty_produced: float,
 
     total_actual_cost = round(total_actual_material_cost + labor_cost + overhead_cost, 2)
     actual_unit_cost = round(total_actual_cost / actual_qty_produced, 4)
-    yield_var_pct = round(((actual_qty_produced - wo["target_qty"]) / wo["target_qty"]) * 100.0, 2)
+    yield_efficiency = round((actual_qty_produced / wo["target_qty"]) * 100.0, 2) if wo["target_qty"] > 0 else 0.0
+    yield_var_pct = round(((actual_qty_produced - wo["target_qty"]) / wo["target_qty"]) * 100.0, 2) if wo["target_qty"] > 0 else 0.0
     scrap_finished = round(wo["target_qty"] - actual_qty_produced, 4) if wo["target_qty"] > actual_qty_produced else 0.0
 
     record_inward(
@@ -171,19 +225,35 @@ def execute_production_run(conn, wo_id: int, actual_qty_produced: float,
         reference_type="WO"
     )
 
-    cur.execute("""
-        UPDATE production_work_orders
-        SET actual_qty = ?, scrap_qty = ?, status = 'completed',
-            completion_date = ?, actual_material_cost = ?, labor_cost = ?,
-            overhead_cost = ?, total_actual_cost = ?, actual_unit_cost = ?,
-            material_quantity_variance = ?, yield_variance_percentage = ?
-        WHERE id = ?
-    """, (
-        actual_qty_produced, scrap_finished, completion_date,
-        round(total_actual_material_cost, 2), round(labor_cost, 2),
-        round(overhead_cost, 2), total_actual_cost, actual_unit_cost,
-        round(total_mqv, 2), yield_var_pct, wo_id
-    ))
+    try:
+        cur.execute("""
+            UPDATE production_work_orders
+            SET actual_qty = ?, scrap_qty = ?, status = 'completed',
+                completion_date = ?, actual_material_cost = ?, labor_cost = ?,
+                overhead_cost = ?, total_actual_cost = ?, actual_unit_cost = ?,
+                material_quantity_variance = ?, yield_efficiency_percentage = ?,
+                yield_variance_percentage = ?
+            WHERE id = ?
+        """, (
+            actual_qty_produced, scrap_finished, completion_date,
+            round(total_actual_material_cost, 2), round(labor_cost, 2),
+            round(overhead_cost, 2), total_actual_cost, actual_unit_cost,
+            round(total_mqv, 2), yield_efficiency, yield_var_pct, wo_id
+        ))
+    except Exception:
+        cur.execute("""
+            UPDATE production_work_orders
+            SET actual_qty = ?, scrap_qty = ?, status = 'completed',
+                completion_date = ?, actual_material_cost = ?, labor_cost = ?,
+                overhead_cost = ?, total_actual_cost = ?, actual_unit_cost = ?,
+                material_quantity_variance = ?, yield_variance_percentage = ?
+            WHERE id = ?
+        """, (
+            actual_qty_produced, scrap_finished, completion_date,
+            round(total_actual_material_cost, 2), round(labor_cost, 2),
+            round(overhead_cost, 2), total_actual_cost, actual_unit_cost,
+            round(total_mqv, 2), yield_var_pct, wo_id
+        ))
 
     return {
         "wo_id": wo_id,
@@ -194,6 +264,7 @@ def execute_production_run(conn, wo_id: int, actual_qty_produced: float,
         "total_actual_cost": total_actual_cost,
         "actual_unit_cost": actual_unit_cost,
         "material_quantity_variance": round(total_mqv, 2),
+        "yield_efficiency_percentage": yield_efficiency,
         "yield_variance_percentage": yield_var_pct,
         "scrap_finished_units": scrap_finished
     }

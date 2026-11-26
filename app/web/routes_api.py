@@ -89,6 +89,16 @@ async def api_me(request: Request):
         return JSONResponse({"authenticated": False}, status_code=401)
     return JSONResponse({"authenticated": True, "user": user})
 
+def clean_error_message(e: Exception) -> str:
+    msg = str(e)
+    if "UNIQUE constraint failed: production_work_orders.batch_number" in msg or "UNIQUE constraint failed: stock_batches.batch_number" in msg:
+        return "A batch with this number already exists. Please provide a unique batch identifier."
+    if "CHECK constraint failed: balance_due" in msg:
+        return "Payment amount cannot exceed the remaining balance due on this invoice."
+    if "CHECK constraint failed" in msg:
+        return "Input validation failed: Specified values violate database integrity constraints."
+    return msg
+
 async def api_sales_create(request: Request):
     user = get_current_user(request)
     if not user:
@@ -102,7 +112,7 @@ async def api_sales_create(request: Request):
             )
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_sales_approve(request: Request):
     user = get_current_user(request)
@@ -114,7 +124,7 @@ async def api_sales_approve(request: Request):
             res = approve_sales_order(conn, user=user, so_id=so_id)
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_sales_invoice(request: Request):
     user = get_current_user(request)
@@ -126,7 +136,7 @@ async def api_sales_invoice(request: Request):
             res = generate_invoice_for_so(conn, user=user, so_id=so_id)
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_purchase_create(request: Request):
     user = get_current_user(request)
@@ -138,7 +148,7 @@ async def api_purchase_create(request: Request):
             res = create_purchase_order(conn, user=user, supplier_id=data["supplier_id"], items=data["items"])
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_purchase_grn(request: Request):
     user = get_current_user(request)
@@ -155,7 +165,7 @@ async def api_purchase_grn(request: Request):
             )
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_production_create(request: Request):
     user = get_current_user(request)
@@ -166,11 +176,11 @@ async def api_production_create(request: Request):
         try:
             res = create_production_order(
                 conn, user=user, bom_id=data["bom_id"], target_qty=data["target_qty"],
-                batch_number=data["batch_number"], start_date=data.get("start_date")
+                batch_number=data.get("batch_number"), start_date=data.get("start_date")
             )
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_production_complete(request: Request):
     user = get_current_user(request)
@@ -189,7 +199,7 @@ async def api_production_complete(request: Request):
             )
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_shortage_check(request: Request):
     data = await request.json()
@@ -211,7 +221,7 @@ async def api_payment_record(request: Request):
             )
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
+            return JSONResponse({"error": clean_error_message(e)}, status_code=400)
 
 async def api_trace_upstream(request: Request):
     batch = request.path_params["batch"]

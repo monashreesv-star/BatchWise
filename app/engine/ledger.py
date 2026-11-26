@@ -9,9 +9,14 @@ class InsufficientStockError(LedgerError):
 
 def generate_tx_number(conn):
     cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) as count FROM stock_transactions")
-    count = cur.fetchone()["count"] + 1
-    return f"STX-{datetime.date.today().strftime('%Y%m%d')}-{count:05d}"
+    cur.execute("SELECT MAX(id) as max_id FROM stock_transactions")
+    max_id = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    tx_num = f"STX-{today_str}-{max_id:05d}"
+    while cur.execute("SELECT 1 FROM stock_transactions WHERE transaction_number = ?", (tx_num,)).fetchone():
+        max_id += 1
+        tx_num = f"STX-{today_str}-{max_id:05d}"
+    return tx_num
 
 def record_inward(conn, item_id: int, batch_number: str, qty: float, unit_cost: float,
                   source_type: str, source_id: int, mfg_date: str, expiry_date: str = None,

@@ -145,9 +145,12 @@
                     <td><span class="fw-semibold text-dark">{{ wo.finished_good_name }}</span></td>
                     <td class="font-mono">{{ wo.target_qty|int }} / <strong>{{ wo.actual_qty|int }}</strong></td>
                     <td>
-                        <span class="badge {% if wo.yield_variance_percentage < 0 %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} font-mono">
-                            {{ "%.1f"|format(wo.yield_variance_percentage) }}%
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 font-mono">
+                            {{ "%.1f"|format(wo.yield_efficiency_percentage or (wo.actual_qty / wo.target_qty * 100 if wo.target_qty else 100)) }}%
                         </span>
+                        <small class="{% if wo.yield_variance_percentage < 0 %}text-danger{% else %}text-success{% endif %} d-block font-mono fw-semibold" style="font-size: 0.7rem;">
+                            Var: {{ "%+.1f"|format(wo.yield_variance_percentage) }}%
+                        </small>
                     </td>
                     <td>
                         {% if wo.material_quantity_variance < 0 %}

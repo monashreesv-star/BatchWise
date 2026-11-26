@@ -26,9 +26,13 @@ def create_sales_order(conn, user: dict, customer_id: int, items: list, notes: s
 
     gst_calc = calculate_gst_breakdown(customer["state"], items)
     
-    cur.execute("SELECT COUNT(*) as count FROM sales_orders")
-    so_count = cur.fetchone()["count"] + 1
-    so_number = f"SO-{datetime.date.today().strftime('%Y%m%d')}-{so_count:04d}"
+    cur.execute("SELECT MAX(id) as max_id FROM sales_orders")
+    so_count = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    so_number = f"SO-{today_str}-{so_count:04d}"
+    while cur.execute("SELECT 1 FROM sales_orders WHERE so_number = ?", (so_number,)).fetchone():
+        so_count += 1
+        so_number = f"SO-{today_str}-{so_count:04d}"
     user_id = user.get("id") or user.get("user_id", 1)
 
     cur.execute("""
@@ -133,9 +137,13 @@ def generate_invoice_for_so(conn, user: dict, so_id: int):
                 "total_amount": total
             })
 
-    cur.execute("SELECT COUNT(*) as count FROM invoices")
-    inv_count = cur.fetchone()["count"] + 1
-    inv_number = f"INV-{datetime.date.today().strftime('%Y%m%d')}-{inv_count:04d}"
+    cur.execute("SELECT MAX(id) as max_id FROM invoices")
+    inv_count = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    inv_number = f"INV-{today_str}-{inv_count:04d}"
+    while cur.execute("SELECT 1 FROM invoices WHERE invoice_number = ?", (inv_number,)).fetchone():
+        inv_count += 1
+        inv_number = f"INV-{today_str}-{inv_count:04d}"
     inv_date = datetime.date.today().isoformat()
     due_date = (datetime.date.today() + datetime.timedelta(days=15)).isoformat()
 
@@ -144,6 +152,7 @@ def generate_invoice_for_so(conn, user: dict, so_id: int):
     total_sgst = round(sum(a["sgst_amount"] for a in invoice_allocations), 2)
     grand_total = round(sum(a["total_amount"] for a in invoice_allocations), 2)
 
+    user_id = user.get("id") or user.get("user_id", 1)
     cur.execute("""
         INSERT INTO invoices (
             invoice_number, so_id, customer_id, invoice_date, due_date,
@@ -153,14 +162,14 @@ def generate_invoice_for_so(conn, user: dict, so_id: int):
     """, (
         inv_number, so_id, customer["id"], inv_date, due_date,
         total_taxable, total_cgst, total_sgst, grand_total,
-        grand_total, user["id"]
+        grand_total, user_id
     ))
     inv_id = cur.lastrowid
 
     for a in invoice_allocations:
         record_outward(
             conn, item_id=a["item_id"], batch_id=a["batch_id"], qty=a["quantity"],
-            reference_type="INV", reference_id=inv_id, created_by=user["id"],
+            reference_type="INV", reference_id=inv_id, created_by=user_id,
             notes=f"Dispatched for Invoice {inv_number}", transaction_type="OUTWARD"
         )
         cur.execute("""

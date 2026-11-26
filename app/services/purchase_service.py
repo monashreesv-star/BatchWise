@@ -22,9 +22,13 @@ def create_purchase_order(conn, user: dict, supplier_id: int, items: list):
 
     gst_calc = calculate_gst_breakdown(supplier["state"], items)
 
-    cur.execute("SELECT COUNT(*) as count FROM purchase_orders")
-    po_count = cur.fetchone()["count"] + 1
-    po_number = f"PO-{datetime.date.today().strftime('%Y%m%d')}-{po_count:04d}"
+    cur.execute("SELECT MAX(id) as max_id FROM purchase_orders")
+    po_count = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    po_number = f"PO-{today_str}-{po_count:04d}"
+    while cur.execute("SELECT 1 FROM purchase_orders WHERE po_number = ?", (po_number,)).fetchone():
+        po_count += 1
+        po_number = f"PO-{today_str}-{po_count:04d}"
 
     user_id = user.get("id") or user.get("user_id", 1)
     cur.execute("""
@@ -69,9 +73,13 @@ def create_goods_receipt_note(conn, user: dict, po_id: int, supplier_invoice_no:
 
     receipt_date = receipt_date or datetime.date.today().isoformat()
 
-    cur.execute("SELECT COUNT(*) as count FROM goods_receipt_notes")
-    grn_count = cur.fetchone()["count"] + 1
-    grn_number = f"GRN-{datetime.date.today().strftime('%Y%m%d')}-{grn_count:04d}"
+    cur.execute("SELECT MAX(id) as max_id FROM goods_receipt_notes")
+    grn_count = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    grn_number = f"GRN-{today_str}-{grn_count:04d}"
+    while cur.execute("SELECT 1 FROM goods_receipt_notes WHERE grn_number = ?", (grn_number,)).fetchone():
+        grn_count += 1
+        grn_number = f"GRN-{today_str}-{grn_count:04d}"
 
     total_amt = round(sum(it["accepted_qty"] * it["unit_cost"] for it in received_items), 2)
 
@@ -104,7 +112,7 @@ def create_goods_receipt_note(conn, user: dict, po_id: int, supplier_invoice_no:
         record_inward(
             conn, item_id=it["item_id"], batch_number=b_no, qty=acc_qty,
             unit_cost=unit_cost, source_type="grn", source_id=grn_id,
-            mfg_date=mfg_dt, expiry_date=exp_dt, created_by=user["id"],
+            mfg_date=mfg_dt, expiry_date=exp_dt, created_by=user_id,
             notes=f"GRN {grn_number} from PO {po['po_number']}", reference_type="GRN"
         )
 

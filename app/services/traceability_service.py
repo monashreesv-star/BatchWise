@@ -2,35 +2,54 @@ from app.database import get_db
 
 def trace_finished_good_upstream(conn, batch_number: str):
     cur = conn.cursor()
+    # Search by finished good stock batch or directly by work order batch number
     cur.execute("""
-        SELECT sb.*, i.sku, i.name as item_name, i.category, wo.id as wo_id,
+        SELECT sb.id as batch_id, COALESCE(sb.batch_number, wo.batch_number) as batch_number,
+               i.sku, i.name as item_name, i.category, wo.id as wo_id,
                wo.wo_number, wo.target_qty, wo.actual_qty, wo.actual_unit_cost,
-               wo.start_date, wo.completion_date, b.bom_code, b.name as bom_name
-        FROM stock_batches sb
-        JOIN items i ON sb.item_id = i.id
-        LEFT JOIN production_work_orders wo ON sb.source_id = wo.id AND sb.source_type = 'production'
+               wo.start_date, wo.completion_date, b.bom_code, b.name as bom_name,
+               sb.current_qty, sb.mfg_date, sb.expiry_date
+        FROM production_work_orders wo
+        JOIN items i ON wo.finished_item_id = i.id
+        LEFT JOIN stock_batches sb ON (sb.source_id = wo.id AND sb.source_type = 'production') OR sb.batch_number = wo.batch_number
         LEFT JOIN boms b ON wo.bom_id = b.id
-        WHERE sb.batch_number = ?
-    """, (batch_number,))
+        WHERE wo.batch_number = ? OR sb.batch_number = ?
+    """, (batch_number, batch_number))
     fg_batch = cur.fetchone()
+
+    # Fallback to stock_batches if work order was not matched
+    if not fg_batch:
+        cur.execute("""
+            SELECT sb.id as batch_id, sb.batch_number, i.sku, i.name as item_name, i.category,
+                   sb.source_id as wo_id, sb.current_qty, sb.unit_cost as actual_unit_cost,
+                   sb.mfg_date, sb.expiry_date
+            FROM stock_batches sb
+            JOIN items i ON sb.item_id = i.id
+            WHERE sb.batch_number = ?
+        """, (batch_number,))
+        fg_batch = cur.fetchone()
 
     if not fg_batch:
         return {"found": False, "message": f"Batch '{batch_number}' not found."}
 
     consumed_materials = []
-    if fg_batch["wo_id"]:
+    wo_id = fg_batch.get("wo_id")
+    if wo_id:
         cur.execute("""
             SELECT wmc.*, i.sku as comp_sku, i.name as comp_name, i.uom as comp_uom,
                    grn.id as grn_id, grn.grn_number, grn.receipt_date,
-                   po.id as po_id, po.po_number, p.name as supplier_name, p.gstin as supplier_gstin
+                   po.id as po_id, po.po_number,
+                   COALESCE(p_po.name, p_grn.name, 'Opening Stock / Baseline Master') as supplier_name,
+                   COALESCE(p_po.gstin, p_grn.gstin, 'URP') as supplier_gstin
             FROM wo_material_consumptions wmc
             JOIN items i ON wmc.component_item_id = i.id
             LEFT JOIN stock_batches rmb ON wmc.batch_id = rmb.id
             LEFT JOIN goods_receipt_notes grn ON rmb.source_id = grn.id AND rmb.source_type = 'grn'
             LEFT JOIN purchase_orders po ON grn.po_id = po.id
-            LEFT JOIN parties p ON po.supplier_id = p.id
+            LEFT JOIN parties p_po ON po.supplier_id = p_po.id
+            LEFT JOIN parties p_grn ON grn.supplier_id = p_grn.id
             WHERE wmc.wo_id = ?
-        """, (fg_batch["wo_id"],))
+        """, (wo_id,))
         consumed_materials = cur.fetchall()
 
     return {
@@ -44,12 +63,14 @@ def trace_raw_material_downstream(conn, batch_number: str):
     cur = conn.cursor()
     cur.execute("""
         SELECT sb.*, i.sku, i.name as item_name, grn.grn_number, grn.receipt_date,
-               po.po_number, sup.name as supplier_name
+               po.po_number,
+               COALESCE(p_po.name, p_grn.name, 'Opening Stock / Baseline Master') as supplier_name
         FROM stock_batches sb
         JOIN items i ON sb.item_id = i.id
         LEFT JOIN goods_receipt_notes grn ON sb.source_id = grn.id AND sb.source_type = 'grn'
         LEFT JOIN purchase_orders po ON grn.po_id = po.id
-        LEFT JOIN parties sup ON po.supplier_id = sup.id
+        LEFT JOIN parties p_po ON po.supplier_id = p_po.id
+        LEFT JOIN parties p_grn ON grn.supplier_id = p_grn.id
         WHERE sb.batch_number = ?
     """, (batch_number,))
     rm_batch = cur.fetchone()

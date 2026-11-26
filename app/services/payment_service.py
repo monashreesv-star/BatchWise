@@ -26,18 +26,45 @@ def record_customer_payment(conn, user: dict, invoice_id: int, amount: float,
     if inv["status"] == "paid" or inv["balance_due"] <= 0:
         raise PaymentError(f"Invoice {inv['invoice_number']} is already fully settled (balance due is ₹0.00).")
 
-    # If payment exceeds remaining balance, auto-clamp to settle remaining balance without crashing
-    if amount > inv["balance_due"]:
-        amount = round(float(inv["balance_due"]), 2)
+    # Prevent overpayment beyond remaining balance due
+    if round(amount, 2) > round(inv["balance_due"], 2):
+        raise PaymentError(
+            f"Overpayment rejected: Payment amount ₹{amount:.2f} exceeds remaining balance due "
+            f"₹{inv['balance_due']:.2f} for invoice {inv['invoice_number']}."
+        )
+
+    # Prevent duplicate payment with identical reference number on the same invoice
+    if reference_no and reference_no.strip():
+        cur.execute("""
+            SELECT id, payment_number, amount, payment_date FROM payments
+            WHERE invoice_id = ? AND reference_no = ?
+        """, (invoice_id, reference_no.strip()))
+        dup = cur.fetchone()
+        if dup:
+            raise PaymentError(
+                f"Duplicate payment rejected: A payment ({dup['payment_number']}) with reference '{reference_no.strip()}' "
+                f"of ₹{dup['amount']:.2f} was already recorded for invoice {inv['invoice_number']} on {dup['payment_date']}."
+            )
 
     payment_date = payment_date or datetime.date.today().isoformat()
     new_paid = round(inv["amount_paid"] + amount, 2)
     new_due = round(inv["balance_due"] - amount, 2)
-    new_status = "paid" if new_due <= 0.0 else "partially_paid"
 
-    cur.execute("SELECT COUNT(*) as count FROM payments")
-    p_count = cur.fetchone()["count"] + 1
-    payment_number = f"PAY-{datetime.date.today().strftime('%Y%m%d')}-{p_count:04d}"
+    # Never mark an invoice fully paid unless total cumulative payments equal or exceed the grand total
+    if new_due <= 0.001 and new_paid >= round(inv["grand_total"], 2) - 0.01:
+        new_due = 0.0
+        new_status = "paid"
+    else:
+        new_status = "partially_paid"
+
+    cur.execute("SELECT MAX(id) as max_id FROM payments")
+    max_id = (cur.fetchone()["max_id"] or 0) + 1
+    today_str = datetime.date.today().strftime('%Y%m%d')
+    payment_number = f"PAY-{today_str}-{max_id:04d}"
+    while cur.execute("SELECT 1 FROM payments WHERE payment_number = ?", (payment_number,)).fetchone():
+        max_id += 1
+        payment_number = f"PAY-{today_str}-{max_id:04d}"
+
     user_id = user.get("id") or user.get("user_id", 1)
 
     cur.execute("""
@@ -65,11 +92,14 @@ def record_customer_payment(conn, user: dict, invoice_id: int, amount: float,
     return {
         "payment_id": pay_id,
         "payment_number": payment_number,
+        "invoice_id": invoice_id,
         "invoice_number": inv["invoice_number"],
         "amount": amount,
         "amount_paid": amount,
+        "total_amount_paid": new_paid,
         "balance_due": new_due,
         "remaining_balance_due": new_due,
+        "status": new_status,
         "invoice_status": new_status,
         "customer_new_balance": new_cust_balance
     }
