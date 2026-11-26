@@ -43,8 +43,12 @@ class TestRBAC(unittest.TestCase):
         self.assertFalse(has_permission("production_manager", "sales:approve"))
         self.assertFalse(has_permission("production_manager", "payments:record"))
 
+        self.assertTrue(has_permission("accountant", "payments:record"))
+        self.assertTrue(has_permission("accountant", "reports:view"))
+        self.assertFalse(has_permission("accountant", "production:execute"))
+
         self.assertTrue(has_permission("auditor", "reports:view"))
-        self.assertTrue(has_permission("auditor", "payments:record"))
+        self.assertFalse(has_permission("auditor", "payments:record"))
         self.assertFalse(has_permission("auditor", "production:execute"))
         self.assertFalse(has_permission("auditor", "sales:approve"))
 

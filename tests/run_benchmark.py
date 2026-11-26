@@ -191,11 +191,11 @@ def run_benchmark():
         print(f"  [PASS] Shortage flagged: {item_sh['shortage_qty']} packets deficit detected!")
 
     log_step("7", "Accounts: Record ₹4,000 Payment from Retailer A & Check Outstanding")
-    auditor = user_map["audit_anita"]
+    accountant = user_map.get("account_meera", user_map["admin"])
 
     with get_db() as conn:
         pay_res = record_customer_payment(
-            conn, user=auditor, invoice_id=inv_id, amount=4000.0,
+            conn, user=accountant, invoice_id=inv_id, amount=4000.0,
             payment_mode="neft_rtgs", reference_no="UTR-HDFC-991823"
         )
 

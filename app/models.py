@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin', 'salesman', 'purchase_manager', 'production_manager', 'auditor')),
+    role TEXT NOT NULL CHECK(role IN ('admin', 'salesman', 'purchase_manager', 'production_manager', 'accountant', 'auditor')),
     full_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     is_active INTEGER NOT NULL DEFAULT 1,

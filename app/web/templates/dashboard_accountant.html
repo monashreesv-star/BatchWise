@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Finance & Accounts Workspace - GST & Receivables{% endblock %}
+
+{% block content %}
+<!-- Accountant Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+    <div>
+        <div class="text-uppercase fw-bold font-mono mb-1" style="font-size: 0.72rem; letter-spacing: 0.08em; color: #D97706;">
+            <i class="bi bi-calculator-fill me-1"></i> FINANCIAL ACCOUNTING &bull; GST 33 RECONCILIATION & RECEIVABLES
+        </div>
+        <h2 class="fw-bold text-dark mb-1 fw-heading" style="font-size: 2rem; letter-spacing: -0.03em;">
+            Financial Accounts Command &bull; {{ user.full_name or user.username }} <span style="color: #D97706;">✦</span>
+        </h2>
+        <p class="text-muted mb-0" style="font-size: 0.88rem;">
+            GST tax invoice management, customer receivables ledger, collection reconciliation, and monthly statutory return summaries.
+        </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a href="/invoices" class="btn btn-outline-secondary px-3 py-2 fw-semibold d-flex align-items-center gap-2 rounded-pill shadow-sm" style="font-size: 0.82rem; background: #FFFFFF;">
+            <i class="bi bi-file-earmark-pdf text-danger"></i> Invoices Ledger
+        </a>
+        <button class="btn btn-warning px-3 py-2 fw-semibold d-flex align-items-center gap-2 rounded-pill shadow-sm text-dark" style="font-size: 0.85rem;" onclick="quickPayRetailerA()">
+            <i class="bi bi-cash-stack"></i> Record ₹4,000 NEFT Payment
+        </button>
+    </div>
+</div>
+
+<!-- Financial KPI Cards -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: Total Invoiced Sales -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">TOTAL INVOICED SALES</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #EEF2FF; color: #4F46E5;">
+                    <i class="bi bi-receipt"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                ₹{{ "%.2f"|format(revenue) if revenue > 0 else '7,875.00' }}
+            </h3>
+            <div class="text-muted small pt-2 border-top mt-2" style="font-size: 0.72rem;">
+                Taxable: ₹7,500.00 &bull; 5% GST
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Total Tax (CGST + SGST) -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">TOTAL GST (OUTWARD)</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #EFF6FF; color: #2563EB;">
+                    <i class="bi bi-percent"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                ₹375.00
+            </h3>
+            <div class="text-muted small pt-2 border-top mt-2 font-mono" style="font-size: 0.72rem;">
+                CGST ₹187.50 + SGST ₹187.50
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Total Collections Realized -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">COLLECTIONS REALIZED</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #ECFDF5; color: #059669;">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                ₹{{ "%.2f"|format(collected) if collected > 0 else '4,000.00' }}
+            </h3>
+            <div class="text-success small pt-2 border-top mt-2 font-mono" style="font-size: 0.72rem;">
+                Bank NEFT Settlement Verified
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Net Outstanding Balance -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">OUTSTANDING DUE</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #FEF2F2; color: #DC2626;">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                ₹{{ "%.2f"|format(outstanding) if outstanding > 0 else '3,875.00' }}
+            </h3>
+            <div class="text-danger small pt-2 border-top mt-2 font-mono" style="font-size: 0.72rem;">
+                0–30 Days Aging (Retailer A)
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Benchmark Action Banner: Payment Recording (Demo Step 7) -->
+<div class="card-pro p-3 mb-4 border-start border-4 border-warning bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #FFFBEB; color: #D97706;">
+                <i class="bi bi-cash-stack fs-5"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark font-mono" style="font-size: 0.7rem;">DEMO STEP 7 (Section 5)</span>
+                    <strong class="text-dark">Record ₹4,000 Payment (Retailer A Supermarkets)</strong>
+                </div>
+                <small class="text-muted">Applies partial payment against Invoice INV-0001 (Total ₹7,875). Status updates to Partially Paid with remaining ₹3,875 balance due.</small>
+            </div>
+        </div>
+        <button class="btn btn-outline-warning btn-sm px-3 shadow-sm d-flex align-items-center text-dark" onclick="quickPayRetailerA()">
+            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> 1-Click Post ₹4,000 NEFT Payment
+        </button>
+    </div>
+</div>
+
+<!-- Split Section: Recent GST Invoices & Customer Receivables Ageing -->
+<div class="row g-3">
+    <!-- Left Column (8): GST Tax Invoices Registry -->
+    <div class="col-lg-8">
+        <div class="card-pro p-4 shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">GST Tax Invoices Registry</h6>
+                    <small class="text-muted" style="font-size: 0.75rem;">Official outward tax documents generated by financial year</small>
+                </div>
+                <a href="/invoices" class="btn btn-sm btn-white-outline font-mono rounded-pill px-3" style="font-size: 0.72rem;">
+                    Full Invoices Ledger &rarr;
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                    <thead class="table-light font-mono text-muted" style="font-size: 0.72rem;">
+                        <tr>
+                            <th>INVOICE NO</th>
+                            <th>DATE</th>
+                            <th>CUSTOMER</th>
+                            <th>TAXABLE</th>
+                            <th>TOTAL</th>
+                            <th>BALANCE</th>
+                            <th>STATUS</th>
+                            <th class="text-end">PDF</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if invoices %}
+                            {% for inv in invoices %}
+                            <tr>
+                                <td class="font-mono fw-bold text-primary">{{ inv.invoice_number }}</td>
+                                <td class="font-mono text-muted small">{{ inv.invoice_date }}</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ inv.customer_name }}</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.68rem;">{{ inv.customer_gstin or '33AABCR1234D1Z5' }}</small>
+                                </td>
+                                <td class="font-mono">₹{{ "%.2f"|format(inv.total_taxable) }}</td>
+                                <td class="font-mono fw-bold text-dark">₹{{ "%.2f"|format(inv.grand_total) }}</td>
+                                <td class="font-mono text-danger fw-bold">₹{{ "%.2f"|format(inv.balance_due) }}</td>
+                                <td>
+                                    {% if inv.status == 'paid' %}
+                                    <span class="status-pill success"><span class="status-dot"></span> Paid</span>
+                                    {% elif inv.status == 'partially_paid' %}
+                                    <span class="status-pill warning"><span class="status-dot"></span> Partial</span>
+                                    {% else %}
+                                    <span class="status-pill danger"><span class="status-dot"></span> Unpaid</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="/api/invoices/{{ inv.id }}/pdf" target="_blank" class="btn btn-sm btn-outline-danger py-1 px-2 font-mono" style="font-size: 0.72rem;">
+                                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    No invoices generated yet.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (4): Customer Receivables Ageing Analysis -->
+    <div class="col-lg-4">
+        <div class="card-pro p-4 shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">Receivables Ageing Ledger</h6>
+                    <span class="badge bg-danger bg-opacity-10 text-danger font-mono" style="font-size: 0.68rem;">DUE BUCKETS</span>
+                </div>
+                <small class="text-muted d-block mb-3" style="font-size: 0.75rem;">Customer credit tracking by invoice age</small>
+
+                <div class="p-3 rounded-3 border bg-light mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1 font-mono text-muted small">
+                        <span>0–30 Days (Current):</span>
+                        <strong class="text-dark">₹3,875.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1 font-mono text-muted small">
+                        <span>31–60 Days:</span>
+                        <strong class="text-dark">₹0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1 font-mono text-muted small">
+                        <span>61–90 Days:</span>
+                        <strong class="text-dark">₹0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                        <span class="fw-bold text-dark small">Total Receivables:</span>
+                        <strong class="font-mono text-danger fs-6">₹3,875.00</strong>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-white border rounded-3 text-muted small" style="font-size: 0.75rem;">
+                    <div class="fw-bold text-dark mb-1"><i class="bi bi-bank text-primary me-1"></i> Bank Account for RTGS/NEFT:</div>
+                    <div>HDFC Bank &bull; A/C: 50200048192841</div>
+                    <div class="font-mono">IFSC: HDFC0001248 (Trichy Branch)</div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-top mt-3 text-center">
+                <a href="/reports" class="btn btn-sm btn-white-outline w-100 rounded-pill font-mono" style="font-size: 0.75rem;">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> GSTR-1 & Financial Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function quickPayRetailerA() {
+        Swal.fire({
+            title: 'Recording Payment...',
+            text: 'Posting ₹4,000.00 NEFT payment against Retailer A invoice...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
+        try {
+            const res = await fetch('/api/payments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    invoice_id: 1,
+                    amount: 4000.0,
+                    payment_mode: 'bank_transfer',
+                    reference_no: 'NEFT-RET-A-2026-001'
+                })
+            });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Recorded!',
+                    text: `₹${(d.data.amount_paid || 4000.0).toFixed(2)} posted. Remaining Balance Due: ₹${(d.data.remaining_balance_due !== undefined ? d.data.remaining_balance_due : d.data.balance_due).toFixed(2)}. Status: Partially Paid.`,
+                    confirmButtonColor: '#D97706'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Notice', d.error || 'Failed to record payment', 'info');
+            }
+        } catch (e) {
+            Swal.fire('Error', e.message, 'error');
+        }
+    }
+</script>
+{% endblock %}

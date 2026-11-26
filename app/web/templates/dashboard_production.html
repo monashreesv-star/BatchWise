@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Production Supervisor Workspace - Plant Floor & BOM{% endblock %}
+
+{% block content %}
+<!-- Plant Supervisor Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+    <div>
+        <div class="text-uppercase fw-bold text-success font-mono mb-1" style="font-size: 0.72rem; letter-spacing: 0.08em;">
+            <i class="bi bi-gear-wide-connected me-1"></i> MANUFACTURING FLOOR &bull; RECIPE BOM EXECUTION
+        </div>
+        <h2 class="fw-bold text-dark mb-1 fw-heading" style="font-size: 2rem; letter-spacing: -0.03em;">
+            Production Floor Command &bull; {{ user.full_name or user.username }} <span style="color: #059669;">✦</span>
+        </h2>
+        <p class="text-muted mb-0" style="font-size: 0.88rem;">
+            Log daily batch runs, monitor mass conservation, track material consumption variances, and calculate unit packet costs.
+        </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-success px-3 py-2 fw-semibold d-flex align-items-center gap-2 rounded-pill shadow-sm text-white" style="background-color: #059669; border-color: #059669; font-size: 0.85rem;" data-bs-toggle="modal" data-bs-target="#newRunModal">
+            <i class="bi bi-play-circle-fill"></i> + Launch Production Run
+        </button>
+    </div>
+</div>
+
+<!-- Plant Supervisor Key Metrics -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: Completed Batches -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">COMPLETED BATCHES</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #ECFDF5; color: #059669;">
+                    <i class="bi bi-check2-all"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                {{ completed_runs_count|default(1) }}
+            </h3>
+            <div class="text-success small pt-2 border-top mt-2 font-mono" style="font-size: 0.72rem;">
+                Murukku 200g (FG-MURUKKU-2026-RUN1)
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Today's Output -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">FINISHED OUTPUT</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #EFF6FF; color: #2563EB;">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                188 pkts
+            </h3>
+            <div class="text-muted small pt-2 border-top mt-2 font-mono" style="font-size: 0.72rem;">
+                37.6 kg Net Food Output
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Yield Variance -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">YIELD VARIANCE</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #FFFBEB; color: #D97706;">
+                    <i class="bi bi-percent"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                -6.0%
+            </h3>
+            <div class="text-warning small pt-2 border-top mt-2 font-mono fw-bold" style="font-size: 0.72rem; color: #D97706 !important;">
+                188 vs 200 Expected (Flagged)
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Packaging Scrap -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">PACKAGING SCRAP</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #FEF2F2; color: #DC2626;">
+                    <i class="bi bi-trash"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                6 pouches
+            </h3>
+            <div class="text-danger small pt-2 border-top mt-2 font-mono" style="font-size: 0.72rem;">
+                3.0% Heat Seal Scrap Rate
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Benchmark Action Banner: Production Execution (Demo Step 2 & 3) -->
+<div class="card-pro p-3 mb-4 border-start border-4 border-success bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-gear-wide-connected fs-5 text-success"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success font-mono" style="font-size: 0.7rem;">DEMO STEPS 2 & 3 (Section 5)</span>
+                    <strong class="text-dark">Execute Murukku 200g Run: 40kg Flour, 10.5L Oil, 1.2kg Spice</strong>
+                </div>
+                <small class="text-muted">Standard BOM expects 200 packets. Actual: 188 good packets produced, 6 pouches damaged, 9 cartons used. Oil consumed +0.5L over standard (+5%).</small>
+            </div>
+        </div>
+        <button class="btn btn-outline-success btn-sm px-3 shadow-sm d-flex align-items-center" onclick="executeBenchmarkProductionRun()">
+            <i class="bi bi-play-circle-fill me-1 text-warning"></i> 1-Click Launch Benchmark Run
+        </button>
+    </div>
+</div>
+
+<!-- Split Section: Material Availability & Active Work Orders -->
+<div class="row g-3">
+    <!-- Left Column (7): Raw & Packaging Material Balances -->
+    <div class="col-lg-7">
+        <div class="card-pro p-4 shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">Floor Raw & Packaging Material Balances</h6>
+                    <small class="text-muted" style="font-size: 0.75rem;">Real-time inventory available for batch issues (Section 5 Balances)</small>
+                </div>
+                <a href="/inventory" class="btn btn-sm btn-white-outline font-mono rounded-pill px-3" style="font-size: 0.72rem;">
+                    Full Stock Ledger &rarr;
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                    <thead class="table-light font-mono text-muted" style="font-size: 0.72rem;">
+                        <tr>
+                            <th>MATERIAL</th>
+                            <th>CATEGORY</th>
+                            <th>BENCHMARK CONSUMPTION</th>
+                            <th class="text-end">CLOSING STOCK</th>
+                            <th class="text-end">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Refined Flour</strong><br>
+                                <small class="text-muted font-mono">RM-FLOUR-01</small>
+                            </td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary font-mono">Raw Material</span></td>
+                            <td class="font-mono">40.0 kg issued</td>
+                            <td class="text-end font-mono fw-bold text-dark">120.0 kg</td>
+                            <td class="text-end"><span class="badge bg-success bg-opacity-10 text-success font-mono">100+60-40 OK</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Refined Cooking Oil</strong><br>
+                                <small class="text-muted font-mono">RM-OIL-01</small>
+                            </td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary font-mono">Raw Material</span></td>
+                            <td class="font-mono text-danger fw-semibold">10.5 L issued (+5%)</td>
+                            <td class="text-end font-mono fw-bold text-dark">19.5 L</td>
+                            <td class="text-end"><span class="badge bg-warning bg-opacity-10 text-warning font-mono">30 - 10.5 OK</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Salt & Spice Seasoning</strong><br>
+                                <small class="text-muted font-mono">RM-SPICE-01</small>
+                            </td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary font-mono">Raw Material</span></td>
+                            <td class="font-mono">1.2 kg issued</td>
+                            <td class="text-end font-mono fw-bold text-dark">3.8 kg</td>
+                            <td class="text-end"><span class="badge bg-success bg-opacity-10 text-success font-mono">5.0 - 1.2 OK</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>200g Printed Pouch</strong><br>
+                                <small class="text-muted font-mono">PM-POUCH-200</small>
+                            </td>
+                            <td><span class="badge bg-info bg-opacity-10 text-info font-mono">Packaging</span></td>
+                            <td class="font-mono">188 used + 6 scrap</td>
+                            <td class="text-end font-mono fw-bold text-dark">306 pcs</td>
+                            <td class="text-end"><span class="badge bg-success bg-opacity-10 text-success font-mono">500 - 194 OK</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Corrugated Carton (20 pkts)</strong><br>
+                                <small class="text-muted font-mono">PM-CARTON-20</small>
+                            </td>
+                            <td><span class="badge bg-info bg-opacity-10 text-info font-mono">Packaging</span></td>
+                            <td class="font-mono">9 cartons packed</td>
+                            <td class="text-end font-mono fw-bold text-dark">21 pcs</td>
+                            <td class="text-end"><span class="badge bg-success bg-opacity-10 text-success font-mono">30 - 9 OK</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (5): Murukku 200g Recipe Standard vs Actual Run Breakdown -->
+    <div class="col-lg-5">
+        <div class="card-pro p-4 shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">Standard Recipe BOM vs Actual Run</h6>
+                    <span class="badge bg-success font-mono" style="font-size: 0.65rem;">BOM-MURUKKU-200</span>
+                </div>
+                <small class="text-muted d-block mb-3" style="font-size: 0.75rem;">Standard 1 Batch = 200 Packets Expected</small>
+
+                <div class="p-3 rounded-3 border bg-light mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small">Standard Yield Target:</span>
+                        <strong class="font-mono text-dark">200 packets</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small">Actual Finished Output:</span>
+                        <strong class="font-mono text-success">188 packets (94.0%)</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small">Output Yield Variance:</span>
+                        <strong class="font-mono text-danger">-12 packets (-6.0%)</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                        <span class="fw-bold text-dark small">Calculated Cost / Packet:</span>
+                        <strong class="font-mono text-primary fs-6">₹30.90 / pkt</strong>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-white border rounded-3 text-muted small" style="font-size: 0.76rem;">
+                    <div class="mb-1"><i class="bi bi-cash-stack text-primary me-1"></i> Added Run Overheads:</div>
+                    <div class="d-flex justify-content-between font-mono">
+                        <span>Direct Labor:</span>
+                        <strong>₹1,200.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between font-mono">
+                        <span>Gas & Electricity:</span>
+                        <strong>₹600.00</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-top mt-3 text-center">
+                <a href="/traceability" class="btn btn-sm btn-white-outline w-100 rounded-pill font-mono" style="font-size: 0.75rem;">
+                    <i class="bi bi-diagram-3 me-1"></i> Inspect Batch Geneaology & Lot Trace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function executeBenchmarkProductionRun() {
+        Swal.fire({
+            title: 'Executing Production Run...',
+            text: 'Issuing 40kg flour, 10.5L oil, 1.2kg spice against BOM. Logging 188 output...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
+        try {
+            // Create work order
+            const woRes = await fetch('/api/production', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bom_id: 1,
+                    target_qty: 200,
+                    batch_number: 'FG-MURUKKU-' + Date.now().toString().slice(-4),
+                    start_date: new Date().toISOString().split('T')[0]
+                })
+            });
+            const woData = await woRes.json();
+            if (!woRes.ok || !woData.success) {
+                throw new Error(woData.error || 'Failed to initialize work order');
+            }
+
+            const woId = woData.data.wo_id;
+
+            // Complete run with actual benchmark numbers
+            const runRes = await fetch(`/api/production/${woId}/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    actual_qty_produced: 188,
+                    consumptions: [
+                        { item_id: 1, actual_qty: 40.0, scrap_qty: 0.0 }, // 40kg flour
+                        { item_id: 2, actual_qty: 10.5, scrap_qty: 0.0 }, // 10.5L oil (+0.5L)
+                        { item_id: 3, actual_qty: 1.2, scrap_qty: 0.0 },  // 1.2kg spice
+                        { item_id: 4, actual_qty: 188.0, scrap_qty: 6.0 },// 188 used + 6 damaged pouches
+                        { item_id: 6, actual_qty: 9.0, scrap_qty: 0.0 }   // 9 cartons
+                    ],
+                    labor_cost: 1200.0,
+                    overhead_cost: 600.0
+                })
+            });
+            const runData = await runRes.json();
+            if (runRes.ok && runData.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Production Run Logged Successfully!',
+                    html: `
+                        <div class="text-start font-mono small p-2 bg-light rounded border">
+                            <div><strong>Actual Output:</strong> 188 Packets</div>
+                            <div><strong>Yield:</strong> 94.0% (Variance: -6.0%)</div>
+                            <div><strong>Oil Variance:</strong> +5.0% over standard</div>
+                            <div><strong>Unit Cost:</strong> ₹30.90 / packet</div>
+                            <div><strong>Damaged Pouches:</strong> 6 pieces logged as scrap</div>
+                        </div>
+                    `,
+                    confirmButtonColor: '#059669'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Error', runData.error || 'Failed to complete production run', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Error', e.message, 'error');
+        }
+    }
+</script>
+{% endblock %}

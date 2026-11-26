@@ -203,10 +203,6 @@
             height: 64px;
             z-index: 1000;
         }
-            border-bottom: 1px solid var(--sidebar-border);
-            height: 64px;
-            z-index: 1000;
-        }
 
         .breadcrumb-trail {
             font-size: 0.82rem;
@@ -515,111 +511,221 @@
                         </div>
                     </div>
 
-                    <!-- Navigation Groups (Strict Role-Based Scoping & Reference Matching) -->
-                    <div class="sidebar-section-title">OPERATIONS & AUDIT</div>
-                    <ul class="nav flex-column mb-2">
-                        {% if user and user.role in ['admin', 'auditor'] %}
+                    <!-- Dynamic Navigation Groups Strictly Scoped by Role -->
+                    <div class="sidebar-section-title">
+                        {% if user.role == 'salesman' %}
+                            FIELD SALES WORKSPACE
+                        {% elif user.role == 'production_manager' %}
+                            PLANT OPERATIONS
+                        {% elif user.role == 'accountant' %}
+                            FINANCE & GST ACCOUNTS
+                        {% elif user.role == 'auditor' %}
+                            AUDIT & VERIFICATION
+                        {% else %}
+                            OPERATIONS & AUDIT
+                        {% endif %}
+                    </div>
+
+                    <ul class="nav flex-column mb-3">
+                        <!-- ROLE 1: ADMIN NAVIGATION -->
+                        {% if user and user.role == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">
-                                <span><i class="bi bi-grid nav-icon"></i> Dashboard</span>
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/inventory' and '#products' in request.url.path %}active{% endif %}" href="/inventory">
-                                <span><i class="bi bi-box-seam nav-icon"></i> Products</span>
-                            </a>
-                        </li>
-
-                        {% if user and user.role in ['admin', 'salesman'] %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/sales' and '#customers' in request.url.path %}active{% endif %}" href="/sales">
-                                <span><i class="bi bi-people nav-icon"></i> Customers</span>
+                                <span><i class="bi bi-grid nav-icon"></i> Executive Overview</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/sales' and '#customers' not in request.url.path %}active{% endif %}" href="/sales">
-                                <span><i class="bi bi-cart3 nav-icon"></i> Orders</span>
+                            <a class="nav-link {% if request.url.path == '/sales' %}active{% endif %}" href="/sales">
+                                <span><i class="bi bi-cart3 nav-icon"></i> Sales & Orders</span>
                             </a>
                         </li>
-                        {% endif %}
-
                         <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/inventory' and '#products' not in request.url.path %}active{% endif %}" href="/inventory">
-                                <span><i class="bi bi-layers nav-icon"></i> Inventory</span>
+                            <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
+                                <span><i class="bi bi-layers nav-icon"></i> Inventory & Stock</span>
                             </a>
                         </li>
-
-                        {% if user and user.role in ['admin', 'purchase_manager', 'production_manager'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/purchase' %}active{% endif %}" href="/purchase">
-                                <span><i class="bi bi-truck nav-icon"></i> Procurement</span>
+                                <span><i class="bi bi-truck nav-icon"></i> Procurement & PO</span>
                             </a>
                         </li>
-                        {% endif %}
-
-                        {% if user and user.role in ['admin', 'production_manager'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/production' %}active{% endif %}" href="/production">
-                                <span><i class="bi bi-gear-wide-connected nav-icon"></i> Production</span>
+                                <span><i class="bi bi-gear-wide-connected nav-icon"></i> Production & BOM</span>
                             </a>
                         </li>
-                        {% endif %}
-
-                        {% if user and user.role in ['admin', 'auditor'] %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/invoices' %}active{% endif %}" href="/invoices">
-                                <span><i class="bi bi-receipt nav-icon"></i> Invoices</span>
+                                <span><i class="bi bi-receipt nav-icon"></i> GST Invoices & Pay</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
+                                <span><i class="bi bi-diagram-3 nav-icon"></i> Batch Traceability</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/reports' %}active{% endif %}" href="/reports">
+                                <span><i class="bi bi-bar-chart-line nav-icon"></i> Reports & Audit</span>
+                            </a>
+                        </li>
+
+                        <!-- ROLE 2: SALESPERSON NAVIGATION (Mobile-First Workspace) -->
+                        {% elif user and user.role == 'salesman' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/salesman/dashboard' %}active{% endif %}" href="/salesman/dashboard">
+                                <span><i class="bi bi-speedometer2 nav-icon"></i> My Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/sales' and '#new-order' in request.url.path %}active{% endif %}" href="/sales">
+                                <span><i class="bi bi-plus-circle-dotted nav-icon"></i> Book New Order</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/sales' and '#new-order' not in request.url.path %}active{% endif %}" href="/sales">
+                                <span><i class="bi bi-bag-check nav-icon"></i> My Orders & Status</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/sales' and '#customers' in request.url.path %}active{% endif %}" href="/sales">
+                                <span><i class="bi bi-people nav-icon"></i> My Customers</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
+                                <span><i class="bi bi-box-seam nav-icon"></i> Catalog & Pricing</span>
+                            </a>
+                        </li>
+
+                        <!-- ROLE 3: PRODUCTION SUPERVISOR NAVIGATION -->
+                        {% elif user and user.role == 'production_manager' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/production/dashboard' %}active{% endif %}" href="/production/dashboard">
+                                <span><i class="bi bi-speedometer2 nav-icon"></i> Plant Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/production' %}active{% endif %}" href="/production">
+                                <span><i class="bi bi-gear-wide-connected nav-icon"></i> Work Orders & Runs</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/production' and '#recipes' in request.url.path %}active{% endif %}" href="/production">
+                                <span><i class="bi bi-journal-text nav-icon"></i> BOM & Recipes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
+                                <span><i class="bi bi-layers nav-icon"></i> Raw Material Stock</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
+                                <span><i class="bi bi-diagram-3 nav-icon"></i> Batch Geneaology</span>
+                            </a>
+                        </li>
+
+                        <!-- ROLE 4: ACCOUNTANT NAVIGATION -->
+                        {% elif user and user.role == 'accountant' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/accountant/dashboard' %}active{% endif %}" href="/accountant/dashboard">
+                                <span><i class="bi bi-speedometer2 nav-icon"></i> Finance Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/invoices' %}active{% endif %}" href="/invoices">
+                                <span><i class="bi bi-receipt nav-icon"></i> GST Tax Invoices</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/invoices' and '#payments' in request.url.path %}active{% endif %}" href="/invoices">
-                                <span><i class="bi bi-credit-card nav-icon"></i> Payments</span>
+                                <span><i class="bi bi-credit-card nav-icon"></i> Payment Entries</span>
                             </a>
                         </li>
-                        {% endif %}
-
-                        {% if user and user.role in ['admin', 'production_manager', 'auditor'] %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
-                                <span><i class="bi bi-diagram-3 nav-icon"></i> Traceability</span>
+                            <a class="nav-link {% if request.url.path == '/reports' and '#receivables' in request.url.path %}active{% endif %}" href="/reports">
+                                <span><i class="bi bi-clock-history nav-icon"></i> Receivables & Ageing</span>
                             </a>
                         </li>
-                        {% endif %}
-
-                        {% if user and user.role in ['admin', 'auditor'] %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/purchase' %}active{% endif %}" href="/purchase">
+                                <span><i class="bi bi-journal-bookmark nav-icon"></i> Purchase Register</span>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.url.path == '/reports' %}active{% endif %}" href="/reports">
-                                <span><i class="bi bi-bar-chart-line nav-icon"></i> Reports</span>
+                                <span><i class="bi bi-file-earmark-spreadsheet nav-icon"></i> GSTR-1 & Audit</span>
+                            </a>
+                        </li>
+
+                        <!-- ROLE 5: AUDITOR NAVIGATION (Strictly Read-Only) -->
+                        {% elif user and user.role == 'auditor' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/auditor/dashboard' %}active{% endif %}" href="/auditor/dashboard">
+                                <span><i class="bi bi-shield-check nav-icon"></i> Audit Overview</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/inventory' %}active{% endif %}" href="/inventory">
+                                <span><i class="bi bi-journal-code nav-icon"></i> Stock Ledger</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/traceability' %}active{% endif %}" href="/traceability">
+                                <span><i class="bi bi-diagram-3 nav-icon"></i> Batch Traceability</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/reports' and '#production' in request.url.path %}active{% endif %}" href="/reports">
+                                <span><i class="bi bi-clipboard-data nav-icon"></i> Production Variance</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/reports' and '#gst' in request.url.path %}active{% endif %}" href="/reports">
+                                <span><i class="bi bi-cash-stack nav-icon"></i> GSTR-1 Outward Tax</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.url.path == '/reports' and '#export' in request.url.path %}active{% endif %}" href="/reports">
+                                <span><i class="bi bi-download nav-icon"></i> Export Evidence</span>
+                            </a>
+                        </li>
+
+                        <!-- DEFAULT FALLBACK -->
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/">
+                                <span><i class="bi bi-grid nav-icon"></i> Workspace</span>
                             </a>
                         </li>
                         {% endif %}
                     </ul>
-
-                    <!-- Evaluator Personas -->
-                    <div class="sidebar-section-title">QUICK ROLES</div>
-                    <div class="px-2">
-                        <div class="d-flex flex-wrap gap-1 p-2 rounded-3 border" style="background: #111C44; border-color: #1E293B !important;">
-                            <a href="/switch-role/admin" class="badge bg-primary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Admin</a>
-                            <a href="/switch-role/salesman" class="badge bg-secondary text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Sales</a>
-                            <a href="/switch-role/production" class="badge bg-success text-light text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Supervisor</a>
-                            <a href="/switch-role/auditor" class="badge bg-warning text-dark text-decoration-none py-1 px-2 font-mono" style="font-size: 0.65rem;">Accountant</a>
-                        </div>
-                    </div>
                 </div>
             </aside>
 
             <!-- Main Workspace Application View -->
             <div class="col-md-9 col-xl-10 d-flex flex-column min-vh-100">
-                <!-- Top Header Navbar (Triplink Luxury Style) -->
+                <!-- Top Header Navbar (Role Context & Security Status) -->
                 <header class="app-header sticky-top px-4 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0; min-height: 64px;">
                     <!-- Left: Breadcrumbs & Quick Search & Telemetry -->
                     <div class="d-flex align-items-center gap-3">
                         <div class="breadcrumb-trail d-none d-lg-flex align-items-center gap-2" style="font-size: 0.8rem; color: #64748B;">
-                            <span>Workspace</span>
+                            <span>BatchWise</span>
                             <span class="text-muted">/</span>
-                            <span class="fw-semibold text-dark">Executive Overview</span>
+                            <span class="fw-semibold text-dark text-capitalize">
+                                {% if user.role == 'salesman' %}
+                                    Sales Workspace (Field Mobile)
+                                {% elif user.role == 'production_manager' %}
+                                    Plant Operations (Floor Tablet)
+                                {% elif user.role == 'accountant' %}
+                                    Finance & Receivables
+                                {% elif user.role == 'auditor' %}
+                                    Audit & Governance (Read-Only)
+                                {% else %}
+                                    Executive Operations
+                                {% endif %}
+                            </span>
                         </div>
 
                         <!-- Universal Search Pill (Triplink Style) -->
@@ -636,30 +742,33 @@
                         </div>
                     </div>
 
-                    <!-- Right Controls: Role Selector, Refresh, User Pill, Logout -->
+                    <!-- Right Controls: User Profile Pill, Logout (NO ROLE SWITCHER) -->
                     <div class="d-flex align-items-center gap-2">
-                        <!-- Role Segmented Group -->
-                        <div class="d-flex align-items-center gap-1 bg-light p-1 rounded-pill border">
-                            <span class="text-muted ms-2 small fw-semibold" style="font-size: 0.72rem;">Role:</span>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="/switch-role/admin" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'admin' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'admin' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Admin</a>
-                                <a href="/switch-role/salesman" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'salesman' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'salesman' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Salesman</a>
-                                <a href="/switch-role/production" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'production_manager' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'production_manager' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Supervisor</a>
-                                <a href="/switch-role/purchase" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'purchase_manager' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'purchase_manager' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Purchase</a>
-                                <a href="/switch-role/auditor" class="btn btn-sm rounded-pill px-2 py-1 fw-semibold {% if user.role == 'auditor' %}btn-primary shadow-sm text-white{% else %}btn-light text-muted{% endif %}" style="font-size: 0.72rem; {% if user.role == 'auditor' %}background-color: #4F46E5; border-color: #4F46E5;{% endif %}">Auditor</a>
-                            </div>
+                        <!-- Role Badge & User Profile Pill -->
+                        <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="
+                            {% if user.role == 'admin' %}background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626;
+                            {% elif user.role == 'salesman' %}background: #EFF6FF; border: 1px solid #BFDBFE; color: #2563EB;
+                            {% elif user.role == 'production_manager' %}background: #ECFDF5; border: 1px solid #A7F3D0; color: #059669;
+                            {% elif user.role == 'accountant' %}background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706;
+                            {% else %}background: #F3E8FF; border: 1px solid #E9D5FF; color: #7C3AED;{% endif %}
+                            font-size: 0.76rem; font-weight: 600;">
+                            <i class="bi bi-person-fill"></i>
+                            <span>{{ user.full_name }}</span>
+                            <span class="badge font-mono text-uppercase" style="
+                                {% if user.role == 'admin' %}background: #DC2626; color: white;
+                                {% elif user.role == 'salesman' %}background: #2563EB; color: white;
+                                {% elif user.role == 'production_manager' %}background: #059669; color: white;
+                                {% elif user.role == 'accountant' %}background: #D97706; color: white;
+                                {% else %}background: #7C3AED; color: white;{% endif %}
+                                font-size: 0.6rem;">
+                                {{ user.role.replace('_', ' ') }}
+                            </span>
                         </div>
 
                         <!-- Refresh Telemetry Button -->
                         <button class="btn btn-sm btn-white-outline rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px; background: #FFFFFF; border: 1px solid #E2E8F0;" onclick="window.location.reload()" title="Refresh Telemetry">
                             <i class="bi bi-arrow-clockwise text-muted fs-6"></i>
                         </button>
-
-                        <!-- User Profile Pill -->
-                        <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: #EEF2FF; border: 1px solid #C7D2FE; color: #4338CA; font-size: 0.76rem; font-weight: 600;">
-                            <i class="bi bi-person-fill"></i>
-                            <span>{{ user.full_name or 'Admin (Director)' }}</span>
-                        </div>
 
                         <!-- Logout Button -->
                         <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-flex align-items-center gap-1 shadow-sm" style="font-size: 0.76rem; background: #FFFFFF;" onclick="logout()">

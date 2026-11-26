@@ -474,24 +474,24 @@
                     <span class="badge bg-primary bg-opacity-10 text-primary font-mono" style="font-size: 0.6rem;">INSTANT LOGIN</span>
                 </div>
 
-                <div class="persona-pills-row mt-2">
-                    <a href="/switch-role/admin" class="btn-persona-pill" title="Factory Admin: Approvals, Invoicing, Full Control">
+                <div class="persona-pills-row mt-2" style="grid-template-columns: repeat(5, 1fr);">
+                    <a href="/switch-role/admin" class="btn-persona-pill" title="Role 1: Admin / Owner - Executive Operations & Approvals">
                         <i class="bi bi-shield-lock-fill text-danger"></i>
                         <span>Admin</span>
                     </a>
-                    <a href="/switch-role/salesman" class="btn-persona-pill" title="Field Salesman: Mobile Retailer Orders">
+                    <a href="/switch-role/salesman" class="btn-persona-pill" title="Role 2: Salesperson - Mobile Field Order Booking">
                         <i class="bi bi-phone-fill text-primary"></i>
                         <span>Salesman</span>
                     </a>
-                    <a href="/switch-role/production" class="btn-persona-pill" title="Production Supervisor: Recipe BOM & Floor Logging">
+                    <a href="/switch-role/production" class="btn-persona-pill" title="Role 3: Production Supervisor - BOM Recipe & Batch Output">
                         <i class="bi bi-gear-wide-connected text-success"></i>
                         <span>Supervisor</span>
                     </a>
-                    <a href="/switch-role/purchase" class="btn-persona-pill" title="Purchase Manager: Raw Material PO & GRN">
-                        <i class="bi bi-truck text-warning"></i>
-                        <span>Purchase</span>
+                    <a href="/switch-role/accountant" class="btn-persona-pill" title="Role 4: Accountant - GST Invoicing & Payment Reconciliation">
+                        <i class="bi bi-calculator-fill text-warning"></i>
+                        <span>Accountant</span>
                     </a>
-                    <a href="/switch-role/auditor" class="btn-persona-pill" title="Auditor: Monthly GSTR-1, Costing & Ledgers">
+                    <a href="/switch-role/auditor" class="btn-persona-pill" title="Role 5: Auditor - Read-Only Ledger & Traceability Matrix">
                         <i class="bi bi-file-earmark-spreadsheet-fill text-info"></i>
                         <span>Auditor</span>
                     </a>
@@ -575,10 +575,11 @@
                     showConfirmButton: false
                 }).then(() => {
                     const dest = {
-                        'salesman': '/sales',
-                        'production_manager': '/production',
+                        'salesman': '/salesman/dashboard',
+                        'production_manager': '/production/dashboard',
                         'purchase_manager': '/purchase',
-                        'auditor': '/reports'
+                        'accountant': '/accountant/dashboard',
+                        'auditor': '/auditor/dashboard'
                     }[data.user.role] || '/';
                     window.location.href = dest;
                 });

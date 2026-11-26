@@ -24,12 +24,13 @@ def verify_password(password: str, hashed: str) -> bool:
     except Exception:
         return False
 
-def create_session_token(user_id: int, username: str, role: str) -> str:
+def create_session_token(user_id: int, username: str, role: str, full_name: str = None) -> str:
     payload = {
         "id": user_id,
         "user_id": user_id,
         "username": username,
         "role": role,
+        "full_name": full_name or username.replace("_", " ").title(),
         "nonce": secrets.token_hex(8)
     }
     payload_bytes = json.dumps(payload).encode('utf-8')
@@ -61,10 +62,11 @@ ROLE_PERMISSIONS = {
         "production:create", "production:execute", "production:view",
         "inventory:adjust", "inventory:view",
         "payments:record", "payments:view",
-        "reports:view", "reports:export", "audit:view"
+        "reports:view", "reports:export", "audit:view", "traceability:view"
     },
     "salesman": {
         "sales:create", "sales:view",
+        "customers:view", "customers:create",
         "inventory:view"
     },
     "purchase_manager": {
@@ -73,12 +75,18 @@ ROLE_PERMISSIONS = {
     },
     "production_manager": {
         "production:create", "production:execute", "production:view",
-        "inventory:view"
+        "inventory:view", "bom:view"
+    },
+    "accountant": {
+        "sales:view", "sales:invoice",
+        "purchase:view", "inventory:view",
+        "payments:record", "payments:view",
+        "reports:view", "reports:export"
     },
     "auditor": {
-        "sales:view", "purchase:view", "production:view", "inventory:view",
-        "payments:record", "payments:view",
-        "reports:view", "reports:export", "audit:view"
+        "sales:view", "purchase:view", "production:view",
+        "inventory:view", "payments:view",
+        "reports:view", "reports:export", "audit:view", "traceability:view"
     }
 }
 

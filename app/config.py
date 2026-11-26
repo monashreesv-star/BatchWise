@@ -30,4 +30,4 @@ COMPANY = {
     "phone": "+91 431 250 3000"
 }
 
-ROLES = ["admin", "salesman", "purchase_manager", "production_manager", "auditor"]
+ROLES = ["admin", "salesman", "purchase_manager", "production_manager", "accountant", "auditor"]

@@ -7,7 +7,8 @@ from pathlib import Path
 
 from app.web.routes_ui import (
     ui_dashboard, ui_login, ui_quick_login, ui_sales, ui_purchase,
-    ui_production, ui_inventory, ui_invoices, ui_traceability, ui_reports
+    ui_production, ui_inventory, ui_invoices, ui_traceability, ui_reports,
+    ui_salesman_dashboard, ui_production_dashboard, ui_accountant_dashboard, ui_auditor_dashboard
 )
 from app.web.routes_api import (
     api_login, api_logout, api_me, api_sales_create, api_sales_approve,
@@ -29,6 +30,10 @@ routes = [
     Route("/", endpoint=ui_dashboard, methods=["GET"]),
     Route("/login", endpoint=ui_login, methods=["GET"]),
     Route("/switch-role/{role}", endpoint=ui_quick_login, methods=["GET"]),
+    Route("/salesman/dashboard", endpoint=ui_salesman_dashboard, methods=["GET"]),
+    Route("/production/dashboard", endpoint=ui_production_dashboard, methods=["GET"]),
+    Route("/accountant/dashboard", endpoint=ui_accountant_dashboard, methods=["GET"]),
+    Route("/auditor/dashboard", endpoint=ui_auditor_dashboard, methods=["GET"]),
     Route("/sales", endpoint=ui_sales, methods=["GET"]),
     Route("/purchase", endpoint=ui_purchase, methods=["GET"]),
     Route("/production", endpoint=ui_production, methods=["GET"]),

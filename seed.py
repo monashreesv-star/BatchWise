@@ -20,7 +20,8 @@ def seed_database(db_path=None, clean=True):
             ("sales_kumar", "sales123", "salesman", "Kumar V (Salesman B - KA)", "kumar@batchwisefoods.com"),
             ("purchase_priya", "purchase123", "purchase_manager", "Priya Sharma (Procurement Desk)", "priya@batchwisefoods.com"),
             ("prod_suresh", "prod123", "production_manager", "Suresh K (Production Supervisor)", "suresh@batchwisefoods.com"),
-            ("audit_anita", "audit123", "auditor", "Anita Menon (Chartered Accountant & Auditor)", "anita@batchwisefoods.com"),
+            ("account_meera", "account123", "accountant", "Meera R (Chief Accountant)", "accountant@batchwisefoods.com"),
+            ("audit_anita", "audit123", "auditor", "Anita Menon (Independent Auditor)", "anita@batchwisefoods.com"),
         ]
 
         for u in users_data:

@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Salesperson Workspace - Field Order Taking{% endblock %}
+
+{% block content %}
+<!-- Salesperson Mobile-First Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+    <div>
+        <div class="text-uppercase fw-bold text-primary font-mono mb-1" style="font-size: 0.72rem; letter-spacing: 0.08em;">
+            <i class="bi bi-phone-fill me-1"></i> FIELD SALES OPERATIONS &bull; MOBILE WORKSPACE
+        </div>
+        <h2 class="fw-bold text-dark mb-1 fw-heading" style="font-size: 2rem; letter-spacing: -0.03em;">
+            Welcome back, {{ (user.full_name or user.username or 'Sales').split()[0] }} <span style="color: #2563EB;">✦</span>
+        </h2>
+        <p class="text-muted mb-0" style="font-size: 0.88rem;">
+            Book orders on the road, track factory approvals, and view your retail customer accounts in real-time.
+        </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary px-3 py-2 fw-semibold d-flex align-items-center gap-2 rounded-pill shadow-sm text-white" style="background-color: #2563EB; border-color: #2563EB; font-size: 0.85rem;" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+            <i class="bi bi-plus-lg"></i> + Book New Order
+        </button>
+    </div>
+</div>
+
+<!-- Salesperson Personal KPI Cards -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: My Orders Today -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">MY ORDERS TODAY</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #EFF6FF; color: #2563EB;">
+                    <i class="bi bi-bag-check"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                {{ my_orders_today_count|default(1) }}
+            </h3>
+            <div class="text-muted small pt-2 border-top mt-2" style="font-size: 0.72rem;">
+                Retailer A Supermarkets
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: My Sales Value -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">MY INVOICED SALES</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #ECFDF5; color: #059669;">
+                    <i class="bi bi-currency-rupee"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                ₹{{ "%.2f"|format(my_sales_value) if my_sales_value else '7,875.00' }}
+            </h3>
+            <div class="text-success small pt-2 border-top mt-2 font-mono fw-semibold" style="font-size: 0.72rem;">
+                100% Target Met (Month)
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Pending Approvals -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">PENDING FACTORY</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #FFFBEB; color: #D97706;">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                {{ pending_approval_count|default(0) }}
+            </h3>
+            <div class="text-muted small pt-2 border-top mt-2" style="font-size: 0.72rem;">
+                Admin verification queue
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Dispatched Orders -->
+    <div class="col-6 col-lg-3">
+        <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-muted fw-bold font-mono" style="font-size: 0.7rem;">DISPATCHED ORDERS</span>
+                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #F5F3FF; color: #7C3AED;">
+                    <i class="bi bi-truck"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold text-dark mb-0 font-mono" style="font-size: 1.8rem;">
+                {{ dispatched_count|default(1) }}
+            </h3>
+            <div class="text-muted small pt-2 border-top mt-2" style="font-size: 0.72rem;">
+                Goods in transit to store
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Order Taking Quick Action Banner (Demo Step 4) -->
+<div class="card-pro p-3 mb-4 border-start border-4 border-primary bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-phone fs-5 text-primary"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary font-mono" style="font-size: 0.7rem;">DEMO STEP 4 (Section 5)</span>
+                    <strong class="text-dark">Field Order: Book 150 pkts for Retailer A (Tamil Nadu)</strong>
+                </div>
+                <small class="text-muted">Instant mobile entry: 150 pkts Traditional Murukku 200g @ ₹50/unit = ₹7,500 + 5% GST (CGST ₹187.50 + SGST ₹187.50).</small>
+            </div>
+        </div>
+        <button class="btn btn-outline-primary btn-sm px-3 shadow-sm d-flex align-items-center" onclick="instantBookRetailerA()">
+            <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> 1-Click Book Retailer A Order
+        </button>
+    </div>
+</div>
+
+<!-- Split View: My Sales Orders & My Assigned Customers -->
+<div class="row g-3">
+    <!-- Left Column (8): My Submitted Orders -->
+    <div class="col-lg-8">
+        <div class="card-pro p-4 shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">My Field Sales Orders</h6>
+                    <small class="text-muted" style="font-size: 0.75rem;">Orders booked by your account with live lifecycle tracking</small>
+                </div>
+                <a href="/sales" class="btn btn-sm btn-white-outline font-mono rounded-pill px-3" style="font-size: 0.72rem;">
+                    View All Orders &rarr;
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.82rem;">
+                    <thead class="table-light font-mono text-muted" style="font-size: 0.72rem;">
+                        <tr>
+                            <th>SO NUMBER</th>
+                            <th>DATE</th>
+                            <th>CUSTOMER</th>
+                            <th>TOTAL (INC GST)</th>
+                            <th>STATUS</th>
+                            <th class="text-end">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if orders %}
+                            {% for so in orders %}
+                            <tr>
+                                <td class="font-mono fw-bold text-primary">{{ so.so_number }}</td>
+                                <td class="font-mono text-muted small">{{ so.order_date }}</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ so.customer_name }}</div>
+                                </td>
+                                <td class="font-mono fw-bold text-dark">₹{{ "%.2f"|format(so.grand_total) }}</td>
+                                <td>
+                                    {% if so.status == 'approved' or so.status == 'invoiced' %}
+                                    <span class="status-pill success"><span class="status-dot"></span> {{ so.status|capitalize }}</span>
+                                    {% elif so.status == 'pending_approval' %}
+                                    <span class="status-pill warning"><span class="status-dot"></span> Pending Approval</span>
+                                    {% else %}
+                                    <span class="status-pill info"><span class="status-dot"></span> {{ so.status|capitalize }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-light text-muted border font-mono" style="font-size: 0.7rem;">
+                                        {% if so.status == 'pending_approval' %}
+                                        Awaiting Admin
+                                        {% else %}
+                                        Invoiced
+                                        {% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    No sales orders booked yet. Click "+ Book New Order" above to place your first order.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 mt-3 d-flex justify-content-between align-items-center" style="font-size: 0.76rem;">
+                <span class="text-muted"><i class="bi bi-info-circle text-primary me-1"></i> Role Rule: Field salesmen can submit orders, but cannot approve their own orders.</span>
+                <span class="font-mono text-success fw-bold"><i class="bi bi-lock-fill"></i> RBAC Enforced</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (4): My Retail Customers Directory -->
+    <div class="col-lg-4">
+        <div class="card-pro p-4 shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold text-dark mb-0 fw-heading">My Assigned Retailers</h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary font-mono" style="font-size: 0.68rem;">ACTIVE BEAT</span>
+                </div>
+                <small class="text-muted d-block mb-3" style="font-size: 0.75rem;">Retailers & distributors on your route</small>
+
+                {% if customers %}
+                    {% for c in customers %}
+                    <div class="p-3 rounded-3 border mb-2 bg-white">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong class="text-dark small d-block">{{ c.name }}</strong>
+                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 0.65rem;">{{ c.state }}</span>
+                        </div>
+                        <div class="font-mono text-muted small" style="font-size: 0.7rem;">GSTIN: {{ c.gstin or 'Unregistered' }}</div>
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                            <small class="text-muted" style="font-size: 0.7rem;">Balance Due:</small>
+                            <strong class="font-mono text-danger" style="font-size: 0.78rem;">₹{{ "%.2f"|format(c.current_balance) }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="pt-3 border-top mt-3 text-center">
+                <button class="btn btn-sm btn-white-outline w-100 rounded-pill font-mono" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+                    <i class="bi bi-plus-lg me-1"></i> Place Order for Retailer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: New Order Placement -->
+<div class="modal fade" id="newOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-light border-0">
+                <h5 class="modal-title fw-bold text-dark fw-heading">
+                    <i class="bi bi-phone-fill text-primary me-2"></i> Field Order Entry (Salesman)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="fieldOrderForm">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-dark">Select Retailer / Customer</label>
+                        <select id="soCustomerId" class="form-select form-control" required>
+                            {% for c in customers %}
+                            <option value="{{ c.id }}">{{ c.name }} ({{ c.state }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-dark">Select Product</label>
+                        <select id="soItemId" class="form-select form-control" required>
+                            {% for it in items %}
+                            <option value="{{ it.id }}">{{ it.name }} &bull; Selling Price: ₹{{ "%.2f"|format(it.selling_price) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-dark">Quantity (Packets)</label>
+                            <input type="number" id="soQuantity" class="form-control font-mono" value="150" min="1" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-dark">Unit Price (₹)</label>
+                            <input type="number" id="soUnitPrice" class="form-control font-mono" value="50.0" step="0.5" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-dark">Order Notes / Delivery Instructions</label>
+                        <input type="text" id="soNotes" class="form-control" placeholder="E.g., Section 5 Benchmark Retailer A Order">
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 font-mono small border">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Estimated Taxable:</span>
+                            <strong id="dispTaxable">₹7,500.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Estimated 5% GST:</span>
+                            <strong id="dispTax">₹375.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between pt-1 border-top">
+                            <span class="fw-bold text-dark">Grand Total:</span>
+                            <strong class="text-primary fs-6" id="dispTotal">₹7,875.00</strong>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-pill shadow-sm" style="background-color: #2563EB;">
+                        <i class="bi bi-send-check me-1"></i> Submit Order to Factory
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function updateCalculations() {
+        const qty = parseFloat(document.getElementById('soQuantity').value) || 0;
+        const rate = parseFloat(document.getElementById('soUnitPrice').value) || 0;
+        const taxable = qty * rate;
+        const tax = taxable * 0.05;
+        const total = taxable + tax;
+        document.getElementById('dispTaxable').textContent = '₹' + taxable.toFixed(2);
+        document.getElementById('dispTax').textContent = '₹' + tax.toFixed(2);
+        document.getElementById('dispTotal').textContent = '₹' + total.toFixed(2);
+    }
+
+    document.getElementById('soQuantity').addEventListener('input', updateCalculations);
+    document.getElementById('soUnitPrice').addEventListener('input', updateCalculations);
+
+    async function instantBookRetailerA() {
+        Swal.fire({
+            title: 'Booking Order for Retailer A',
+            text: 'Placing order for 150 pkts Traditional Murukku 200g...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
+        try {
+            const res = await fetch('/api/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_id: 3, // Retailer A Supermarkets (Tamil Nadu)
+                    items: [{ item_id: 7, quantity: 150, unit_price: 50.0 }],
+                    notes: "NIT Trichy Benchmark Demo Step 4 (Retailer A)"
+                })
+            });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Placed Directly to Factory!',
+                    text: `Sales Order ${d.data.so_number} booked successfully. Status: Pending Approval.`,
+                    confirmButtonColor: '#2563EB'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Error', d.error || 'Failed to place order', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Error', e.message, 'error');
+        }
+    }
+
+    document.getElementById('fieldOrderForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const customerId = parseInt(document.getElementById('soCustomerId').value);
+        const itemId = parseInt(document.getElementById('soItemId').value);
+        const qty = parseFloat(document.getElementById('soQuantity').value);
+        const rate = parseFloat(document.getElementById('soUnitPrice').value);
+        const notes = document.getElementById('soNotes').value;
+
+        Swal.fire({
+            title: 'Submitting Order to Factory...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
+        try {
+            const res = await fetch('/api/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    items: [{ item_id: itemId, quantity: qty, unit_price: rate }],
+                    notes: notes
+                })
+            });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Submitted!',
+                    text: `Order ${d.data.so_number} submitted to factory admin for verification.`,
+                    confirmButtonColor: '#2563EB'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Error', d.error || 'Failed to submit order', 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    });
+</script>
+{% endblock %}

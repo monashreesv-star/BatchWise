@@ -33,6 +33,15 @@ def get_current_user(request: Request):
         session_data["id"] = session_data["user_id"]
     elif "id" in session_data and "user_id" not in session_data:
         session_data["user_id"] = session_data["id"]
+
+    # Ensure full_name is populated defensively
+    if not session_data.get("full_name"):
+        user_row = execute_one("SELECT full_name FROM users WHERE id = ?", (session_data["id"],))
+        if user_row and user_row.get("full_name"):
+            session_data["full_name"] = user_row["full_name"]
+        else:
+            session_data["full_name"] = session_data.get("username", "User").replace("_", " ").title()
+
     return session_data
 
 async def api_login(request: Request):
@@ -45,9 +54,19 @@ async def api_login(request: Request):
         return JSONResponse({"error": "Invalid username or password"}, status_code=401)
 
     token = create_session_token(user["id"], user["username"], user["role"])
+    dest_url = {
+        "admin": "/",
+        "salesman": "/salesman/dashboard",
+        "production_manager": "/production/dashboard",
+        "accountant": "/accountant/dashboard",
+        "auditor": "/auditor/dashboard",
+        "purchase_manager": "/purchase"
+    }.get(user["role"], "/")
+
     response = JSONResponse({
         "success": True,
         "token": token,
+        "redirect_url": dest_url,
         "user": {
             "id": user["id"],
             "username": user["username"],

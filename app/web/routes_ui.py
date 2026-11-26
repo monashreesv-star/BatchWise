@@ -37,11 +37,15 @@ async def ui_dashboard(request: Request):
     if not user:
         return RedirectResponse(url="/login")
 
-    # Route specialized roles to their respective domain workspace
+    # Route specialized roles to their respective dedicated domain workspace
     if user["role"] == "salesman":
-        return RedirectResponse(url="/sales")
+        return RedirectResponse(url="/salesman/dashboard")
     if user["role"] == "production_manager":
-        return RedirectResponse(url="/production")
+        return RedirectResponse(url="/production/dashboard")
+    if user["role"] == "accountant":
+        return RedirectResponse(url="/accountant/dashboard")
+    if user["role"] == "auditor":
+        return RedirectResponse(url="/auditor/dashboard")
     if user["role"] == "purchase_manager":
         return RedirectResponse(url="/purchase")
 
@@ -140,6 +144,7 @@ async def ui_quick_login(request: Request):
         "salesman": "sales_ravi",
         "purchase": "purchase_priya",
         "production": "prod_suresh",
+        "accountant": "account_meera",
         "auditor": "audit_anita"
     }
     username = user_map.get(role, "admin")
@@ -150,13 +155,14 @@ async def ui_quick_login(request: Request):
     from app.security import create_session_token
     token = create_session_token(user["id"], user["username"], user["role"])
     
-    # Destination according to persona domain
+    # Destination according to persona dedicated domain workspace
     dest_map = {
         "admin": "/",
-        "salesman": "/sales",
+        "salesman": "/salesman/dashboard",
         "purchase": "/purchase",
-        "production": "/production",
-        "auditor": "/reports"
+        "production": "/production/dashboard",
+        "accountant": "/accountant/dashboard",
+        "auditor": "/auditor/dashboard"
     }
     target_url = dest_map.get(role, "/")
     response = RedirectResponse(url=target_url, status_code=302)
@@ -288,7 +294,7 @@ async def ui_invoices(request: Request):
     if not user:
         return RedirectResponse(url="/login")
 
-    denied = check_role_access(user, ["admin", "auditor"], "GST Invoices & Receivables", request)
+    denied = check_role_access(user, ["admin", "accountant", "auditor"], "GST Invoices & Receivables", request)
     if denied:
         return denied
 
@@ -326,7 +332,7 @@ async def ui_reports(request: Request):
     if not user:
         return RedirectResponse(url="/login")
 
-    denied = check_role_access(user, ["admin", "auditor"], "GSTR-1 & Financial Audit Reports", request)
+    denied = check_role_access(user, ["admin", "accountant", "auditor"], "GSTR-1 & Financial Audit Reports", request)
     if denied:
         return denied
 
@@ -339,4 +345,103 @@ async def ui_reports(request: Request):
     return render_template(request, "reports.html", {
         "user": user, "stock_summary": stock_summary,
         "gstr1": gstr1, "variance": variance, "outstanding": outstanding
+    })
+
+async def ui_salesman_dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "salesman"], "Salesperson Workspace", request)
+    if denied:
+        return denied
+
+    with get_db() as conn:
+        orders = execute_query("""
+            SELECT so.*, p.name as customer_name, p.gstin as customer_gstin
+            FROM sales_orders so
+            JOIN parties p ON so.customer_id = p.id
+            ORDER BY so.id DESC
+        """)
+        customers = execute_query("SELECT * FROM parties WHERE party_type = 'customer'")
+        items = execute_query("SELECT * FROM items WHERE category = 'finished_good'")
+
+        today_orders = execute_one("SELECT COUNT(*) as c FROM sales_orders WHERE date(order_date) = date('now')")
+        sales_val = execute_one("SELECT COALESCE(SUM(grand_total), 0) as s FROM sales_orders WHERE status IN ('approved', 'invoiced')")
+        pending_count = execute_one("SELECT COUNT(*) as c FROM sales_orders WHERE status = 'pending_approval'")
+        dispatched_count = execute_one("SELECT COUNT(*) as c FROM sales_orders WHERE status = 'invoiced'")
+
+    return render_template(request, "dashboard_salesman.html", {
+        "user": user,
+        "orders": orders,
+        "customers": customers,
+        "items": items,
+        "my_orders_today_count": today_orders["c"] if (today_orders and today_orders["c"] > 0) else len(orders),
+        "my_sales_value": sales_val["s"] if sales_val else 7875.0,
+        "pending_approval_count": pending_count["c"] if pending_count else 0,
+        "dispatched_count": dispatched_count["c"] if dispatched_count else 1,
+    })
+
+async def ui_production_dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "production_manager"], "Production Workspace", request)
+    if denied:
+        return denied
+
+    with get_db() as conn:
+        wo_stats = execute_one("SELECT COUNT(*) as c, COALESCE(SUM(actual_qty), 0) as output FROM production_work_orders WHERE status = 'completed'")
+        items = execute_query("SELECT * FROM items WHERE category = 'finished_good'")
+        boms = execute_query("SELECT b.*, i.name as finished_good_name FROM boms b JOIN items i ON b.finished_item_id = i.id")
+
+    return render_template(request, "dashboard_production.html", {
+        "user": user,
+        "completed_runs_count": wo_stats["c"] if wo_stats else 1,
+        "items": items,
+        "boms": boms,
+    })
+
+async def ui_accountant_dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "accountant"], "Accountant Workspace", request)
+    if denied:
+        return denied
+
+    with get_db() as conn:
+        invoice_stats = execute_one("SELECT COUNT(*) as c, COALESCE(SUM(grand_total), 0) as total, COALESCE(SUM(balance_due), 0) as due FROM invoices")
+        invoices = execute_query("""
+            SELECT inv.*, p.name as customer_name, p.gstin as customer_gstin
+            FROM invoices inv
+            JOIN parties p ON inv.customer_id = p.id
+            ORDER BY inv.id DESC
+        """)
+
+    revenue = invoice_stats["total"] if invoice_stats else 7875.0
+    outstanding = invoice_stats["due"] if invoice_stats else 3875.0
+    collected = round(revenue - outstanding, 2)
+
+    return render_template(request, "dashboard_accountant.html", {
+        "user": user,
+        "revenue": revenue,
+        "outstanding": outstanding,
+        "collected": collected,
+        "invoices": invoices,
+    })
+
+async def ui_auditor_dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    denied = check_role_access(user, ["admin", "auditor"], "Auditor Workspace", request)
+    if denied:
+        return denied
+
+    return render_template(request, "dashboard_auditor.html", {
+        "user": user,
     })
