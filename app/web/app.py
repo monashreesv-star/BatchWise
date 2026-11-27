@@ -48,13 +48,22 @@ routes = [
     Route("/api/auth/me", endpoint=api_me, methods=["GET"]),
 
     # API Business Workflow Routes
+    Route("/api/sales", endpoint=api_sales_create, methods=["POST"]),
     Route("/api/sales/orders", endpoint=api_sales_create, methods=["POST"]),
+    Route("/api/sales/{id:int}/approve", endpoint=api_sales_approve, methods=["POST"]),
     Route("/api/sales/orders/{id:int}/approve", endpoint=api_sales_approve, methods=["POST"]),
+    Route("/api/sales/{id:int}/invoice", endpoint=api_sales_invoice, methods=["POST"]),
     Route("/api/sales/orders/{id:int}/invoice", endpoint=api_sales_invoice, methods=["POST"]),
+
+    Route("/api/purchase", endpoint=api_purchase_create, methods=["POST"]),
     Route("/api/purchase/orders", endpoint=api_purchase_create, methods=["POST"]),
     Route("/api/purchase/grn", endpoint=api_purchase_grn, methods=["POST"]),
+
+    Route("/api/production", endpoint=api_production_create, methods=["POST"]),
     Route("/api/production/orders", endpoint=api_production_create, methods=["POST"]),
+    Route("/api/production/{id:int}/complete", endpoint=api_production_complete, methods=["POST"]),
     Route("/api/production/orders/{id:int}/complete", endpoint=api_production_complete, methods=["POST"]),
+
     Route("/api/inventory/check-shortage", endpoint=api_shortage_check, methods=["POST"]),
     Route("/api/payments", endpoint=api_payment_record, methods=["POST"]),
 

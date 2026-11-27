@@ -201,9 +201,15 @@
                     batch_number: 'FG-MURUKKU-2026-B01'
                 })
             });
-            const woData = await woRes.json();
-            if (!woRes.ok) {
-                Swal.fire('Error', woData.error || 'Failed to create work order (Production Manager required)', 'error');
+            let woData;
+            try {
+                woData = await woRes.json();
+            } catch (jsonErr) {
+                const text = await woRes.text();
+                throw new Error(text || `Server returned status ${woRes.status}`);
+            }
+            if (!woRes.ok || !woData.success) {
+                Swal.fire('Error', (woData && woData.error) || 'Failed to create work order (Production Manager required)', 'error');
                 return;
             }
 
@@ -213,17 +219,23 @@
                 body: JSON.stringify({
                     actual_qty_produced: 188.0,
                     consumptions: [
-                        { component_item_id: 1, batch_id: 1, actual_qty: 40.0, scrap_qty: 0.0, notes: 'Flour batch issue' },
-                        { component_item_id: 2, batch_id: 2, actual_qty: 10.5, scrap_qty: 0.5, notes: 'Oil (+5% variance)' },
-                        { component_item_id: 3, batch_id: 3, actual_qty: 1.2, scrap_qty: 0.0, notes: 'Spice mix' },
-                        { component_item_id: 4, batch_id: 4, actual_qty: 194.0, scrap_qty: 6.0, notes: '188 good + 6 damaged pouches' },
-                        { component_item_id: 5, batch_id: 5, actual_qty: 9.0, scrap_qty: 0.0, notes: '9 cartons' }
+                        { component_item_id: 1, item_id: 1, actual_qty: 40.0, scrap_qty: 0.0, notes: 'Flour batch issue' },
+                        { component_item_id: 2, item_id: 2, actual_qty: 10.5, scrap_qty: 0.5, notes: 'Oil (+5% variance)' },
+                        { component_item_id: 3, item_id: 3, actual_qty: 1.2, scrap_qty: 0.0, notes: 'Spice mix' },
+                        { component_item_id: 4, item_id: 4, actual_qty: 194.0, scrap_qty: 6.0, notes: '188 good + 6 damaged pouches' },
+                        { component_item_id: 6, item_id: 6, actual_qty: 9.0, scrap_qty: 0.0, notes: '9 cartons (PM-CARTON-20)' }
                     ],
                     labor_cost: 1200.0,
                     overhead_cost: 600.0
                 })
             });
-            const compData = await compRes.json();
+            let compData;
+            try {
+                compData = await compRes.json();
+            } catch (jsonErr) {
+                const text = await compRes.text();
+                throw new Error(text || `Server returned status ${compRes.status}`);
+            }
             if (compRes.ok && compData.success) {
                 Swal.fire({
                     icon: 'success',
@@ -239,7 +251,7 @@
                     confirmButtonColor: '#4F46E5'
                 }).then(() => window.location.reload());
             } else {
-                Swal.fire('Completion Error', compData.error || 'Production run completion failed', 'error');
+                Swal.fire('Completion Error', (compData && compData.error) || 'Production run completion failed', 'error');
             }
         } catch (e) {
             Swal.fire('Network Error', e.message, 'error');

@@ -266,7 +266,7 @@
 
         try {
             // Create work order
-            const woRes = await fetch('/api/production', {
+            const woRes = await fetch('/api/production/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -276,7 +276,13 @@
                     start_date: new Date().toISOString().split('T')[0]
                 })
             });
-            const woData = await woRes.json();
+            let woData;
+            try {
+                woData = await woRes.json();
+            } catch (jsonErr) {
+                const text = await woRes.text();
+                throw new Error(text || `Server returned status ${woRes.status}`);
+            }
             if (!woRes.ok || !woData.success) {
                 throw new Error(woData.error || 'Failed to initialize work order');
             }
@@ -284,23 +290,29 @@
             const woId = woData.data.wo_id;
 
             // Complete run with actual benchmark numbers
-            const runRes = await fetch(`/api/production/${woId}/complete`, {
+            const runRes = await fetch(`/api/production/orders/${woId}/complete`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     actual_qty_produced: 188,
                     consumptions: [
-                        { item_id: 1, actual_qty: 40.0, scrap_qty: 0.0 }, // 40kg flour
-                        { item_id: 2, actual_qty: 10.5, scrap_qty: 0.0 }, // 10.5L oil (+0.5L)
-                        { item_id: 3, actual_qty: 1.2, scrap_qty: 0.0 },  // 1.2kg spice
-                        { item_id: 4, actual_qty: 188.0, scrap_qty: 6.0 },// 188 used + 6 damaged pouches
-                        { item_id: 6, actual_qty: 9.0, scrap_qty: 0.0 }   // 9 cartons
+                        { component_item_id: 1, item_id: 1, actual_qty: 40.0, scrap_qty: 0.0 }, // 40kg flour
+                        { component_item_id: 2, item_id: 2, actual_qty: 10.5, scrap_qty: 0.0 }, // 10.5L oil (+0.5L)
+                        { component_item_id: 3, item_id: 3, actual_qty: 1.2, scrap_qty: 0.0 },  // 1.2kg spice
+                        { component_item_id: 4, item_id: 4, actual_qty: 188.0, scrap_qty: 6.0 },// 188 used + 6 damaged pouches
+                        { component_item_id: 6, item_id: 6, actual_qty: 9.0, scrap_qty: 0.0 }   // 9 cartons (PM-CARTON-20)
                     ],
                     labor_cost: 1200.0,
                     overhead_cost: 600.0
                 })
             });
-            const runData = await runRes.json();
+            let runData;
+            try {
+                runData = await runRes.json();
+            } catch (jsonErr) {
+                const text = await runRes.text();
+                throw new Error(text || `Server returned status ${runRes.status}`);
+            }
             if (runRes.ok && runData.success) {
                 Swal.fire({
                     icon: 'success',
@@ -317,7 +329,7 @@
                     confirmButtonColor: '#059669'
                 }).then(() => window.location.reload());
             } else {
-                Swal.fire('Error', runData.error || 'Failed to complete production run', 'error');
+                Swal.fire('Error', (runData && runData.error) || 'Failed to complete production run', 'error');
             }
         } catch (e) {
             Swal.fire('Error', e.message, 'error');

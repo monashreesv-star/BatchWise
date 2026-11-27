@@ -168,16 +168,45 @@ def execute_production_run(conn, wo_id: int, actual_qty_produced: float,
     total_scrap_qty = 0.0
 
     for c in consumptions:
-        comp_id = c["component_item_id"]
-        batch_id = c["batch_id"]
-        act_qty = float(c["actual_qty"])
+        comp_id = c.get("component_item_id") or c.get("item_id")
+        if not comp_id:
+            raise ProductionError("Each consumption line must specify component_item_id or item_id.")
+        batch_id = c.get("batch_id")
+        act_qty = float(c.get("actual_qty", 0.0))
         scrap_qty = float(c.get("scrap_qty", 0.0))
         c_notes = c.get("notes", "")
 
-        cur.execute("SELECT * FROM stock_batches WHERE id = ?", (batch_id,))
-        batch = cur.fetchone()
+        batch = None
+        if batch_id:
+            cur.execute("SELECT * FROM stock_batches WHERE id = ?", (batch_id,))
+            batch = cur.fetchone()
+
         if not batch:
-            raise ProductionError(f"Stock batch {batch_id} not found.")
+            # Auto-lookup active batch with available stock, or latest active batch
+            cur.execute("""
+                SELECT * FROM stock_batches 
+                WHERE item_id = ? AND status = 'active' AND current_qty >= ? 
+                ORDER BY created_at ASC LIMIT 1
+            """, (comp_id, act_qty))
+            batch = cur.fetchone()
+            if not batch:
+                cur.execute("""
+                    SELECT * FROM stock_batches 
+                    WHERE item_id = ? AND status = 'active' 
+                    ORDER BY id DESC LIMIT 1
+                """, (comp_id,))
+                batch = cur.fetchone()
+            if not batch:
+                cur.execute("""
+                    SELECT * FROM stock_batches 
+                    WHERE item_id = ? 
+                    ORDER BY id DESC LIMIT 1
+                """, (comp_id,))
+                batch = cur.fetchone()
+
+        if not batch:
+            raise ProductionError(f"Stock batch for component item {comp_id} not found.")
+        batch_id = batch["id"]
 
         unit_cost = batch["unit_cost"]
         mat_cost = round(act_qty * unit_cost, 2)

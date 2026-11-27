@@ -212,12 +212,23 @@ async def api_payment_record(request: Request):
     if not user:
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
     data = await request.json()
+    amt = data.get("amount") if data.get("amount") is not None else data.get("payment_amount")
+    raw_mode = str(data.get("payment_mode") or data.get("payment_method", "bank_transfer")).lower().strip()
+    if raw_mode in ('neft', 'rtgs', 'neft/rtgs', 'neft_rtgs'):
+        mode = 'neft_rtgs'
+    elif raw_mode in ('bank', 'bank_transfer', 'transfer', 'imps'):
+        mode = 'bank_transfer'
+    elif raw_mode in ('upi', 'cash', 'cheque'):
+        mode = raw_mode
+    else:
+        mode = 'bank_transfer'
+
+    ref = data.get("reference_no") or data.get("reference_number")
     with get_db() as conn:
         try:
             res = record_customer_payment(
-                conn, user=user, invoice_id=data["invoice_id"], amount=data["amount"],
-                payment_mode=data.get("payment_mode", "bank_transfer"),
-                reference_no=data.get("reference_no")
+                conn, user=user, invoice_id=data["invoice_id"], amount=amt,
+                payment_mode=mode, reference_no=ref
             )
             return JSONResponse({"success": True, "data": res})
         except Exception as e:
